@@ -1,12 +1,40 @@
 import { chromium } from 'playwright';
 import fs from 'fs/promises';
 import path from 'path';
-import { COOKIES_DIR, OUTPUT_DIR, SEARCH_URLS } from './config.js';
-import { Job, ScrapedOutput, Source } from './types.js';
-import { scrapeLinkedIn } from './scrapers/linkedin.js';
-import { scrapeWTTJ } from './scrapers/welcometothejungle.js';
-import { scrapeHelloWork } from './scrapers/hellowork.js';
-import { scrapeJobsThatMakeSense } from './scrapers/jobsthatmakesense.js';
+import { COOKIES_DIR, OUTPUT_DIR, SETTINGS_PATH } from './config.js';
+import { Job, ScrapedOutput, SearchCriteria, Source } from './types.js';
+import { buildUrls as buildLinkedInUrls } from './platforms/linkedin/url-builder.js';
+import { buildUrls as buildWTTJUrls } from './platforms/wttj/url-builder.js';
+import { buildUrls as buildHelloWorkUrls } from './platforms/hellowork/url-builder.js';
+import { buildUrls as buildJobsThatMakeSenseUrls } from './platforms/jobsthatmakesense/url-builder.js';
+import { scrapeLinkedIn } from './platforms/linkedin/scraper.js';
+import { scrapeWTTJ } from './platforms/wttj/scraper.js';
+import { scrapeHelloWork } from './platforms/hellowork/scraper.js';
+import { scrapeJobsThatMakeSense } from './platforms/jobsthatmakesense/scraper.js';
+
+async function loadSettings(): Promise<SearchCriteria> {
+  try {
+    const raw = await fs.readFile(SETTINGS_PATH, 'utf-8');
+    const s = JSON.parse(raw);
+    return {
+      titles:           Array.isArray(s.searchTitles)      ? s.searchTitles      : [],
+      location:         typeof s.searchLocation === 'string' ? s.searchLocation  : 'France',
+      contractTypes:    Array.isArray(s.contractTypes)      ? s.contractTypes     : [],
+      remotePreference: Array.isArray(s.remotePreference)   ? s.remotePreference  : [],
+      experienceLevels: Array.isArray(s.experienceLevels)   ? s.experienceLevels  : [],
+      salaryMin:        typeof s.salaryMin === 'number'      ? s.salaryMin        : undefined,
+      salaryMax:        typeof s.salaryMax === 'number'      ? s.salaryMax        : undefined,
+    };
+  } catch {
+    console.warn(`  ⚠ Could not read settings from ${SETTINGS_PATH} — using defaults.`);
+    return {
+      titles: [],
+      location: 'France',
+      contractTypes: [],
+      remotePreference: [],
+    };
+  }
+}
 
 async function loadCookies(source: Source) {
   const cookiePath = path.join(COOKIES_DIR, `${source}.json`);
@@ -22,12 +50,12 @@ async function loadCookies(source: Source) {
 async function runScraper(
   source: Source,
   label: string,
+  urls: string[],
   scraper: (ctx: Awaited<ReturnType<Awaited<ReturnType<typeof chromium.launch>>['newContext']>>, urls: string[]) => Promise<Job[]>
 ): Promise<Job[]> {
   const cookies = await loadCookies(source);
   if (!cookies) return [];
 
-  const urls = SEARCH_URLS[source];
   const browser = await chromium.launch({ headless: true });
   const context = await browser.newContext();
   await context.addCookies(cookies);
@@ -49,11 +77,14 @@ async function runScraper(
 async function main() {
   console.log('\nApply — starting scrape\n');
 
+  const criteria = await loadSettings();
+  console.log(`  Searching for: ${criteria.titles.length > 0 ? criteria.titles.join(', ') : 'defaults'} in ${criteria.location}\n`);
+
   const results = await Promise.allSettled([
-    runScraper('linkedin', 'LinkedIn', scrapeLinkedIn),
-    runScraper('wttj', 'Welcome to the Jungle', scrapeWTTJ),
-    runScraper('hellowork', 'HelloWork', scrapeHelloWork),
-    runScraper('jobsthatmakesense', 'Jobs that Make Sense', scrapeJobsThatMakeSense),
+    runScraper('linkedin', 'LinkedIn', buildLinkedInUrls(criteria), scrapeLinkedIn),
+    runScraper('wttj', 'Welcome to the Jungle', buildWTTJUrls(criteria), scrapeWTTJ),
+    runScraper('hellowork', 'HelloWork', buildHelloWorkUrls(criteria), scrapeHelloWork),
+    runScraper('jobsthatmakesense', 'Jobs that Make Sense', buildJobsThatMakeSenseUrls(criteria), scrapeJobsThatMakeSense),
   ]);
 
   const jobs: Job[] = results.flatMap((r) => (r.status === 'fulfilled' ? r.value : []));

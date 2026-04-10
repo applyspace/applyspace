@@ -1,6 +1,6 @@
 import { BrowserContext } from 'playwright';
 import crypto from 'crypto';
-import { Job } from '../types.js';
+import { Job } from '../../types.js';
 
 export async function scrapeWTTJ(context: BrowserContext, searchUrls: string[]): Promise<Job[]> {
   const allJobs: Job[] = [];

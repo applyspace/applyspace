@@ -11,14 +11,12 @@ import fs from 'fs/promises';
 import path from 'path';
 import readline from 'readline';
 import { COOKIES_DIR } from './config.js';
-import { Source } from './types.js';
+import { PLATFORM_AUTH_CONFIG as linkedin } from './platforms/linkedin/auth.js';
+import { PLATFORM_AUTH_CONFIG as wttj } from './platforms/wttj/auth.js';
+import { PLATFORM_AUTH_CONFIG as hellowork } from './platforms/hellowork/auth.js';
+import { PLATFORM_AUTH_CONFIG as jobsthatmakesense } from './platforms/jobsthatmakesense/auth.js';
 
-const PLATFORMS: { source: Source; name: string; url: string }[] = [
-  { source: 'linkedin', name: 'LinkedIn', url: 'https://www.linkedin.com/login' },
-  { source: 'wttj', name: 'Welcome to the Jungle', url: 'https://www.welcometothejungle.com/fr/signin' },
-  { source: 'hellowork', name: 'HelloWork', url: 'https://www.hellowork.com/fr-fr/compte/connexion.html' },
-  { source: 'jobsthatmakesense', name: 'Jobs that Make Sense', url: 'https://jobs.makesense.org/login' },
-];
+const PLATFORMS = [linkedin, wttj, hellowork, jobsthatmakesense];
 
 async function waitForEnter(message: string): Promise<void> {
   const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
@@ -40,7 +38,7 @@ async function main() {
     const context = await browser.newContext();
     const page = await context.newPage();
 
-    await page.goto(platform.url);
+    await page.goto(platform.loginUrl);
 
     await waitForEnter(`  → Log in to ${platform.name}, then press Enter to save cookies...`);
 

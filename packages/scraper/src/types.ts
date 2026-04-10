@@ -19,3 +19,13 @@ export interface ScrapedOutput {
   total: number;
   jobs: Job[];
 }
+
+export interface SearchCriteria {
+  titles: string[];
+  location: string;
+  contractTypes: string[];
+  remotePreference: string[];
+  experienceLevels?: string[];
+  salaryMin?: number;
+  salaryMax?: number;
+}

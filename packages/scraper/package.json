@@ -6,6 +6,7 @@
   "scripts": {
     "auth": "tsx src/auth.ts",
     "scrape": "tsx src/index.ts",
+    "scrape:linkedin": "tsx dev/scrape-linkedin.ts",
     "scrape:wttj": "tsx dev/scrape-wttj.ts",
     "debug:wttj": "tsx dev/debug-wttj.ts",
     "linkedin:profile": "tsx src/linkedin-profile.ts"
