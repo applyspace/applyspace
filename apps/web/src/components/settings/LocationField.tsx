@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useTransition } from 'react';
-import { Check, Loader2 } from 'lucide-react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { Tick01Icon, Loading02Icon } from '@hugeicons/core-free-icons';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 
@@ -39,10 +40,10 @@ export function LocationField({ defaultValue }: { defaultValue: string }) {
         className="shrink-0 border-zinc-200 bg-white text-zinc-700 hover:bg-zinc-50 hover:text-zinc-900"
       >
         {isPending ? (
-          <Loader2 className="h-4 w-4 animate-spin" />
+          <HugeiconsIcon icon={Loading02Icon} size={16} className="animate-spin" />
         ) : saved ? (
           <>
-            <Check className="h-4 w-4 text-green-500" />
+            <HugeiconsIcon icon={Tick01Icon} size={16} className="text-green-500" />
             <span className="ml-1 text-green-600">Sauvegardé</span>
           </>
         ) : (

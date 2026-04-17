@@ -1,6 +1,7 @@
 'use client';
 
-import { Sparkles, Wrench, TrendingUp } from 'lucide-react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { SparklesIcon, Wrench01Icon, ChartIncreaseIcon } from '@hugeicons/core-free-icons';
 import { CHANGELOG, CURRENT_VERSION } from '@/lib/changelog';
 import type { ItemType } from '@/lib/changelog';
 import { useLocale } from '@/components/providers/Providers';
@@ -12,10 +13,10 @@ import {
   SheetDescription,
 } from '@/components/ui/sheet';
 
-const TYPE_ICON: Record<ItemType, React.ElementType> = {
-  new: Sparkles,
-  fix: Wrench,
-  improvement: TrendingUp,
+const TYPE_ICON: Record<ItemType, typeof SparklesIcon> = {
+  new: SparklesIcon,
+  fix: Wrench01Icon,
+  improvement: ChartIncreaseIcon,
 };
 
 const TYPE_CLS: Record<ItemType, string> = {
@@ -61,7 +62,7 @@ export function WhatsNew({ open, onOpenChange }: WhatsNewProps) {
                   return (
                     <li key={j} className="flex items-start gap-3">
                       <span className={`mt-0.5 inline-flex shrink-0 items-center justify-center rounded-md p-1 ${TYPE_CLS[item.type]}`}>
-                        <Icon className="size-3" />
+                        <HugeiconsIcon icon={Icon} size={12} />
                       </span>
                       <span className="text-sm text-muted-foreground">{item.text}</span>
                     </li>

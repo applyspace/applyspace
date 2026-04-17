@@ -9,8 +9,11 @@ export const translations = {
   en: {
     nav: {
       home: 'Home',
+      integrations: 'Integrations',
+      profiles: 'Profiles',
       offers: 'Offers',
       applications: 'Applications',
+      interviews: 'Interviews',
       processes: 'Processes',
       jobs: 'Jobs',
       settings: 'Settings',
@@ -133,8 +136,11 @@ export const translations = {
   fr: {
     nav: {
       home: 'Accueil',
+      integrations: 'Intégrations',
+      profiles: 'Profils',
       offers: 'Offres',
       applications: 'Candidatures',
+      interviews: 'Entretiens',
       processes: 'Processus',
       jobs: 'Offres',
       settings: 'Paramètres',

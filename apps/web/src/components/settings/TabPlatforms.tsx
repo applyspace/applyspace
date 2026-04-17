@@ -1,6 +1,7 @@
 'use client';
 
-import { CheckCircle2, XCircle } from 'lucide-react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { CheckmarkCircle01Icon, CancelCircleIcon } from '@hugeicons/core-free-icons';
 import { SOURCE_META, ALL_SOURCES } from '@/lib/sources';
 import { useLocale } from '@/components/providers/Providers';
 import { cn } from '@/lib/utils';
@@ -54,12 +55,12 @@ export function TabPlatforms({ statuses }: TabPlatformsProps) {
                 <div className="flex items-center gap-3">
                   {connected ? (
                     <div className="flex items-center gap-1.5">
-                      <CheckCircle2 className="h-4 w-4 text-green-500" />
+                      <HugeiconsIcon icon={CheckmarkCircle01Icon} size={16} className="text-green-500" />
                       <span className="text-xs text-green-600">{tp.connectedStatus}</span>
                     </div>
                   ) : (
                     <div className="flex items-center gap-1.5">
-                      <XCircle className="h-4 w-4 text-zinc-300" />
+                      <HugeiconsIcon icon={CancelCircleIcon} size={16} className="text-zinc-300" />
                       <span className="text-xs text-zinc-400">{tp.notConnectedStatus}</span>
                     </div>
                   )}

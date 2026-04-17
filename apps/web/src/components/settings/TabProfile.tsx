@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useTransition, useEffect } from 'react';
-import { Check, Loader2, Upload } from 'lucide-react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { Tick01Icon, Loading02Icon, Upload01Icon } from '@hugeicons/core-free-icons';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
@@ -113,7 +114,7 @@ export function TabProfile({ settings }: TabProfileProps) {
             className="flex items-center gap-2 rounded-lg border border-[#0A66C2]/30 bg-[#0A66C2]/5 px-4 py-2.5 text-sm font-medium text-[#0A66C2] transition-colors hover:bg-[#0A66C2]/10 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {isSyncing ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
+              <HugeiconsIcon icon={Loading02Icon} size={16} className="animate-spin" />
             ) : (
               <LinkedInIcon className="h-4 w-4" />
             )}
@@ -195,7 +196,7 @@ export function TabProfile({ settings }: TabProfileProps) {
         <div className="flex cursor-not-allowed items-center justify-center gap-3 rounded-lg border border-dashed border-zinc-200 bg-zinc-50 px-6 py-8 opacity-50">
           <div className="flex flex-col items-center gap-2 text-center">
             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-zinc-100">
-              <Upload className="h-4 w-4 text-zinc-400" />
+              <HugeiconsIcon icon={Upload01Icon} size={16} className="text-zinc-400" />
             </div>
             <div>
               <p className="text-sm font-medium text-zinc-600">{tp.cvUpload}</p>
@@ -214,9 +215,9 @@ export function TabProfile({ settings }: TabProfileProps) {
           className="border-zinc-200 bg-white text-zinc-700 hover:bg-zinc-50 hover:text-zinc-900"
         >
           {isPending ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
+            <HugeiconsIcon icon={Loading02Icon} size={16} className="animate-spin" />
           ) : saved ? (
-            <><Check className="h-4 w-4 text-green-500" /><span className="ml-1 text-green-600">{t.settings.saved}</span></>
+            <><HugeiconsIcon icon={Tick01Icon} size={16} className="text-green-500" /><span className="ml-1 text-green-600">{t.settings.saved}</span></>
           ) : (
             t.settings.save
           )}

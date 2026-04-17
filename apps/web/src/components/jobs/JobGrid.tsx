@@ -1,5 +1,4 @@
 import type { Job } from '@/types/jobs';
-import { JobCard } from './JobCard';
 
 export function JobGrid({ jobs }: { jobs: Job[] }) {
   if (jobs.length === 0) {
@@ -12,9 +11,11 @@ export function JobGrid({ jobs }: { jobs: Job[] }) {
   }
 
   return (
-    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+    <div className="flex flex-col gap-4">
       {jobs.map((job) => (
-        <JobCard key={job.id} job={job} />
+        <div key={job.id} className="rounded-xl border border-border p-4 text-sm text-foreground">
+          {job.company} — {job.title}
+        </div>
       ))}
     </div>
   );

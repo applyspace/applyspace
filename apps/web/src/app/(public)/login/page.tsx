@@ -1,7 +1,8 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { Loader2 } from "lucide-react";
+import { HugeiconsIcon } from "@hugeicons/react";
+import { Loading02Icon } from "@hugeicons/core-free-icons";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { LinkedInIcon } from "@/components/icons/LinkedInIcon";
@@ -79,10 +80,14 @@ export default function LoginPage() {
           onClick={handleSignIn}
           disabled={loading}
           className="mt-10 w-full max-w-sm text-base font-medium"
-          size="xl"
+          size="lg"
         >
           {loading ? (
-            <Loader2 className="size-4 animate-spin" />
+            <HugeiconsIcon
+              icon={Loading02Icon}
+              size={16}
+              className="animate-spin"
+            />
           ) : (
             <LinkedInIcon className="size-4 shrink-0" />
           )}
