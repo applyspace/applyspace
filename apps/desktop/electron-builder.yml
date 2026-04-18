@@ -1,0 +1,71 @@
+appId: com.aurelienlouvel.apply
+productName: Apply
+copyright: Copyright © 2026 Aurélien Louvel
+
+directories:
+  output: release
+  buildResources: build
+
+# Tree layout inside the packaged app (under <resources>/app).
+# We ship:
+#   - apps/desktop/dist/**           — Electron main + preload + shared (compiled)
+#   - apps/desktop/node_modules/**   — direct deps (incl. better-sqlite3 native)
+#   - apps/web/.next/standalone/**   — Next.js standalone server + its deps
+#   - apps/web/.next/static/**       — Next.js client-side assets
+#   - apps/web/public/**             — user-facing static files
+#   - packages/db/dist/**            — compiled @apply/db (consumed by main + Next)
+#   - packages/db/drizzle/migrations — migration SQL files applied at boot
+files:
+  - dist/**/*
+  - package.json
+  - node_modules/**/*
+  - '!node_modules/**/{README,CHANGELOG,LICENSE,*.map}'
+  - from: '../web'
+    to: 'apps/web'
+    filter:
+      - '.next/standalone/**/*'
+      - '.next/static/**/*'
+      - 'public/**/*'
+      - 'package.json'
+  - from: '../../packages/db'
+    to: 'packages/db'
+    filter:
+      - 'dist/**/*'
+      - 'drizzle/migrations/**/*'
+      - 'package.json'
+
+# Native modules must live outside the asar archive so Node's dynamic loader
+# can `require(.node)` them.
+asarUnpack:
+  - '**/node_modules/better-sqlite3/**/*'
+  - '**/.next/standalone/**/*'
+
+mac:
+  target:
+    - target: dmg
+      arch:
+        - arm64
+        - x64
+    - target: zip
+      arch:
+        - arm64
+        - x64
+  category: public.app-category.productivity
+  hardenedRuntime: true
+  gatekeeperAssess: false
+
+win:
+  target:
+    - target: nsis
+      arch:
+        - x64
+
+linux:
+  target:
+    - target: AppImage
+      arch:
+        - x64
+  category: Office
+
+# Disabled until we set up a release pipeline (separate plan).
+publish: null
