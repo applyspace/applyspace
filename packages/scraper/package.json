@@ -12,10 +12,14 @@
     "linkedin:profile": "tsx src/linkedin-profile.ts"
   },
   "dependencies": {
-    "playwright": "^1.42.0"
+    "@apply/db": "workspace:*",
+    "drizzle-orm": "^0.36.0",
+    "playwright": "^1.42.0",
+    "uuid": "^10.0.0"
   },
   "devDependencies": {
     "@types/node": "^20.12.0",
+    "@types/uuid": "^10.0.0",
     "tsx": "^4.7.0",
     "typescript": "^5.4.0"
   }
