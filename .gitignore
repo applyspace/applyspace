@@ -14,6 +14,9 @@ next-env.d.ts
 # ── Local data (cookies, scraped output, screenshots) ─────────────────
 .local/
 
+# ── Legacy JSON migration backups (created by db:migrate-legacy) ──────
+apps/web/data.backup-*/
+
 # ── Environment variables ──────────────────────────────────────────────
 .env
 .env.*

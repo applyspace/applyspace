@@ -3,12 +3,31 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "auth":             "pnpm --filter @apply/scraper auth",
-    "scrape":           "pnpm --filter @apply/scraper scrape",
-    "scrape:wttj":      "pnpm --filter @apply/scraper scrape:wttj",
-    "debug:wttj":       "pnpm --filter @apply/scraper debug:wttj",
-    "linkedin:profile": "pnpm --filter @apply/scraper linkedin:profile",
-    "web":              "pnpm --filter web dev",
-    "web:build":        "pnpm --filter web build"
+    "auth":              "pnpm --filter @apply/scraper auth",
+    "scrape":            "pnpm --filter @apply/scraper scrape",
+    "scrape:wttj":       "pnpm --filter @apply/scraper scrape:wttj",
+    "debug:wttj":        "pnpm --filter @apply/scraper debug:wttj",
+    "linkedin:profile":  "pnpm --filter @apply/scraper linkedin:profile",
+
+    "web":               "pnpm --filter web dev",
+    "web:build":         "pnpm --filter web build",
+
+    "db:generate":       "pnpm --filter @apply/db generate",
+    "db:migrate":        "pnpm --filter @apply/db migrate",
+    "db:seed":           "pnpm --filter @apply/db seed",
+    "db:studio":         "pnpm --filter @apply/db studio",
+    "db:migrate-legacy": "pnpm --filter @apply/db migrate-legacy",
+    "db:build":          "pnpm --filter @apply/db build",
+
+    "desktop":           "pnpm --filter @apply/desktop dev",
+    "desktop:rebuild":   "pnpm --filter @apply/desktop electron:rebuild",
+
+    "dev":               "concurrently -n web,desktop -c cyan,magenta \"pnpm --filter web dev\" \"pnpm --filter @apply/desktop dev\"",
+    "build:desktop":     "pnpm db:build && pnpm --filter web build && pnpm --filter @apply/desktop build",
+    "pack":              "pnpm build:desktop && pnpm --filter @apply/desktop pack",
+    "dist":              "pnpm build:desktop && pnpm --filter @apply/desktop dist"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.0"
   }
 }
