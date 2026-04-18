@@ -1,29 +1,57 @@
-import fs from 'node:fs/promises';
-import path from 'node:path';
-import type { Application, Interview, ApplicationsData } from '@/types/applications';
+import { desc, eq } from 'drizzle-orm';
+import { applications, interviews } from '@apply/db';
+import { getDb } from '@/lib/db';
+import type {
+  ApplicationWithRelations,
+  InterviewWithRelations,
+} from '@/types/applications';
 
-const DATA_PATH = path.resolve(process.cwd(), 'data', 'applications.json');
-
-const DEFAULT_DATA: ApplicationsData = {
-  applications: [],
-  interviews: [],
-};
-
-async function readData(): Promise<ApplicationsData> {
-  try {
-    const raw = await fs.readFile(DATA_PATH, 'utf-8');
-    return { ...DEFAULT_DATA, ...JSON.parse(raw) };
-  } catch {
-    return DEFAULT_DATA;
-  }
+/**
+ * All applications, newest `appliedAt` first. Pre-joins `company` (the FK now
+ * owns the company name) and `offer` (nullable — `null` when the user logged
+ * an application that didn't come from the scraper).
+ */
+export async function readApplications(): Promise<ApplicationWithRelations[]> {
+  const db = getDb();
+  const rows = await db.query.applications.findMany({
+    with: { company: true, offer: true },
+    orderBy: desc(applications.appliedAt),
+  });
+  return rows as ApplicationWithRelations[];
 }
 
-export async function readApplications(): Promise<Application[]> {
-  const data = await readData();
-  return data.applications;
+export async function readApplication(
+  id: string,
+): Promise<ApplicationWithRelations | null> {
+  const db = getDb();
+  const row = await db.query.applications.findFirst({
+    with: { company: true, offer: true },
+    where: eq(applications.id, id),
+  });
+  return (row as ApplicationWithRelations | undefined) ?? null;
 }
 
-export async function readInterviews(): Promise<Interview[]> {
-  const data = await readData();
-  return data.interviews;
+/**
+ * All interviews, newest `createdAt` first. Pre-joins its parent application
+ * and that application's company so the sidebar / list pages can render
+ * "{company}, {jobTitle}" without a second query.
+ */
+export async function readInterviews(): Promise<InterviewWithRelations[]> {
+  const db = getDb();
+  const rows = await db.query.interviews.findMany({
+    with: { application: { with: { company: true } } },
+    orderBy: desc(interviews.createdAt),
+  });
+  return rows as InterviewWithRelations[];
+}
+
+export async function readInterview(
+  id: string,
+): Promise<InterviewWithRelations | null> {
+  const db = getDb();
+  const row = await db.query.interviews.findFirst({
+    with: { application: { with: { company: true } } },
+    where: eq(interviews.id, id),
+  });
+  return (row as InterviewWithRelations | undefined) ?? null;
 }

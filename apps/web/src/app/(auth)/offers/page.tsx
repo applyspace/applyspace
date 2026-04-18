@@ -9,7 +9,7 @@ import {
   HomeWifiIcon,
   FilterHorizontalIcon,
 } from "@hugeicons/core-free-icons";
-import { readJobs } from "@/lib/jobs";
+import { readOffers } from "@/lib/offers";
 import { readSettings } from "@/lib/settings";
 import { JobTable } from "@/components/jobs/JobTable";
 import { buttonVariants } from "@/components/ui/button";
@@ -70,7 +70,7 @@ function mergeCompanySizes(sizes: string[]): string | null {
 }
 
 export default async function OffersPage() {
-  const [{ jobs }, settings] = await Promise.all([readJobs(), readSettings()]);
+  const [offers, settings] = await Promise.all([readOffers(), readSettings()]);
 
   const salaryLabel = (() => {
     const { salaryMin, salaryMax } = settings;
@@ -120,7 +120,7 @@ export default async function OffersPage() {
                   {settings.searchTitles.join(", ") || "Offers"}
                 </h1>
                 <span className="rounded-full bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground">
-                  {jobs.length}
+                  {offers.length}
                 </span>
               </div>
 
@@ -186,7 +186,7 @@ export default async function OffersPage() {
 
       {/* Cards */}
       <div className="px-12 pb-16">
-        <JobTable jobs={jobs} />
+        <JobTable offers={offers} />
       </div>
     </div>
   );

@@ -16,13 +16,14 @@ import { Badge } from "@/components/ui/badge";
 import { LevelIndicator } from "@/components/jobs/LevelIndicator";
 import { cn, parseWorkMode, parseLocation } from "@/lib/utils";
 import { SECTORS, SECTOR_MAP } from "@/lib/sectors";
-import type { Job } from "@/types/jobs";
+import { formatSalaryLabel } from "@/lib/utils";
+import type { OfferWithRelations } from "@/types/offers";
 import type { JobStatus } from "@/components/jobs/JobTable";
 
 interface JobCardProps {
-  job: Job;
+  offer: OfferWithRelations;
   status: JobStatus;
-  onSelect: (job: Job) => void;
+  onSelect: (offer: OfferWithRelations) => void;
   onDecline: (id: string) => void;
   onApply: (id: string) => void;
 }
@@ -136,6 +137,7 @@ const CONTRACT_EN: Record<string, string> = {
   Internship: "Internship",
   Stage: "Internship",
   Alternance: "Apprenticeship",
+  Apprentissage: "Apprenticeship",
   Bénévolat: "Volunteering",
   Benevolat: "Volunteering",
 };
@@ -154,32 +156,42 @@ const CONTRACT_COLOR: Record<string, string> = {
 };
 
 /* ── Component ──────────────────────────────────────────────────────────── */
-export function JobCard({ job, status, onSelect }: JobCardProps) {
-  const realMode = parseWorkMode(job.location);
-  const cleanLocation = parseLocation(job.location);
-  const initials = job.company
+export function JobCard({ offer, status, onSelect }: JobCardProps) {
+  const companyName = offer.company.name;
+  // Prefer the offer's declared remoteMode; fall back to parsing the location.
+  const realMode: WorkMode | null =
+    (offer.remoteMode as WorkMode | null) ?? parseWorkMode(offer.location);
+  const cleanLocation = parseLocation(offer.location);
+  const initials = companyName
     .split(/\s+/)
     .slice(0, 2)
     .map((w) => w[0])
     .join("")
     .toUpperCase();
 
-  const level = pick(LEVEL_OPTIONS, job.id, 0) as LevelName;
-  const sectorKey = pick(SECTOR_OPTIONS, job.id, 1);
+  const level = pick(LEVEL_OPTIONS, offer.id, 0) as LevelName;
+  const sectorKey = pick(SECTOR_OPTIONS, offer.id, 1);
   const sector = SECTOR_MAP.get(sectorKey)!;
-  const teamSize = pick(FAKE_SIZES, job.id, 2);
-  const fakeSalary = pick(FAKE_SALARIES, job.id, 4) ?? job.salary ?? null;
-  const contract = toEnContract(
-    job.contract || pick(FAKE_CONTRACTS, job.id, 5),
+  const teamSize = pick(FAKE_SIZES, offer.id, 2);
+
+  const realSalary = formatSalaryLabel(
+    offer.salaryMinEur,
+    offer.salaryMaxEur,
+    offer.salaryRaw,
   );
-  const postedAt = job.postedAt || pick(FAKE_DATES, job.id, 6);
-  const connCount = pickInt(2, job.id, 7);
+  const fakeSalary = realSalary ?? pick(FAKE_SALARIES, offer.id, 4);
+
+  const contract = toEnContract(
+    offer.contract ?? pick(FAKE_CONTRACTS, offer.id, 5),
+  );
+  const postedAt = offer.postedAt ?? pick(FAKE_DATES, offer.id, 6);
+  const connCount = pickInt(2, offer.id, 7);
   const workModes: WorkMode[] = realMode
     ? [realMode]
-    : pick(FAKE_WORK_MODES, job.id, 9);
+    : pick(FAKE_WORK_MODES, offer.id, 9);
 
   const avatarUrls = Array.from({ length: connCount }, (_, i) => {
-    const seed = pick(AVATAR_SEEDS, job.id, 8 + i);
+    const seed = pick(AVATAR_SEEDS, offer.id, 8 + i);
     return `https://api.dicebear.com/9.x/avataaars-neutral/svg?seed=${seed}&backgroundColor=b6e3f4,c0aede,d1d4f9,ffd5dc,ffdfbf`;
   });
 
@@ -189,8 +201,8 @@ export function JobCard({ job, status, onSelect }: JobCardProps) {
   const modeConfig = WORK_MODE_CONFIG[primaryMode];
 
   const descSnippet = (() => {
-    if (!job.description) return null;
-    return job.description
+    if (!offer.description) return null;
+    return offer.description
       .replace(/[\r\n]+/g, " ")
       .replace(/\s+/g, " ")
       .replace(
@@ -204,8 +216,8 @@ export function JobCard({ job, status, onSelect }: JobCardProps) {
     <div
       role="button"
       tabIndex={0}
-      onClick={() => onSelect(job)}
-      onKeyDown={(e) => e.key === "Enter" && onSelect(job)}
+      onClick={() => onSelect(offer)}
+      onKeyDown={(e) => e.key === "Enter" && onSelect(offer)}
       className={cn(
         "flex cursor-pointer gap-6 rounded-2xl border border-border/50 bg-card px-7 py-6",
         "transition-colors hover:border-border hover:bg-zinc-50/40",
@@ -223,7 +235,7 @@ export function JobCard({ job, status, onSelect }: JobCardProps) {
           {/* Row 1: Company name + date + applied indicator */}
           <div className="flex items-center gap-1.5">
             <span className="text-m font-semibold leading-tight text-foreground">
-              {job.company}
+              {companyName}
             </span>
             <span className="text-xs text-zinc-500">·</span>
             <span className="flex items-center gap-1 text-xs text-zinc-500">

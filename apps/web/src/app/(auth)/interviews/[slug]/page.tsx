@@ -19,9 +19,11 @@ export default async function InterviewDetailPage({
   return (
     <div className="px-20 py-12">
       <h1 className="mb-2 text-2xl font-semibold tracking-tight text-foreground">
-        {interview.company}
+        {interview.application.company.name}
       </h1>
-      <p className="mb-8 text-sm text-muted-foreground">{interview.jobTitle}</p>
+      <p className="mb-8 text-sm text-muted-foreground">
+        {interview.application.jobTitle}
+      </p>
 
       <dl className="grid max-w-md grid-cols-[auto_1fr] gap-x-6 gap-y-3 text-sm">
         <dt className="text-muted-foreground">Stage</dt>

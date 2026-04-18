@@ -10,9 +10,9 @@ import {
   HomeWifiIcon,
   FilterHorizontalIcon,
 } from '@hugeicons/core-free-icons';
-import { readJobs } from '@/lib/jobs';
+import { readOffers } from '@/lib/offers';
 import { readSettings } from '@/lib/settings';
-import { readOfferGroups } from '@/lib/offer-groups';
+import { readSearches } from '@/lib/searches';
 import { matchIdInSlug } from '@/lib/slug';
 import { JobTable } from '@/components/jobs/JobTable';
 import { buttonVariants } from '@/components/ui/button';
@@ -71,27 +71,27 @@ function mergeCompanySizes(sizes: string[]): string | null {
   return min === 0 ? '< 15' : `> ${min}`;
 }
 
-export default async function OfferGroupPage({
+export default async function SearchPage({
   params,
 }: {
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const [{ jobs: allJobs }, settings, offerGroups] = await Promise.all([
-    readJobs(),
+  const [allOffers, settings, searches] = await Promise.all([
+    readOffers(),
     readSettings(),
-    readOfferGroups(),
+    readSearches(),
   ]);
 
   const id = matchIdInSlug(
     slug,
-    offerGroups.map((g) => g.id)
+    searches.map((s) => s.id)
   );
-  const group = offerGroups.find((g) => g.id === id);
-  if (!group) notFound();
+  const search = searches.find((s) => s.id === id);
+  if (!search) notFound();
 
-  // Show all scraped jobs for this offer group — same content as the global /offers page.
-  const jobs = allJobs;
+  // Show all scraped offers for this search — same content as the global /offers page.
+  const offers = allOffers;
 
   const salaryLabel = (() => {
     const { salaryMin, salaryMax } = settings;
@@ -106,7 +106,7 @@ export default async function OfferGroupPage({
   const remotePref = [...new Set(settings.remotePreference.map(toEn(REMOTE_EN)))];
   const sizeLabel = mergeCompanySizes(settings.companySizes);
 
-  const title = [group.searchTitle, group.location].filter(Boolean).join(', ');
+  const title = [search.searchTitle, search.location].filter(Boolean).join(', ');
 
   return (
     <div className="min-h-full">
@@ -134,7 +134,7 @@ export default async function OfferGroupPage({
                   {title}
                 </h1>
                 <span className="rounded-full bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground">
-                  {jobs.length}
+                  {offers.length}
                 </span>
               </div>
 
@@ -150,11 +150,11 @@ export default async function OfferGroupPage({
                 </div>
               )}
 
-              {(sizeLabel || group.location || remotePref.length > 0) && (
+              {(sizeLabel || search.location || remotePref.length > 0) && (
                 <div className="flex flex-wrap items-center gap-x-5 gap-y-1">
                   {sizeLabel && <CriteriaRow icon={UserMultipleIcon} label={sizeLabel} />}
-                  {group.location && (
-                    <CriteriaRow icon={Location06Icon} label={group.location} />
+                  {search.location && (
+                    <CriteriaRow icon={Location06Icon} label={search.location} />
                   )}
                   {remotePref.length > 0 && (
                     <CriteriaRow icon={HomeWifiIcon} label={remotePref.join(', ')} />
@@ -178,7 +178,7 @@ export default async function OfferGroupPage({
       </div>
 
       <div className="px-12 pb-16">
-        <JobTable jobs={jobs} />
+        <JobTable offers={offers} />
       </div>
     </div>
   );

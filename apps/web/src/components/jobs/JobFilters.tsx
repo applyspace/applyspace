@@ -3,7 +3,7 @@
 import { useRouter, useSearchParams } from 'next/navigation';
 import { SOURCE_META, ALL_SOURCES } from '@/lib/sources';
 import { cn } from '@/lib/utils';
-import type { Source } from '@/types/jobs';
+import type { Source } from '@/types/platforms';
 
 const CONTRACTS = ['CDI', 'CDD', 'Freelance', 'Stage', 'Alternance'];
 

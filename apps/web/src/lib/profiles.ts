@@ -1,17 +1,18 @@
-import fs from 'node:fs/promises';
-import path from 'node:path';
-import type { Profile, ProfilesData } from '@/types/profiles';
+import { asc, eq } from 'drizzle-orm';
+import { profiles, type Profile } from '@apply/db';
+import { getDb } from '@/lib/db';
 
-const DATA_PATH = path.resolve(process.cwd(), 'data', 'profiles.json');
-
-const DEFAULT_DATA: ProfilesData = { profiles: [] };
-
+/**
+ * All profiles, alphabetised by job title. Pre-sorted here so the sidebar and
+ * profiles page can render without their own sort.
+ */
 export async function readProfiles(): Promise<Profile[]> {
-  try {
-    const raw = await fs.readFile(DATA_PATH, 'utf-8');
-    const data: ProfilesData = { ...DEFAULT_DATA, ...JSON.parse(raw) };
-    return data.profiles;
-  } catch {
-    return [];
-  }
+  const db = getDb();
+  return db.select().from(profiles).orderBy(asc(profiles.jobTitle)).all();
+}
+
+export async function readProfile(id: string): Promise<Profile | null> {
+  const db = getDb();
+  const [row] = await db.select().from(profiles).where(eq(profiles.id, id)).limit(1);
+  return row ?? null;
 }

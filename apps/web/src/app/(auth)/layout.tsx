@@ -1,29 +1,31 @@
 import { AppShell } from '@/components/layout/AppShell';
-import { readJobs } from '@/lib/jobs';
+import { readOffers } from '@/lib/offers';
 import { readApplications, readInterviews } from '@/lib/applications';
 import { readProfiles } from '@/lib/profiles';
-import { readOfferGroups } from '@/lib/offer-groups';
-import type { OfferGroupWithCount } from '@/types/offer-groups';
+import { readSearches } from '@/lib/searches';
+import type { SearchWithCount } from '@/types/searches';
 
 export default async function AuthLayout({ children }: { children: React.ReactNode }) {
-  const [{ jobs }, applications, interviews, profiles, offerGroups] = await Promise.all([
-    readJobs(),
+  const [offers, applications, interviews, profiles, searches] = await Promise.all([
+    readOffers(),
     readApplications(),
     readInterviews(),
     readProfiles(),
-    readOfferGroups(),
+    readSearches(),
   ]);
 
-  // Every offer group links to the full scraped list — same content as /offers.
-  const offerGroupsWithCount: OfferGroupWithCount[] = offerGroups.map((g) => ({
-    ...g,
-    count: jobs.length,
+  // Every search currently links to the full scraped list — same content as
+  // /offers. When the scraper starts tagging offers with the search that
+  // matched them, this count becomes a real per-search filter.
+  const searchesWithCount: SearchWithCount[] = searches.map((s) => ({
+    ...s,
+    count: offers.length,
   }));
 
   return (
     <AppShell
       profiles={profiles}
-      offerGroups={offerGroupsWithCount}
+      searches={searchesWithCount}
       applications={applications}
       interviews={interviews}
     >

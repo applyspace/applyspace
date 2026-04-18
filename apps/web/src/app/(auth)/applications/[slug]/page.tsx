@@ -3,9 +3,12 @@ import { readApplications } from '@/lib/applications';
 import { matchIdInSlug } from '@/lib/slug';
 
 const STATUS_LABEL: Record<string, string> = {
-  'pending-waiting': 'Waiting for answer',
+  waiting: 'Waiting for answer',
+  interviewing: 'Interviewing',
   accepted: 'Accepted',
   rejected: 'Rejected',
+  ghosted: 'Ghosted',
+  withdrawn: 'Withdrawn',
 };
 
 export default async function ApplicationDetailPage({
@@ -25,7 +28,7 @@ export default async function ApplicationDetailPage({
   return (
     <div className="px-20 py-12">
       <h1 className="mb-2 text-2xl font-semibold tracking-tight text-foreground">
-        {application.company}
+        {application.company.name}
       </h1>
       <p className="mb-8 text-sm text-muted-foreground">{application.jobTitle}</p>
 

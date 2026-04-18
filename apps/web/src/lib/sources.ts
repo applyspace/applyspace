@@ -1,4 +1,4 @@
-import type { Source } from '@/types/jobs';
+import type { Source } from '@/types/platforms';
 
 export const SOURCE_META: Record<
   Source,

@@ -1,8 +1,3 @@
-export interface Profile {
-  id: string;
-  jobTitle: string;
-}
+import type { Profile } from '@apply/db';
 
-export interface ProfilesData {
-  profiles: Profile[];
-}
+export type { Profile };

@@ -37,9 +37,13 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
-import type { Application, Interview, InterviewStage } from '@/types/applications';
+import type {
+  ApplicationWithRelations,
+  InterviewStage,
+  InterviewWithRelations,
+} from '@/types/applications';
 import type { Profile } from '@/types/profiles';
-import type { OfferGroupWithCount } from '@/types/offer-groups';
+import type { SearchWithCount } from '@/types/searches';
 
 /* ── Constants ────────────────────────────────────────────────────── */
 
@@ -69,11 +73,13 @@ function daysAgo(dateStr: string): string {
 }
 
 const STAGE_COLORS: Record<InterviewStage, string> = {
-  'HR Interview': 'bg-teal-100 text-teal-700',
+  HR: 'bg-teal-100 text-teal-700',
   Manager: 'bg-blue-100 text-blue-700',
   'Design Case': 'bg-pink-100 text-pink-700',
   'Team-Fit': 'bg-violet-100 text-violet-700',
   Technical: 'bg-orange-100 text-orange-700',
+  Final: 'bg-emerald-100 text-emerald-700',
+  Other: 'bg-zinc-100 text-zinc-700',
 };
 
 /* ── Nav primitives ───────────────────────────────────────────────── */
@@ -261,9 +267,9 @@ interface SidebarProps {
   width: number;
   onWidthChange: (width: number) => void;
   profiles: Profile[];
-  offerGroups: OfferGroupWithCount[];
-  applications: Application[];
-  interviews: Interview[];
+  searches: SearchWithCount[];
+  applications: ApplicationWithRelations[];
+  interviews: InterviewWithRelations[];
 }
 
 export function Sidebar({
@@ -272,7 +278,7 @@ export function Sidebar({
   width,
   onWidthChange,
   profiles,
-  offerGroups,
+  searches,
   applications,
   interviews,
 }: SidebarProps) {
@@ -326,7 +332,10 @@ export function Sidebar({
   // Applications derived data
   const acceptedCount = applications.filter((a) => a.status === 'accepted').length;
   const rejectedCount = applications.filter((a) => a.status === 'rejected').length;
-  const pendingWaitingCount = applications.filter((a) => a.status === 'pending-waiting').length;
+  // "In-flight" = anything not yet concluded (waiting, interviewing, ghosted, withdrawn).
+  const pendingWaitingCount = applications.filter(
+    (a) => a.status !== 'accepted' && a.status !== 'rejected',
+  ).length;
   const recentApplications = [...applications]
     .sort((a, b) => new Date(b.appliedAt).getTime() - new Date(a.appliedAt).getTime())
     .slice(0, 4);
@@ -423,18 +432,18 @@ export function Sidebar({
             collapsed={collapsed}
             addHref="/settings"
           >
-            {offerGroups.length > 0 ? (
-              offerGroups.map((g) => {
-                const label = [g.searchTitle, g.location].filter(Boolean).join(', ');
+            {searches.length > 0 ? (
+              searches.map((s) => {
+                const label = [s.searchTitle, s.location].filter(Boolean).join(', ');
                 return (
                   <SubItem
-                    key={g.id}
+                    key={s.id}
                     label={label}
-                    href={`/offers/${entrySlug([g.searchTitle, g.location], g.id)}`}
+                    href={`/offers/${entrySlug([s.searchTitle, s.location ?? undefined], s.id)}`}
                     right={
-                      g.count > 0 ? (
+                      s.count > 0 ? (
                         <span className="rounded bg-muted px-1 py-px text-[10px] font-medium text-muted-foreground">
-                          {g.count}
+                          {s.count}
                         </span>
                       ) : null
                     }
@@ -442,7 +451,7 @@ export function Sidebar({
                 );
               })
             ) : (
-              <EmptySubItem label="No offer groups yet" />
+              <EmptySubItem label="No searches yet" />
             )}
           </NavSection>
 
@@ -485,8 +494,8 @@ export function Sidebar({
               recentApplications.map((app) => (
                 <SubItem
                   key={app.id}
-                  label={`${app.company}, ${app.jobTitle}`}
-                  href={`/applications/${entrySlug([app.company, app.jobTitle], app.id)}`}
+                  label={`${app.company.name}, ${app.jobTitle}`}
+                  href={`/applications/${entrySlug([app.company.name, app.jobTitle], app.id)}`}
                   right={
                     <span className="text-[10px] text-muted-foreground/60">
                       {daysAgo(app.appliedAt)}
@@ -508,23 +517,27 @@ export function Sidebar({
             addHref="/interviews"
           >
             {interviews.length > 0 ? (
-              interviews.map((interview) => (
-                <SubItem
-                  key={interview.id}
-                  label={`${interview.company}, ${interview.jobTitle}`}
-                  href={`/interviews/${entrySlug([interview.company, interview.jobTitle], interview.id)}`}
-                  right={
-                    <span
-                      className={cn(
-                        'rounded px-1.5 py-px text-[10px] font-medium',
-                        STAGE_COLORS[interview.stage]
-                      )}
-                    >
-                      {interview.stage}
-                    </span>
-                  }
-                />
-              ))
+              interviews.map((interview) => {
+                const companyName = interview.application.company.name;
+                const jobTitle = interview.application.jobTitle;
+                return (
+                  <SubItem
+                    key={interview.id}
+                    label={`${companyName}, ${jobTitle}`}
+                    href={`/interviews/${entrySlug([companyName, jobTitle], interview.id)}`}
+                    right={
+                      <span
+                        className={cn(
+                          'rounded px-1.5 py-px text-[10px] font-medium',
+                          STAGE_COLORS[interview.stage]
+                        )}
+                      >
+                        {interview.stage}
+                      </span>
+                    }
+                  />
+                );
+              })
             ) : (
               <EmptySubItem label="No active interviews" />
             )}

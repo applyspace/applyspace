@@ -3,28 +3,28 @@
 import { useState, useCallback } from 'react';
 import { JobCard } from '@/components/jobs/JobCard';
 import { JobDetail } from '@/components/jobs/JobDetail';
-import type { Job } from '@/types/jobs';
+import type { OfferWithRelations } from '@/types/offers';
 
 export type JobStatus = 'unreviewed' | 'applied' | 'declined';
 
 interface JobTableProps {
-  jobs: Job[];
+  offers: OfferWithRelations[];
 }
 
-export function JobTable({ jobs }: JobTableProps) {
-  const [selectedJob, setSelectedJob] = useState<Job | null>(null);
+export function JobTable({ offers }: JobTableProps) {
+  const [selectedOffer, setSelectedOffer] = useState<OfferWithRelations | null>(null);
   const [statuses, setStatuses] = useState<Record<string, JobStatus>>({});
 
   const handleDecline = useCallback((id: string) => {
     setStatuses((prev) => ({ ...prev, [id]: 'declined' }));
-    setSelectedJob((prev) => (prev?.id === id ? null : prev));
+    setSelectedOffer((prev) => (prev?.id === id ? null : prev));
   }, []);
 
   const handleApply = useCallback((id: string) => {
     setStatuses((prev) => ({ ...prev, [id]: 'applied' }));
   }, []);
 
-  const visible = jobs.filter((j) => statuses[j.id] !== 'declined');
+  const visible = offers.filter((o) => statuses[o.id] !== 'declined');
 
   if (visible.length === 0) {
     return (
@@ -42,12 +42,12 @@ export function JobTable({ jobs }: JobTableProps) {
   return (
     <>
       <div className="flex flex-col gap-2.5">
-        {visible.map((job) => (
+        {visible.map((offer) => (
           <JobCard
-            key={job.id}
-            job={job}
-            status={statuses[job.id] ?? 'unreviewed'}
-            onSelect={setSelectedJob}
+            key={offer.id}
+            offer={offer}
+            status={statuses[offer.id] ?? 'unreviewed'}
+            onSelect={setSelectedOffer}
             onDecline={handleDecline}
             onApply={handleApply}
           />
@@ -55,8 +55,8 @@ export function JobTable({ jobs }: JobTableProps) {
       </div>
 
       <JobDetail
-        job={selectedJob}
-        onClose={() => setSelectedJob(null)}
+        offer={selectedOffer}
+        onClose={() => setSelectedOffer(null)}
         onApply={handleApply}
       />
     </>

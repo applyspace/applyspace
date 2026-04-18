@@ -59,3 +59,23 @@ export function inferExperienceLevel(title: string): ExperienceLevel | null {
   }
   return null;
 }
+
+// ── Salary ───────────────────────────────────────────────────────────────────
+/**
+ * Renders the canonical "45–60K" / "60K+" / "under 60K" label from an offer's
+ * salary columns, falling back to the scraped `salaryRaw` string when we have
+ * nothing structured. Returns `null` when the offer has no salary info at all.
+ */
+export function formatSalaryLabel(
+  minEur: number | null | undefined,
+  maxEur: number | null | undefined,
+  raw: string | null | undefined,
+): string | null {
+  const min = typeof minEur === 'number' ? Math.round(minEur / 1000) : null;
+  const max = typeof maxEur === 'number' ? Math.round(maxEur / 1000) : null;
+  if (min != null && max != null) return `${min}–${max}K`;
+  if (min != null) return `${min}K+`;
+  if (max != null) return `under ${max}K`;
+  if (raw && raw.trim()) return raw.trim();
+  return null;
+}

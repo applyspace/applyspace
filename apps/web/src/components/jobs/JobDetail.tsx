@@ -15,11 +15,11 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { buttonVariants } from '@/components/ui/button';
-import { cn, parseWorkMode, parseLocation } from '@/lib/utils';
-import type { Job } from '@/types/jobs';
+import { cn, parseWorkMode, parseLocation, formatSalaryLabel } from '@/lib/utils';
+import type { OfferWithRelations } from '@/types/offers';
 
 interface JobDetailProps {
-  job: Job | null;
+  offer: OfferWithRelations | null;
   onClose: () => void;
   onApply: (id: string) => void;
 }
@@ -30,17 +30,23 @@ const WORK_MODE_CONFIG = {
   remote:  { icon: Wifi01Icon,     label: 'Remote',   cls: 'text-sky-500'    },
 } as const;
 
-export function JobDetail({ job, onClose, onApply }: JobDetailProps) {
-  const workMode = job ? parseWorkMode(job.location) : null;
-  const cleanLocation = job ? parseLocation(job.location) : '';
-  const initials = job
-    ? job.company.split(/\s+/).slice(0, 2).map((w) => w[0]).join('').toUpperCase()
+export function JobDetail({ offer, onClose, onApply }: JobDetailProps) {
+  const workMode = offer
+    ? (offer.remoteMode as keyof typeof WORK_MODE_CONFIG | null) ?? parseWorkMode(offer.location)
+    : null;
+  const cleanLocation = offer ? parseLocation(offer.location) : '';
+  const companyName = offer?.company.name ?? '';
+  const initials = offer
+    ? companyName.split(/\s+/).slice(0, 2).map((w) => w[0]).join('').toUpperCase()
     : '';
+  const salaryLabel = offer
+    ? formatSalaryLabel(offer.salaryMinEur, offer.salaryMaxEur, offer.salaryRaw)
+    : null;
 
   return (
-    <Sheet open={job !== null} onOpenChange={(open) => { if (!open) onClose(); }}>
+    <Sheet open={offer !== null} onOpenChange={(open) => { if (!open) onClose(); }}>
       <SheetContent side="right" showCloseButton className="flex flex-col p-0 sm:max-w-lg">
-        {job && (
+        {offer && (
           <>
             <SheetHeader className="flex flex-row items-start gap-3 border-b px-6 py-5">
               <Avatar size="lg" className="mt-0.5 shrink-0">
@@ -50,19 +56,19 @@ export function JobDetail({ job, onClose, onApply }: JobDetailProps) {
               </Avatar>
               <div className="min-w-0 flex-1 pr-8">
                 <SheetTitle className="text-base font-semibold leading-snug">
-                  {job.title}
+                  {offer.title}
                 </SheetTitle>
                 <SheetDescription className="mt-0.5 text-sm font-medium text-muted-foreground">
-                  {job.company}
+                  {companyName}
                 </SheetDescription>
               </div>
             </SheetHeader>
 
             {/* Meta row */}
             <div className="flex flex-wrap items-center gap-2 px-6 py-4">
-              {job.contract && (
+              {offer.contract && (
                 <Badge variant="outline" className="rounded-full text-xs">
-                  {job.contract}
+                  {offer.contract}
                 </Badge>
               )}
               {workMode && (() => {
@@ -80,10 +86,10 @@ export function JobDetail({ job, onClose, onApply }: JobDetailProps) {
                   {cleanLocation}
                 </span>
               )}
-              {job.salary && (
+              {salaryLabel && (
                 <Badge className="rounded-full border border-green-200 bg-green-50 text-xs text-green-700">
                   <HugeiconsIcon icon={Money01Icon} size={12} />
-                  {job.salary}
+                  {salaryLabel}
                 </Badge>
               )}
             </div>
@@ -93,7 +99,7 @@ export function JobDetail({ job, onClose, onApply }: JobDetailProps) {
             {/* Description */}
             <ScrollArea className="flex-1 px-6">
               <p className="py-4 text-sm leading-relaxed text-foreground/80 whitespace-pre-wrap">
-                {job.description || 'Aucune description disponible.'}
+                {offer.description || 'No description available.'}
               </p>
             </ScrollArea>
 
@@ -101,7 +107,7 @@ export function JobDetail({ job, onClose, onApply }: JobDetailProps) {
 
             <SheetFooter className="flex gap-2 px-6 py-4">
               <a
-                href={job.url}
+                href={offer.url}
                 target="_blank"
                 rel="noopener noreferrer"
                 className={cn(buttonVariants({ variant: 'outline' }), 'flex-1 gap-2')}
@@ -110,10 +116,10 @@ export function JobDetail({ job, onClose, onApply }: JobDetailProps) {
                 <HugeiconsIcon icon={LinkSquare01Icon} size={14} />
               </a>
               <a
-                href={job.url}
+                href={offer.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                onClick={() => onApply(job.id)}
+                onClick={() => onApply(offer.id)}
                 className={cn(buttonVariants({ variant: 'default' }), 'flex-1 gap-2')}
               >
                 Apply

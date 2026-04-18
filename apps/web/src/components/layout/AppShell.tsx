@@ -2,9 +2,12 @@
 
 import { useEffect, useState } from 'react';
 import { Sidebar } from './Sidebar';
-import type { Application, Interview } from '@/types/applications';
+import type {
+  ApplicationWithRelations,
+  InterviewWithRelations,
+} from '@/types/applications';
 import type { Profile } from '@/types/profiles';
-import type { OfferGroupWithCount } from '@/types/offer-groups';
+import type { SearchWithCount } from '@/types/searches';
 
 const DEFAULT_WIDTH = 240;
 const MIN_WIDTH = 180;
@@ -13,15 +16,15 @@ const MAX_WIDTH = 360;
 export function AppShell({
   children,
   profiles,
-  offerGroups,
+  searches,
   applications,
   interviews,
 }: {
   children: React.ReactNode;
   profiles: Profile[];
-  offerGroups: OfferGroupWithCount[];
-  applications: Application[];
-  interviews: Interview[];
+  searches: SearchWithCount[];
+  applications: ApplicationWithRelations[];
+  interviews: InterviewWithRelations[];
 }) {
   const [collapsed, setCollapsed] = useState(false);
   const [sidebarWidth, setSidebarWidth] = useState(DEFAULT_WIDTH);
@@ -58,7 +61,7 @@ export function AppShell({
         width={sidebarWidth}
         onWidthChange={handleWidthChange}
         profiles={profiles}
-        offerGroups={offerGroups}
+        searches={searches}
         applications={applications}
         interviews={interviews}
       />

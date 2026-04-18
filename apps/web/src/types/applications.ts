@@ -1,25 +1,37 @@
-export type ApplicationStatus = 'pending-waiting' | 'accepted' | 'rejected';
+import type {
+  Application,
+  ApplicationStatus,
+  Company,
+  Interview,
+  InterviewOutcome,
+  InterviewStage,
+  Offer,
+} from '@apply/db';
 
-export type InterviewStage = 'HR Interview' | 'Manager' | 'Design Case' | 'Team-Fit' | 'Technical';
+export type {
+  Application,
+  ApplicationStatus,
+  Interview,
+  InterviewOutcome,
+  InterviewStage,
+};
 
-export interface Application {
-  id: string;
-  company: string;
-  jobTitle: string;
-  appliedAt: string; // ISO date string
-  status: ApplicationStatus;
-  profileId?: string;
+/**
+ * An application row pre-joined with its `company` + (optional) `offer`.
+ * Consumers read `app.company.name` etc. Queries must use
+ * `db.query.applications.findMany({ with: { company: true, offer: true } })`.
+ */
+export interface ApplicationWithRelations extends Application {
+  company: Company;
+  offer: Offer | null;
 }
 
-export interface Interview {
-  id: string;
-  applicationId: string;
-  company: string;
-  jobTitle: string;
-  stage: InterviewStage;
-}
-
-export interface ApplicationsData {
-  applications: Application[];
-  interviews: Interview[];
+/**
+ * An interview row pre-joined with its parent application (and that
+ * application's company). This is how the sidebar and detail pages read an
+ * interview's company name / job title now that `Interview` no longer
+ * dénormalise those fields itself.
+ */
+export interface InterviewWithRelations extends Interview {
+  application: Application & { company: Company };
 }
