@@ -9,6 +9,12 @@ import { cn } from "@/lib/utils";
 
 const inter = Inter({subsets:['latin'],variable:'--font-sans'});
 
+// Force dynamic rendering for the whole tree — this Electron app has zero
+// static content: every page reads from the local SQLite DB or the NextAuth
+// session at request time. Static pre-render would fire up workers that each
+// load the server bundle + better-sqlite3 native binary, OOM-ing the build.
+export const dynamic = 'force-dynamic';
+
 export const metadata: Metadata = {
   title: 'Apply',
   description: 'Your personal job research dashboard',

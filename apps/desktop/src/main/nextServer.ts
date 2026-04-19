@@ -44,11 +44,15 @@ async function findFreePort(): Promise<number> {
 }
 
 function resolveStandaloneServerPath(): string {
-  // In a packaged electron-builder app, the repo tree is preserved under
-  // `<resources>/app/apps/web/.next/standalone/server.js` (we opted into
-  // asarUnpack for the native module only; see electron-builder.yml).
-  const appPath = app.getAppPath();
-  return path.join(appPath, 'apps', 'web', '.next', 'standalone', 'apps', 'web', 'server.js');
+  // In a packaged electron-builder app, the web bundle is shipped as
+  // `extraResources` (not `files:`), so it lives under
+  // `Contents/Resources/apps/web/.next/standalone/...`, not under
+  // `Contents/Resources/app/...`. We anchor off `process.resourcesPath` in
+  // prod; dev never hits this path because `app.isPackaged === false`.
+  return path.join(
+    process.resourcesPath,
+    'apps', 'web', '.next', 'standalone', 'apps', 'web', 'server.js',
+  );
 }
 
 export async function startNextServer(dbPath: string): Promise<NextServer> {

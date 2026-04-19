@@ -20,25 +20,52 @@ files:
   - package.json
   - node_modules/**/*
   - '!node_modules/**/{README,CHANGELOG,LICENSE,*.map}'
-  - from: '../web'
-    to: 'apps/web'
-    filter:
-      - '.next/standalone/**/*'
-      - '.next/static/**/*'
-      - 'public/**/*'
-      - 'package.json'
-  - from: '../../packages/db'
-    to: 'packages/db'
-    filter:
-      - 'dist/**/*'
-      - 'drizzle/migrations/**/*'
-      - 'package.json'
 
-# Native modules must live outside the asar archive so Node's dynamic loader
-# can `require(.node)` them.
-asarUnpack:
-  - '**/node_modules/better-sqlite3/**/*'
-  - '**/.next/standalone/**/*'
+# The Next build output ships as extraResources (straight cp into
+# Apply.app/Contents/Resources/<to>/) rather than via `files:`. Reason:
+# electron-builder's `files:` pattern silently strips nested `node_modules/`
+# directories under a `from:` mount point, so the Next standalone output
+# ended up without its own `node_modules` (→ `Cannot find module 'next'`
+# at runtime). `extraResources` bypasses that filter — raw copy, verbatim.
+#
+# Layout note: Next's standalone server serves `/_next/static/*` and public/*
+# itself, but it reads them from paths RELATIVE to server.js (i.e. from
+# `<standalone>/apps/web/.next/static/` and `<standalone>/apps/web/public/`).
+# We therefore merge static + public INTO the standalone tree rather than
+# shipping them as siblings — otherwise the first paint renders unstyled HTML
+# because every CSS/JS/font chunk 404s.
+# `nextServer.ts` resolves the server path off `process.resourcesPath`
+# when packaged, so the final packaged layout is:
+#   Contents/Resources/apps/web/.next/standalone/apps/web/server.js
+#   Contents/Resources/apps/web/.next/standalone/apps/web/.next/static/...
+#   Contents/Resources/apps/web/.next/standalone/apps/web/public/...
+# `@apply/db` ships via `files: node_modules/**/*` which correctly resolves
+# the pnpm symlink — no duplicate copy needed in extraResources.
+extraResources:
+  - from: '../web/.next/standalone'
+    to: 'apps/web/.next/standalone'
+    filter:
+      - '**/*'
+      - '!.local/**/*'
+      - '!**/apply.sqlite'
+  - from: '../web/.next/static'
+    to: 'apps/web/.next/standalone/apps/web/.next/static'
+  - from: '../web/public'
+    to: 'apps/web/.next/standalone/apps/web/public'
+
+# Ship as a plain directory tree rather than an asar archive. Rationale:
+# electron-builder v25's asar packager rejects `files:` entries sourced via
+# `from: '../web'` in a monorepo (sibling-path check in getRelativePath).
+# Disabling asar sidesteps that check entirely — the trade-off is ~50 MB more
+# on disk and slightly slower cold-start (no archive-prefetch), which is fine
+# for a local-first app. Revisit if we ever sign/notarize for public release.
+asar: false
+
+# We run `@electron/rebuild` ourselves via `pnpm desktop:rebuild` before a dist
+# build. electron-builder's built-in rebuild step chokes on pnpm's node_modules
+# layout (tries to stat a non-existent `.pnpm/node_modules/web` path), so we
+# turn it off and rely on the manual step.
+npmRebuild: false
 
 mac:
   target:
