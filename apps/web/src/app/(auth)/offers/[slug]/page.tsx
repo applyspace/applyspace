@@ -5,33 +5,39 @@ import {
   ContractsIcon,
   UserFullViewIcon,
   Money01Icon,
-  UserMultipleIcon,
   Location06Icon,
   HomeWifiIcon,
   FilterHorizontalIcon,
 } from '@hugeicons/core-free-icons';
 import { readOffers } from '@/lib/offers';
-import { readSettings } from '@/lib/settings';
 import { readSearches } from '@/lib/searches';
 import { matchIdInSlug } from '@/lib/slug';
 import { JobTable } from '@/components/jobs/JobTable';
 import { buttonVariants } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
+// Canonical DB tokens → display labels. Keys include both the current canonical
+// values ('CDI', 'entry', 'hybrid'…) and legacy FR/EN strings still found in
+// older data, so migrated rows keep rendering sensibly.
 const CONTRACT_EN: Record<string, string> = {
   CDI: 'Permanent',
   CDD: 'Fixed-term',
+  Stage: 'Internship',
+  Freelance: 'Freelance',
+  Apprentissage: 'Apprenticeship',
   'Full-Time': 'Permanent',
   'Part-Time': 'Fixed-term',
-  Freelance: 'Freelance',
   Internship: 'Internship',
-  Stage: 'Internship',
   Alternance: 'Apprenticeship',
   Bénévolat: 'Volunteering',
   Benevolat: 'Volunteering',
 };
 
 const LEVEL_EN: Record<string, string> = {
+  entry: 'Junior',
+  mid: 'Confirmed',
+  senior: 'Senior',
+  lead: 'Lead',
   Débutant: 'Junior',
   Confirmé: 'Confirmed',
   Sénior: 'Senior',
@@ -44,6 +50,9 @@ const LEVEL_EN: Record<string, string> = {
 };
 
 const REMOTE_EN: Record<string, string> = {
+  onsite: 'On-site',
+  hybrid: 'Hybrid',
+  remote: 'Remote',
   Télétravail: 'Remote',
   Teletravail: 'Remote',
   Hybride: 'Hybrid',
@@ -59,27 +68,14 @@ function toEn(map: Record<string, string>) {
   return (raw: string) => map[raw] ?? raw;
 }
 
-function mergeCompanySizes(sizes: string[]): string | null {
-  if (!sizes.length) return null;
-  let min = Infinity;
-  for (const s of sizes) {
-    const lower = s.startsWith('>')
-      ? parseInt(s.slice(1))
-      : parseInt(s.split('-')[0]);
-    min = Math.min(min, isNaN(lower) ? 0 : lower);
-  }
-  return min === 0 ? '< 15' : `> ${min}`;
-}
-
 export default async function SearchPage({
   params,
 }: {
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const [allOffers, settings, searches] = await Promise.all([
+  const [allOffers, searches] = await Promise.all([
     readOffers(),
-    readSettings(),
     readSearches(),
   ]);
 
@@ -93,18 +89,22 @@ export default async function SearchPage({
   // Show all scraped offers for this search — same content as the global /offers page.
   const offers = allOffers;
 
+  // Chips come straight from the Search row, not from AppSettings — the
+  // per-search criteria are the source of truth (global settings just seed
+  // defaults when a search is first created).
   const salaryLabel = (() => {
-    const { salaryMin, salaryMax } = settings;
-    if (salaryMin === null && salaryMax === null) return null;
-    const min = salaryMin ?? 0;
-    if (!salaryMax || salaryMax >= 120) return `${min}k+`;
-    return `${min}k – ${salaryMax}k`;
+    const min = search.salaryMinEur;
+    const max = search.salaryMaxEur;
+    if (min === null && max === null) return null;
+    const minK = min !== null ? Math.round(min / 1000) : 0;
+    if (max === null || max >= 120_000) return `${minK}k+`;
+    const maxK = Math.round(max / 1000);
+    return `${minK}k – ${maxK}k`;
   })();
 
-  const contracts = [...new Set(settings.contractTypes.map(toEn(CONTRACT_EN)))];
-  const levels = [...new Set(settings.experienceLevels.map(toEn(LEVEL_EN)))];
-  const remotePref = [...new Set(settings.remotePreference.map(toEn(REMOTE_EN)))];
-  const sizeLabel = mergeCompanySizes(settings.companySizes);
+  const contracts = [...new Set((search.contractTypes ?? []).map(toEn(CONTRACT_EN)))];
+  const levels = [...new Set((search.experienceLevels ?? []).map(toEn(LEVEL_EN)))];
+  const remotePref = search.remoteMode ? [toEn(REMOTE_EN)(search.remoteMode)] : [];
 
   const title = [search.searchTitle, search.location].filter(Boolean).join(', ');
 
@@ -150,9 +150,8 @@ export default async function SearchPage({
                 </div>
               )}
 
-              {(sizeLabel || search.location || remotePref.length > 0) && (
+              {(search.location || remotePref.length > 0) && (
                 <div className="flex flex-wrap items-center gap-x-5 gap-y-1">
-                  {sizeLabel && <CriteriaRow icon={UserMultipleIcon} label={sizeLabel} />}
                   {search.location && (
                     <CriteriaRow icon={Location06Icon} label={search.location} />
                   )}
