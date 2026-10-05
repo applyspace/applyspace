@@ -1,8 +1,8 @@
 import type { NextConfig } from "next";
 import path from "node:path";
 
-// Hosted demo (Vercel): `/demo` serves the Offers page and, for now, the other
-// entry points send visitors there. Left out of the desktop/standalone builds.
+// Hosted build (Vercel): `/demo` serves the Offers page without an account.
+// Left out of the desktop/standalone builds.
 const IS_DEMO = process.env.APPLY_DEMO === '1' || Boolean(process.env.VERCEL);
 
 const nextConfig: NextConfig = {
@@ -51,12 +51,12 @@ const nextConfig: NextConfig = {
 
   async redirects() {
     if (!IS_DEMO) return [];
+    // Once Supabase is configured, sign-in is real: the proxy sends signed-out
+    // visitors from `/` to `/login`. Until then everything lands on the demo.
+    if (process.env.NEXT_PUBLIC_SUPABASE_URL) return [];
     return [
       { source: '/', destination: '/demo', permanent: false },
-      // Once Supabase is configured, /login is the real sign-in page.
-      ...(process.env.NEXT_PUBLIC_SUPABASE_URL
-        ? []
-        : [{ source: '/login', destination: '/demo', permanent: false }]),
+      { source: '/login', destination: '/demo', permanent: false },
     ];
   },
 

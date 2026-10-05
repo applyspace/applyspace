@@ -28,9 +28,15 @@ export function useLocale() {
   return useContext(LocaleContext);
 }
 
-function LocaleProvider({ children }: { children: React.ReactNode }) {
+function LocaleProvider({
+  children,
+  initialLocale,
+}: {
+  children: React.ReactNode;
+  initialLocale: Locale;
+}) {
   const [savedLocale, saveLocale] = useLocalStorageItem('apply-locale');
-  const locale: Locale = savedLocale === 'en' || savedLocale === 'fr' ? savedLocale : DEFAULT_LOCALE;
+  const locale: Locale = savedLocale === 'en' || savedLocale === 'fr' ? savedLocale : initialLocale;
 
   function setLocale(l: Locale) {
     saveLocale(l);
@@ -90,13 +96,16 @@ function AuthProvider({
 export function Providers({
   children,
   user,
+  initialLocale = DEFAULT_LOCALE,
 }: {
   children: React.ReactNode;
   user: AuthUser | null;
+  /** Locale before the visitor has chosen one (from the browser language). */
+  initialLocale?: Locale;
 }) {
   return (
     <AuthProvider initialUser={user}>
-      <LocaleProvider>{children}</LocaleProvider>
+      <LocaleProvider initialLocale={initialLocale}>{children}</LocaleProvider>
     </AuthProvider>
   );
 }
