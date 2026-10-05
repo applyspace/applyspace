@@ -1,12 +1,15 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { Loading02Icon } from "@hugeicons/core-free-icons";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { GoogleIcon } from "@/components/icons/GoogleIcon";
 import { LinkedInIcon } from "@/components/icons/LinkedInIcon";
 import { useLocale } from "@/components/providers/Providers";
+import { createClient } from "@/lib/supabase/client";
+import { isSupabaseConfigured } from "@/lib/supabase/env";
 
 const TargetIcon = () => (
   <svg className="size-8" viewBox="0 0 32 32" fill="none">
@@ -51,15 +54,29 @@ const TargetIcon = () => (
   </svg>
 );
 
-export default function LoginPage() {
-  const router = useRouter();
-  const { t } = useLocale();
-  const [loading, setLoading] = useState(false);
+type Provider = "google" | "linkedin_oidc";
 
-  function handleSignIn() {
-    setLoading(true);
-    router.push("/");
+export default function LoginPage() {
+  const { t } = useLocale();
+  const searchParams = useSearchParams();
+  const [pending, setPending] = useState<Provider | null>(null);
+  const [failed, setFailed] = useState(searchParams.get("error") !== null);
+
+  async function handleSignIn(provider: Provider) {
+    setPending(provider);
+    setFailed(false);
+    const { error } = await createClient().auth.signInWithOAuth({
+      provider,
+      options: { redirectTo: `${window.location.origin}/auth/callback` },
+    });
+    // On success the browser is redirected to the provider.
+    if (error) {
+      setFailed(true);
+      setPending(null);
+    }
   }
+
+  const disabled = pending !== null || !isSupabaseConfigured;
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-background px-6">
@@ -76,27 +93,54 @@ export default function LoginPage() {
           <span className="text-foreground">{t.auth.headlineLine2}</span>
         </h1>
 
-        <Button
-          onClick={handleSignIn}
-          disabled={loading}
-          className="mt-10 w-full max-w-sm text-base font-medium"
-          size="lg"
-        >
-          {loading ? (
-            <HugeiconsIcon
-              icon={Loading02Icon}
-              size={16}
-              className="animate-spin"
-            />
-          ) : (
-            <LinkedInIcon className="size-4 shrink-0" />
-          )}
-          {loading ? t.profile.syncing : t.auth.signInWith}
-        </Button>
+        <div className="mt-10 flex w-full max-w-sm flex-col gap-3">
+          <Button
+            onClick={() => handleSignIn("google")}
+            disabled={disabled}
+            variant="outline"
+            className="w-full text-base font-medium"
+            size="lg"
+          >
+            {pending === "google" ? (
+              <HugeiconsIcon
+                icon={Loading02Icon}
+                size={16}
+                className="animate-spin"
+              />
+            ) : (
+              <GoogleIcon className="size-4 shrink-0" />
+            )}
+            {t.auth.signInWithGoogle}
+          </Button>
+
+          <Button
+            onClick={() => handleSignIn("linkedin_oidc")}
+            disabled={disabled}
+            className="w-full text-base font-medium"
+            size="lg"
+          >
+            {pending === "linkedin_oidc" ? (
+              <HugeiconsIcon
+                icon={Loading02Icon}
+                size={16}
+                className="animate-spin"
+              />
+            ) : (
+              <LinkedInIcon className="size-4 shrink-0" />
+            )}
+            {t.auth.signInWith}
+          </Button>
+        </div>
+
+        {failed && (
+          <p role="alert" className="mt-4 text-sm text-destructive">
+            {t.auth.signInError}
+          </p>
+        )}
 
         <p className="mt-4 w-full max-w-106 text-[11px] leading-[1.7] text-muted-foreground/70">
-          By clicking &ldquo;Continue with LinkedIn&rdquo;, you acknowledge that
-          you have read, understood, and agree to Apply&apos;s{" "}
+          By continuing, you acknowledge that you have read, understood, and
+          agree to Apply&apos;s{" "}
           <span className="cursor-pointer text-muted-foreground underline underline-offset-2 hover:text-primary transition-colors">
             Terms &amp; Conditions
           </span>{" "}
