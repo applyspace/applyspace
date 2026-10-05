@@ -1,6 +1,8 @@
 import { asc, eq } from 'drizzle-orm';
 import { searches, type Search } from '@apply/db';
 import { getDb } from '@/lib/db';
+import { getSupabaseScope } from '@/lib/supabase/scope';
+import * as supabaseData from '@/lib/supabase/queries';
 
 /**
  * All searches across every profile. Ordered by `(profileId, searchTitle)` so
@@ -11,6 +13,8 @@ import { getDb } from '@/lib/db';
  * salary…) and ultimately feeds the scraper.
  */
 export async function readSearches(): Promise<Search[]> {
+  const scope = await getSupabaseScope();
+  if (scope) return supabaseData.readSearches(scope);
   const db = getDb();
   return db
     .select()
@@ -20,12 +24,16 @@ export async function readSearches(): Promise<Search[]> {
 }
 
 export async function readSearch(id: string): Promise<Search | null> {
+  const scope = await getSupabaseScope();
+  if (scope) return supabaseData.readSearch(scope, id);
   const db = getDb();
   const [row] = await db.select().from(searches).where(eq(searches.id, id)).limit(1);
   return row ?? null;
 }
 
 export async function readSearchesForProfile(profileId: string): Promise<Search[]> {
+  const scope = await getSupabaseScope();
+  if (scope) return supabaseData.readSearchesForProfile(scope, profileId);
   const db = getDb();
   return db
     .select()
