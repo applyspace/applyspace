@@ -9,11 +9,21 @@ import {
   type ExperienceLevel,
   type Locale,
   type NewSearch,
-  type RemoteMode,
   type Search,
   type Settings,
 } from '@apply/db';
 import { getDb } from '@/lib/db';
+import {
+  experienceLevelsFromLabels,
+  labelFromRemoteMode,
+  labelsFromExperienceLevels,
+  remoteModeFromLabels,
+  slugify,
+  toEur,
+  toK,
+} from '@/lib/settings-mapping';
+import * as supabaseSettings from '@/lib/settings-supabase';
+import { getSupabaseScope } from '@/lib/supabase/scope';
 import type { Source } from '@/types/platforms';
 
 /**
@@ -64,74 +74,6 @@ export const DEFAULT_SETTINGS: AppSettings = {
   noGos: [],
 };
 
-// The UI historically used numbers in "k€" (e.g. 40 means 40k). The DB stores
-// raw euros. Convert at the boundary so the UI stays unchanged.
-const EUR_PER_K = 1000;
-const toK = (eur: number | null | undefined): number | null =>
-  eur == null ? null : Math.round(eur / EUR_PER_K);
-const toEur = (k: number | null | undefined): number | null =>
-  k == null ? null : k * EUR_PER_K;
-
-const REMOTE_LABELS_EN: Record<RemoteMode, string> = {
-  remote: 'Remote',
-  hybrid: 'Hybrid',
-  onsite: 'On-site',
-};
-
-function labelFromRemoteMode(mode: RemoteMode | null): string[] {
-  return mode ? [REMOTE_LABELS_EN[mode]] : [];
-}
-
-function remoteModeFromLabels(labels: readonly string[]): RemoteMode | null {
-  const norm = labels.map((l) => l.toLowerCase());
-  if (norm.includes('remote') || norm.includes('télétravail') || norm.includes('teletravail')) {
-    return 'remote';
-  }
-  if (norm.includes('hybrid') || norm.includes('hybride')) return 'hybrid';
-  if (norm.includes('on-site') || norm.includes('onsite') || norm.includes('présentiel') || norm.includes('presentiel')) {
-    return 'onsite';
-  }
-  return null;
-}
-
-// Experience levels: DB stores canonical lowercase tokens (CHECK constraint).
-// The UI historically used the French-canonical forms as keys
-// ('Junior' | 'Confirmé' | 'Senior' | 'Lead'), translated at render time via
-// the local LEVEL_EN / experienceOptions maps. We round-trip those forms so
-// every existing callsite (settings form chips, offers criteria row) works
-// unchanged.
-const EXPERIENCE_LABELS: Record<ExperienceLevel, string> = {
-  entry: 'Junior',
-  mid: 'Confirmé',
-  senior: 'Senior',
-  lead: 'Lead',
-};
-
-function labelsFromExperienceLevels(
-  levels: readonly ExperienceLevel[] | null | undefined,
-): string[] {
-  return (levels ?? []).map((l) => EXPERIENCE_LABELS[l]).filter(Boolean);
-}
-
-function experienceLevelsFromLabels(labels: readonly string[]): ExperienceLevel[] {
-  const out: ExperienceLevel[] = [];
-  for (const raw of labels) {
-    const l = raw.trim().toLowerCase();
-    if (!l) continue;
-    if (l === 'entry' || l === 'junior' || l === 'débutant' || l === 'debutant' || l === 'jr') {
-      out.push('entry');
-    } else if (l === 'mid' || l === 'confirmed' || l === 'confirmé' || l === 'confirme' || l === 'intermédiaire' || l === 'intermediaire') {
-      out.push('mid');
-    } else if (l === 'senior' || l === 'sénior' || l === 'sr') {
-      out.push('senior');
-    } else if (l === 'lead' || l === 'staff' || l === 'principal') {
-      out.push('lead');
-    }
-  }
-  // Dedup while preserving order.
-  return Array.from(new Set(out));
-}
-
 /** Resolve the default profile (settings.defaultProfileId → first by id). */
 function getDefaultProfileId(settingsRow: Settings | null): string | null {
   if (settingsRow?.defaultProfileId) return settingsRow.defaultProfileId;
@@ -153,17 +95,11 @@ function getPrimarySearch(profileId: string): Search | null {
   return s ?? null;
 }
 
-function slugify(s: string): string {
-  return s
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '');
-}
-
 /** Read AppSettings from the DB, composing across settings + profile + search. */
 export async function readSettings(): Promise<AppSettings> {
+  const scope = await getSupabaseScope();
+  if (scope) return supabaseSettings.readSettings(scope);
+
   const db = getDb();
 
   const [row] = db.select().from(settingsTable).where(eq(settingsTable.id, 'default')).limit(1).all();
@@ -220,6 +156,9 @@ export async function readSettings(): Promise<AppSettings> {
 
 /** Patch AppSettings — writes are split across the underlying tables. */
 export async function writeSettings(patch: Partial<AppSettings>): Promise<void> {
+  const scope = await getSupabaseScope();
+  if (scope) return supabaseSettings.writeSettings(scope, patch);
+
   const db = getDb();
   const nowIso = new Date().toISOString();
 
@@ -407,6 +346,9 @@ async function reconcileNoGos(
  * env-var override.
  */
 export async function checkSourceConnected(source: Source): Promise<boolean> {
+  // Platform sessions stay on the user's device (ADR-004), not in Supabase.
+  if (await getSupabaseScope()) return false;
+
   const db = getDb();
   const [conn] = db
     .select()
