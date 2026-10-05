@@ -25,6 +25,12 @@ const nextConfig: NextConfig = {
     ],
   },
 
+  // Demo mode runs Drizzle migrations at runtime; make sure the SQL files are
+  // part of the serverless bundle.
+  outputFileTracingIncludes: {
+    '/**': ['../../packages/db/drizzle/migrations/**/*'],
+  },
+
   // `@apply/db` is a workspace package that ships ESM; Next's default
   // externalization for server packages would skip it. Making it part of the
   // server bundle keeps Server-Component code paths happy.

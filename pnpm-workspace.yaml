@@ -1,3 +1,8 @@
 packages:
   - 'apps/*'
   - 'packages/*'
+
+# pnpm 10 skips dependency install scripts by default. better-sqlite3 needs
+# its install script to fetch/build the native binding.
+onlyBuiltDependencies:
+  - better-sqlite3
