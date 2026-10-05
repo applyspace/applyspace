@@ -31,6 +31,8 @@ export const translations = {
       headlineLine1: 'Smart and focused',
       headlineLine2: 'job hunting',
       signInWith: 'Continue with LinkedIn',
+      signInWithGoogle: 'Continue with Google',
+      signInError: 'Sign-in failed. Please try again.',
       disclaimer: 'We only access your public profile info — name, photo, email.',
     },
     settings: {
@@ -158,6 +160,8 @@ export const translations = {
       headlineLine1: "Votre recherche d'emploi,",
       headlineLine2: 'enfin centralisée',
       signInWith: 'Continuer avec LinkedIn',
+      signInWithGoogle: 'Continuer avec Google',
+      signInError: 'La connexion a échoué. Réessayez.',
       disclaimer: 'Nous accédons uniquement à votre profil public — nom, photo, email.',
     },
     settings: {
