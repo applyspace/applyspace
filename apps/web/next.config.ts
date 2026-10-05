@@ -1,6 +1,10 @@
 import type { NextConfig } from "next";
 import path from "node:path";
 
+// Hosted demo (Vercel): `/demo` serves the Offers page and, for now, the other
+// entry points send visitors there. Left out of the desktop/standalone builds.
+const IS_DEMO = process.env.APPLY_DEMO === '1' || Boolean(process.env.VERCEL);
+
 const nextConfig: NextConfig = {
   // Packaged as an Electron app: we need the self-contained Next server
   // (`.next/standalone/server.js`) so Electron can fork it in prod.
@@ -43,6 +47,22 @@ const nextConfig: NextConfig = {
   // 2 workers keep the build under ~8 GB total and add only a few seconds.
   experimental: {
     cpus: 2,
+  },
+
+  async redirects() {
+    if (!IS_DEMO) return [];
+    return [
+      { source: '/', destination: '/demo', permanent: false },
+      // Once Supabase is configured, /login is the real sign-in page.
+      ...(process.env.NEXT_PUBLIC_SUPABASE_URL
+        ? []
+        : [{ source: '/login', destination: '/demo', permanent: false }]),
+    ];
+  },
+
+  async rewrites() {
+    if (!IS_DEMO) return [];
+    return [{ source: '/demo', destination: '/offers' }];
   },
 
   images: {
