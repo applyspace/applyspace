@@ -1,7 +1,7 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import { Sidebar } from './Sidebar';
+import { useLocalStorageItem } from '@/lib/useLocalStorage';
 import type {
   ApplicationWithRelations,
   InterviewWithRelations,
@@ -26,31 +26,20 @@ export function AppShell({
   applications: ApplicationWithRelations[];
   interviews: InterviewWithRelations[];
 }) {
-  const [collapsed, setCollapsed] = useState(false);
-  const [sidebarWidth, setSidebarWidth] = useState(DEFAULT_WIDTH);
+  const [savedCollapsed, saveCollapsed] = useLocalStorageItem('apply-sidebar-collapsed');
+  const [savedWidth, saveWidth] = useLocalStorageItem('apply-sidebar-width');
 
-  useEffect(() => {
-    const savedCollapsed = localStorage.getItem('apply-sidebar-collapsed');
-    if (savedCollapsed === 'true') setCollapsed(true);
-
-    const savedWidth = localStorage.getItem('apply-sidebar-width');
-    if (savedWidth) {
-      const w = parseInt(savedWidth, 10);
-      if (!isNaN(w) && w >= MIN_WIDTH && w <= MAX_WIDTH) setSidebarWidth(w);
-    }
-  }, []);
+  const collapsed = savedCollapsed === 'true';
+  const parsedWidth = savedWidth ? parseInt(savedWidth, 10) : NaN;
+  const sidebarWidth =
+    parsedWidth >= MIN_WIDTH && parsedWidth <= MAX_WIDTH ? parsedWidth : DEFAULT_WIDTH;
 
   function toggle() {
-    setCollapsed((prev) => {
-      const next = !prev;
-      localStorage.setItem('apply-sidebar-collapsed', String(next));
-      return next;
-    });
+    saveCollapsed(String(!collapsed));
   }
 
   function handleWidthChange(width: number) {
-    setSidebarWidth(width);
-    localStorage.setItem('apply-sidebar-width', String(width));
+    saveWidth(String(width));
   }
 
   return (

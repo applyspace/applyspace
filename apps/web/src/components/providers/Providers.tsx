@@ -1,6 +1,7 @@
 'use client';
 
 import { createContext, useCallback, useContext, useEffect, useState } from 'react';
+import { useLocalStorageItem } from '@/lib/useLocalStorage';
 import type { Locale, T } from '@/lib/i18n';
 import { translations } from '@/lib/i18n';
 import { toAuthUser, type AuthUser } from '@/lib/auth-user';
@@ -28,16 +29,11 @@ export function useLocale() {
 }
 
 function LocaleProvider({ children }: { children: React.ReactNode }) {
-  const [locale, setLocaleState] = useState<Locale>(DEFAULT_LOCALE);
-
-  useEffect(() => {
-    const saved = localStorage.getItem('apply-locale') as Locale | null;
-    if (saved === 'en' || saved === 'fr') setLocaleState(saved);
-  }, []);
+  const [savedLocale, saveLocale] = useLocalStorageItem('apply-locale');
+  const locale: Locale = savedLocale === 'en' || savedLocale === 'fr' ? savedLocale : DEFAULT_LOCALE;
 
   function setLocale(l: Locale) {
-    setLocaleState(l);
-    localStorage.setItem('apply-locale', l);
+    saveLocale(l);
     document.documentElement.lang = l;
   }
 
