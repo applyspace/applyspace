@@ -5,9 +5,19 @@
 ## Monorepo structure
 
 ```
-apps/web        → Next.js app (see apps/web/CLAUDE.md for web-specific conventions)
+apps/web         → Next.js app (see apps/web/CLAUDE.md)
+apps/desktop     → Electron shell (see apps/desktop/CLAUDE.md)
+apps/mobile      → Expo app, not started
+packages/db      → Drizzle schema and migrations (see packages/db/CLAUDE.md)
 packages/scraper → Playwright scraper
+site/            → Marketing website, not started
 ```
+
+## Branching
+
+- Apps use release branching: branch from `release/x.y`, open the pull request into that release branch. `release/x.y` is merged into `main` and tagged. No `develop` branch.
+- The site uses environment branching: `staging` and `production`.
+- Tags: `web-vX.Y.Z`, `desktop-vX.Y.Z`, `ios-vX.Y.Z`, `extension-vX.Y.Z`. SemVer, `0.x` until launch.
 
 ## Git conventions
 
@@ -17,7 +27,7 @@ All commit messages follow the gitmoji + scope format:
 emoji(scope): message
 ```
 
-**Scopes:** `web`, `scraper`, `dev`, `config`, `deps`, `docs`
+**Scopes:** `web`, `desktop`, `mobile`, `extension`, `site`, `db`, `scraper`, `dev`, `config`, `deps`, `docs`
 
 | Emoji | Code | When to use |
 |---|---|---|
