@@ -1,6 +1,8 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { openDatabase, type DatabaseHandle, type DrizzleDB } from '@apply/db';
+import { runMigrations } from '@apply/db/migrate';
+import { runSeed } from '@apply/db/seed';
 
 /**
  * Next.js-side DB singleton.
@@ -26,7 +28,16 @@ type GlobalStore = {
   [GLOBAL_KEY]?: DatabaseHandle;
 };
 
+/**
+ * Hosted demo mode (Vercel): the filesystem is read-only except `/tmp`, so we
+ * use a throwaway SQLite file there, migrated and seeded on first use.
+ * Forced with `APPLY_DEMO=1`, automatic when `VERCEL` is set.
+ */
+const IS_DEMO = process.env.APPLY_DEMO === '1' || Boolean(process.env.VERCEL);
+
 function resolveDbPath(): string {
+  if (IS_DEMO) return path.join('/tmp', 'apply-demo.sqlite');
+
   const envPath = process.env.APPLY_DB_PATH;
   if (envPath) return envPath;
 
@@ -50,7 +61,12 @@ function getHandle(): DatabaseHandle {
   const store = globalThis as unknown as GlobalStore;
   if (!store[GLOBAL_KEY]) {
     const dbPath = resolveDbPath();
-    store[GLOBAL_KEY] = openDatabase(dbPath);
+    const handle = openDatabase(dbPath);
+    if (IS_DEMO) {
+      runMigrations(handle.db);
+      runSeed(handle.db);
+    }
+    store[GLOBAL_KEY] = handle;
   }
   return store[GLOBAL_KEY]!;
 }
