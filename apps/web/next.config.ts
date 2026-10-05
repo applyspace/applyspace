@@ -53,7 +53,10 @@ const nextConfig: NextConfig = {
     if (!IS_DEMO) return [];
     return [
       { source: '/', destination: '/demo', permanent: false },
-      { source: '/login', destination: '/demo', permanent: false },
+      // Once Supabase is configured, /login is the real sign-in page.
+      ...(process.env.NEXT_PUBLIC_SUPABASE_URL
+        ? []
+        : [{ source: '/login', destination: '/demo', permanent: false }]),
     ];
   },
 
