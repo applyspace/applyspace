@@ -33,6 +33,11 @@ export const translations = {
       signInWith: 'Continue with LinkedIn',
       signInWithGoogle: 'Continue with Google',
       signInError: 'Sign-in failed. Please try again.',
+      tagline: 'Offers, applications and interviews: your whole job hunt in one place.',
+      legalBefore: "By continuing, you agree to Apply's",
+      terms: 'Terms & Conditions',
+      legalAnd: 'and',
+      privacy: 'Privacy Policy',
       disclaimer: 'We only access your public profile info — name, photo, email.',
     },
     settings: {
@@ -162,6 +167,11 @@ export const translations = {
       signInWith: 'Continuer avec LinkedIn',
       signInWithGoogle: 'Continuer avec Google',
       signInError: 'La connexion a échoué. Réessayez.',
+      tagline: 'Offres, candidatures et entretiens : toute votre recherche au même endroit.',
+      legalBefore: "En continuant, vous acceptez les",
+      terms: "Conditions d'utilisation",
+      legalAnd: 'et la',
+      privacy: 'Politique de confidentialité',
       disclaimer: 'Nous accédons uniquement à votre profil public — nom, photo, email.',
     },
     settings: {

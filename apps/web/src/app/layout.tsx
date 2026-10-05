@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { headers } from 'next/headers';
 import { Inter } from 'next/font/google';
 import './globals.css';
 import { TooltipProvider } from '@/components/ui/tooltip';
@@ -25,11 +26,14 @@ export default async function RootLayout({
   children: React.ReactNode;
 }) {
   const user = await getCurrentUser();
+  // First visit: follow the browser language (Apply is built for French job seekers).
+  const preferred = (await headers()).get('accept-language')?.split(',')[0] ?? '';
+  const initialLocale = /^fr/i.test(preferred) ? 'fr' : 'en';
 
   return (
-    <html lang="en" className={cn("font-sans", inter.variable)}>
+    <html lang={initialLocale} className={cn("font-sans", inter.variable)}>
       <body className="antialiased">
-        <Providers user={user}>
+        <Providers user={user} initialLocale={initialLocale}>
           <TooltipProvider>
             {children}
           </TooltipProvider>
