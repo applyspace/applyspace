@@ -7,8 +7,8 @@
 - **Framework** — Next.js 16 (App Router, Server Components)
 - **Language** — TypeScript (strict mode)
 - **Styling** — Tailwind CSS v4 + shadcn/ui
-- **Auth** — NextAuth v4 (LinkedIn OAuth)
-- **Database** — File-based JSON → Supabase PostgreSQL (planned)
+- **Auth** — Supabase Auth (Google and LinkedIn OIDC)
+- **Database** — Supabase PostgreSQL for signed-in users (Row Level Security); local SQLite for the demo and desktop
 - **Deployment** — Vercel
 - **Package manager** — pnpm
 
@@ -36,8 +36,9 @@ src/
 │   ├── providers/      # Providers (SessionProvider, LocaleProvider)
 │   └── ui/             # shadcn/ui components — do not modify
 ├── lib/
-│   ├── jobs.ts         # Read scraped jobs from .local/output/jobs.json
-│   ├── settings.ts     # Read/write user settings from data/settings.json
+│   ├── profiles.ts, searches.ts, offers.ts, applications.ts, …   # Readers: Supabase when signed in, else SQLite
+│   ├── settings.ts     # Read/write user settings (Supabase when signed in, else SQLite)
+│   ├── supabase/       # Clients, request scope, row helpers and queries
 │   ├── sources.ts      # Platform metadata (labels, colors, cookie keys)
 │   ├── i18n.ts         # EN / FR translations
 │   └── utils.ts        # Shared helpers

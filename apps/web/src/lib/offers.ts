@@ -2,12 +2,16 @@ import { desc, eq } from 'drizzle-orm';
 import { offers } from '@apply/db';
 import { getDb } from '@/lib/db';
 import type { OfferWithRelations } from '@/types/offers';
+import { getSupabaseScope } from '@/lib/supabase/scope';
+import * as supabaseData from '@/lib/supabase/queries';
 
 /**
  * All scraped offers, freshest first (by `lastSeenAt`). Pre-joins `company`
  * and `platform` so call sites can render without a second round-trip.
  */
 export async function readOffers(): Promise<OfferWithRelations[]> {
+  const scope = await getSupabaseScope();
+  if (scope) return supabaseData.readOffers(scope);
   const db = getDb();
   const rows = await db.query.offers.findMany({
     with: { company: true, platform: true },
@@ -17,6 +21,8 @@ export async function readOffers(): Promise<OfferWithRelations[]> {
 }
 
 export async function readOffer(id: string): Promise<OfferWithRelations | null> {
+  const scope = await getSupabaseScope();
+  if (scope) return supabaseData.readOffer(scope, id);
   const db = getDb();
   const row = await db.query.offers.findFirst({
     with: { company: true, platform: true },
@@ -26,6 +32,8 @@ export async function readOffer(id: string): Promise<OfferWithRelations | null> 
 }
 
 export async function readOffersScrapedAt(): Promise<string | null> {
+  const scope = await getSupabaseScope();
+  if (scope) return supabaseData.readOffersScrapedAt(scope);
   // Treat the newest `lastSeenAt` as the timestamp of the most recent scrape.
   const db = getDb();
   const [row] = await db
