@@ -3,6 +3,7 @@ import path from 'node:path';
 import { openDatabase, type DatabaseHandle, type DrizzleDB } from '@apply/db';
 import { runMigrations } from '@apply/db/migrate';
 import { runSeed } from '@apply/db/seed';
+import { seedDemo } from '@/lib/demo';
 
 /**
  * Next.js-side DB singleton.
@@ -65,6 +66,7 @@ function getHandle(): DatabaseHandle {
     if (IS_DEMO) {
       runMigrations(handle.db);
       runSeed(handle.db);
+      seedDemo(handle.db);
     }
     store[GLOBAL_KEY] = handle;
   }
