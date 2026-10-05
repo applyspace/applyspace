@@ -19,10 +19,9 @@ import {
   CancelCircleIcon,
   Clock01Icon,
 } from '@hugeicons/core-free-icons';
-import { useSession, signOut } from 'next-auth/react';
 import { cn } from '@/lib/utils';
 import { useState, useCallback } from 'react';
-import { useLocale } from '@/components/providers/Providers';
+import { useAuth, useLocale } from '@/components/providers/Providers';
 import { WhatsNew } from '@/components/changelog/WhatsNew';
 import { CURRENT_VERSION } from '@/lib/changelog';
 import { LOCALES } from '@/lib/i18n';
@@ -283,7 +282,7 @@ export function Sidebar({
   interviews,
 }: SidebarProps) {
   const pathname = usePathname();
-  const { data: session } = useSession();
+  const { user, signOut } = useAuth();
   const { t, locale, setLocale } = useLocale();
   const [whatsNewOpen, setWhatsNewOpen] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
@@ -324,7 +323,6 @@ export function Sidebar({
 
   if (pathname === '/login') return null;
 
-  const user = session?.user;
   const initials = user?.name
     ? user.name.split(' ').map((p) => p[0]).join('').slice(0, 2).toUpperCase()
     : '?';
@@ -616,7 +614,7 @@ export function Sidebar({
 
             <DropdownMenuItem
               variant="destructive"
-              onSelect={() => signOut({ callbackUrl: '/login' })}
+              onSelect={() => signOut()}
               className="gap-2"
             >
               <HugeiconsIcon icon={Logout01Icon} size={14} />

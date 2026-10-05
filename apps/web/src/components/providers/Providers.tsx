@@ -1,12 +1,13 @@
 'use client';
 
-import { SessionProvider } from 'next-auth/react';
-import type { Session } from 'next-auth';
-import { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useCallback, useContext, useEffect, useState } from 'react';
 import type { Locale, T } from '@/lib/i18n';
 import { translations } from '@/lib/i18n';
+import { toAuthUser, type AuthUser } from '@/lib/auth-user';
+import { createClient } from '@/lib/supabase/client';
+import { isSupabaseConfigured } from '@/lib/supabase/env';
 
-// ── Locale context ──────────────────────────────────────────────────────────
+// ── Locale context ────────────────────────────────────────────────────────────────────────
 
 interface LocaleContextValue {
   locale: Locale;
@@ -47,18 +48,59 @@ function LocaleProvider({ children }: { children: React.ReactNode }) {
   );
 }
 
-// ── Combined providers ───────────────────────────────────────────────────────
+// ── Auth context ──────────────────────────────────────────────────────────────────────────
+
+interface AuthContextValue {
+  user: AuthUser | null;
+  signOut: () => Promise<void>;
+}
+
+const AuthContext = createContext<AuthContextValue>({
+  user: null,
+  signOut: async () => {},
+});
+
+export function useAuth() {
+  return useContext(AuthContext);
+}
+
+function AuthProvider({
+  initialUser,
+  children,
+}: {
+  initialUser: AuthUser | null;
+  children: React.ReactNode;
+}) {
+  const [user, setUser] = useState<AuthUser | null>(initialUser);
+
+  useEffect(() => {
+    if (!isSupabaseConfigured) return;
+    const { data } = createClient().auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ? toAuthUser(session.user) : null);
+    });
+    return () => data.subscription.unsubscribe();
+  }, []);
+
+  const signOut = useCallback(async () => {
+    if (isSupabaseConfigured) await createClient().auth.signOut();
+    window.location.assign('/login');
+  }, []);
+
+  return <AuthContext.Provider value={{ user, signOut }}>{children}</AuthContext.Provider>;
+}
+
+// ── Combined providers ─────────────────────────────────────────────────────────────────────────
 
 export function Providers({
   children,
-  session,
+  user,
 }: {
   children: React.ReactNode;
-  session: Session | null;
+  user: AuthUser | null;
 }) {
   return (
-    <SessionProvider session={session}>
+    <AuthProvider initialUser={user}>
       <LocaleProvider>{children}</LocaleProvider>
-    </SessionProvider>
+    </AuthProvider>
   );
 }
