@@ -36,6 +36,10 @@ function LogoTile({ company, logo }: { company: string; logo: string }) {
           alt=""
           className="size-full object-contain p-2.5"
           onError={() => setMissing(true)}
+          // The error can fire before hydration: catch images that already failed.
+          ref={(img) => {
+            if (img && img.complete && img.naturalWidth === 0) setMissing(true);
+          }}
         />
       )}
     </span>
