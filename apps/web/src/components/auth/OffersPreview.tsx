@@ -1,40 +1,50 @@
-const OFFERS = [
-  { company: "Alan", title: "Senior Product Designer", place: "Paris", salary: "60–75K", color: "#4D6EF8" },
-  { company: "Qonto", title: "Product Designer", place: "Paris · Hybride", salary: "55–70K", color: "#7C5CFC" },
-  { company: "Doctolib", title: "Lead Product Designer", place: "Remote", salary: "70–90K", color: "#2EA3F2" },
-  { company: "PayFit", title: "Product Designer, Design System", place: "Paris", salary: "55–68K", color: "#E2528B" },
-  { company: "Swile", title: "Product Designer", place: "Lyon · Hybride", salary: "50–62K", color: "#F59E42" },
-  { company: "Back Market", title: "Senior UX/UI Designer", place: "Paris", salary: "60–72K", color: "#22A06B" },
-  { company: "Pennylane", title: "Product Designer", place: "Paris · Hybride", salary: "52–65K", color: "#3B82F6" },
-  { company: "Ledger", title: "Senior Product Designer", place: "Paris", salary: "65–80K", color: "#1F0D2C" },
-] as const;
+/* Placeholder offers. Set `logo` (an image path) to replace the initial tile with the real brand logo. */
+const OFFERS: ReadonlyArray<{
+  company: string;
+  title: string;
+  place: string;
+  salary: string;
+  logo?: string;
+}> = [
+  { company: "Nike", title: "Senior Product Designer", place: "Paris", salary: "65–80K" },
+  { company: "On", title: "Product Designer", place: "Zurich · Hybride", salary: "70–90K" },
+  { company: "Adidas", title: "UX Designer", place: "Remote", salary: "55–70K" },
+  { company: "Asics", title: "Lead Product Designer", place: "Paris", salary: "70–85K" },
+  { company: "Puma", title: "Digital Product Designer", place: "Lyon · Hybride", salary: "50–62K" },
+  { company: "Salomon", title: "Product Designer, Apps", place: "Annecy", salary: "55–68K" },
+  { company: "Nike", title: "Product Designer", place: "Amsterdam", salary: "60–75K" },
+  { company: "On", title: "Senior UX/UI Designer", place: "Zurich", salary: "75–95K" },
+];
 
 /**
- * Decorative list of offers shown beside the sign-in card. Static and
- * aria-hidden. Rows are much wider than the panel that holds them, so only
- * their left side shows: the right side is cropped by the panel's overflow.
+ * Decorative list of offers shown beside the sign-in card: one list, rows
+ * separated by hairlines. Static and aria-hidden. The list is much wider and
+ * taller than the panel that holds it, so it is cropped on the right and bottom.
  */
 export function OffersPreview() {
   return (
-    <ul aria-hidden className="flex w-[60rem] select-none flex-col gap-4">
+    <ul
+      aria-hidden
+      className="w-[60rem] select-none divide-y divide-stone-200 overflow-hidden rounded-[2rem] bg-white shadow-[0_8px_30px_rgba(0,0,0,0.08)]"
+    >
       {OFFERS.map((o) => (
-        <li
-          key={o.company + o.title}
-          className="flex items-center gap-5 rounded-2xl border border-[#E2B8FF]/60 bg-white p-5 shadow-[0_8px_24px_-12px_rgba(31,13,44,0.2)]"
-        >
-          <span
-            className="flex size-16 shrink-0 items-center justify-center rounded-2xl text-2xl font-semibold text-white"
-            style={{ backgroundColor: o.color }}
-          >
-            {o.company[0]}
+        <li key={o.company + o.title} className="flex items-center gap-5 px-7 py-6">
+          {/* Logo slot */}
+          <span className="flex size-16 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-stone-200 bg-stone-50 text-2xl font-semibold text-stone-900">
+            {o.logo ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={o.logo} alt="" className="size-full object-contain p-2" />
+            ) : (
+              o.company[0]
+            )}
           </span>
           <div className="whitespace-nowrap">
-            <div className="text-2xl font-semibold text-[#1F0D2C]">{o.title}</div>
-            <div className="mt-1 text-lg text-[#1F0D2C]/60">
+            <div className="text-2xl font-semibold text-stone-950">{o.title}</div>
+            <div className="mt-1 text-lg text-stone-500">
               {o.company} · {o.place}
             </div>
           </div>
-          <span className="ml-auto whitespace-nowrap text-lg font-medium text-[#1F0D2C]">{o.salary}</span>
+          <span className="ml-auto whitespace-nowrap text-lg font-medium text-stone-950">{o.salary}</span>
         </li>
       ))}
     </ul>
