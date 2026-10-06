@@ -18,7 +18,7 @@ const OFFERS = [
  */
 export function OffersPreview() {
   return (
-    <div aria-hidden className="w-[46rem] select-none rounded-2xl border border-black/5 bg-white shadow-[0_30px_80px_-20px_rgba(77,50,140,0.35)]">
+    <div aria-hidden className="w-[38rem] select-none rounded-2xl border border-black/5 bg-white shadow-[0_30px_80px_-20px_rgba(77,50,140,0.35)]">
       <div className="flex items-center justify-between border-b border-black/5 px-5 py-4">
         <div className="text-sm font-semibold">Product Designer</div>
         <div className="flex gap-2">

@@ -38,6 +38,11 @@ export const translations = {
       terms: 'Terms & Conditions',
       legalAnd: 'and',
       privacy: 'Privacy Policy',
+      or: 'OR',
+      emailPlaceholder: 'Enter your email',
+      continueWithEmail: 'Continue with email',
+      emailSoon: 'Email sign-in is coming soon.',
+      downloadDesktop: 'Download desktop app',
       disclaimer: 'We only access your public profile info — name, photo, email.',
     },
     settings: {
@@ -172,6 +177,11 @@ export const translations = {
       terms: "Conditions d'utilisation",
       legalAnd: 'et la',
       privacy: 'Politique de confidentialité',
+      or: 'OU',
+      emailPlaceholder: 'Entrez votre e-mail',
+      continueWithEmail: 'Continuer avec e-mail',
+      emailSoon: "La connexion par e-mail arrive bientôt.",
+      downloadDesktop: "Télécharger l'application de bureau",
       disclaimer: 'Nous accédons uniquement à votre profil public — nom, photo, email.',
     },
     settings: {
