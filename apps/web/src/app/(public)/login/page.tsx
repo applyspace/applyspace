@@ -2,7 +2,7 @@
 
 import { useSearchParams } from "next/navigation";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { Download04Icon, Loading02Icon } from "@hugeicons/core-free-icons";
+import { AppleIcon, Loading02Icon } from "@hugeicons/core-free-icons";
 import { useState } from "react";
 import { OffersPreview } from "@/components/auth/OffersPreview";
 import { ApplyLogo } from "@/components/brand/ApplyLogo";
@@ -149,7 +149,7 @@ export default function LoginPage() {
             type="button"
             className="mt-8 inline-flex items-center gap-2 rounded-full border border-[#E2B8FF] bg-white px-4 py-2 text-sm font-medium transition-colors hover:bg-[#F6EAFF]"
           >
-            <HugeiconsIcon icon={Download04Icon} size={16} />
+            <HugeiconsIcon icon={AppleIcon} size={16} />
             {t.auth.downloadDesktop}
           </button>
         </div>
