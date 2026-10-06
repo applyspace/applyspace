@@ -18,12 +18,12 @@ const OFFERS = [
  */
 export function OffersPreview() {
   return (
-    <div aria-hidden className="w-[38rem] select-none rounded-2xl border border-black/5 bg-white shadow-[0_30px_80px_-20px_rgba(77,50,140,0.35)]">
+    <div aria-hidden className="w-[38rem] select-none rounded-2xl border border-black/5 bg-white shadow-[0_30px_80px_-20px_rgba(31,13,44,0.25)]">
       <div className="flex items-center justify-between border-b border-black/5 px-5 py-4">
         <div className="text-sm font-semibold">Product Designer</div>
         <div className="flex gap-2">
           {["CDI", "Paris", "55K+"].map((chip) => (
-            <span key={chip} className="rounded-full bg-[#F3E8FF] px-2.5 py-1 text-[11px] font-medium text-[#6B3FA0]">
+            <span key={chip} className="rounded-full bg-[#F6EAFF] px-2.5 py-1 text-[11px] font-medium text-violet-700">
               {chip}
             </span>
           ))}
@@ -46,7 +46,7 @@ export function OffersPreview() {
             </div>
             <span className="rounded-md bg-neutral-100 px-2 py-1 text-[11px] font-medium text-neutral-600">{o.contract}</span>
             <span className="w-16 text-right text-xs text-neutral-500">{o.salary}</span>
-            <span className="w-10 rounded-full bg-[#F3E8FF] py-1 text-center text-[11px] font-semibold text-[#6B3FA0]">{o.match}%</span>
+            <span className="w-10 rounded-full bg-[#F6EAFF] py-1 text-center text-[11px] font-semibold text-violet-700">{o.match}%</span>
           </li>
         ))}
       </ul>

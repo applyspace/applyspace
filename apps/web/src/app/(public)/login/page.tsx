@@ -46,8 +46,8 @@ export default function LoginPage() {
           <ApplyLogo className="mb-12 h-7 w-auto text-foreground" />
 
           <h1
-            className="font-[family-name:var(--font-display)] text-[3rem] font-black leading-[1] tracking-[-0.055em]"
-            style={{ fontVariationSettings: '"SOFT" 100, "WONK" 1, "opsz" 144' }}
+            className="font-[family-name:var(--font-display)] text-[3rem] font-semibold leading-[1.02] tracking-[-0.04em] text-[#1F0D2C]"
+            style={{ fontVariationSettings: '"SOFT" 100, "WONK" 1, "opsz" 64' }}
           >
             {t.auth.headlineLine1}
             <br />
@@ -58,13 +58,13 @@ export default function LoginPage() {
             {t.auth.tagline}
           </p>
 
-          <div className="mt-8 flex flex-col gap-3 rounded-3xl border border-[#E9DDF5] bg-white p-5 shadow-[0_8px_30px_-12px_rgba(107,63,160,0.2)]">
+          <div className="mt-8 flex flex-col gap-3 rounded-3xl border border-[#E2B8FF]/50 bg-white p-5 shadow-[0_8px_30px_-12px_rgba(31,13,44,0.18)]">
             <Button
               onClick={() => handleSignIn("google")}
               disabled={disabled}
               variant="outline"
               size="lg"
-              className="h-12 w-full rounded-[10px] border-[#E2D4F0] bg-white text-base font-medium hover:bg-[#F7EFFD]"
+              className="h-12 w-full rounded-[10px] border-[#E2B8FF] bg-white text-base font-medium hover:bg-[#F6EAFF]"
             >
               {pending === "google" ? (
                 <HugeiconsIcon icon={Loading02Icon} size={16} className="animate-spin" />
@@ -79,7 +79,7 @@ export default function LoginPage() {
               disabled={disabled}
               variant="outline"
               size="lg"
-              className="h-12 w-full rounded-[10px] border-[#E2D4F0] bg-white text-base font-medium hover:bg-[#F7EFFD]"
+              className="h-12 w-full rounded-[10px] border-[#E2B8FF] bg-white text-base font-medium hover:bg-[#F6EAFF]"
             >
               {pending === "linkedin_oidc" ? (
                 <HugeiconsIcon icon={Loading02Icon} size={16} className="animate-spin" />
@@ -90,9 +90,9 @@ export default function LoginPage() {
             </Button>
 
             <div className="flex items-center gap-3 py-1 text-xs font-medium text-muted-foreground">
-              <span className="h-px flex-1 bg-[#E9DDF5]" />
+              <span className="h-px flex-1 bg-[#E2B8FF]/60" />
               {t.auth.or}
-              <span className="h-px flex-1 bg-[#E9DDF5]" />
+              <span className="h-px flex-1 bg-[#E2B8FF]/60" />
             </div>
 
             {/* Placeholder: email sign-in is designed but not wired yet */}
@@ -109,12 +109,12 @@ export default function LoginPage() {
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder={t.auth.emailPlaceholder}
                 autoComplete="email"
-                className="h-12 w-full rounded-[10px] border border-[#E2D4F0] bg-white px-4 text-base outline-none transition-shadow placeholder:text-muted-foreground/70 focus:border-[#7B45C9] focus:ring-3 focus:ring-[#7B45C9]/20"
+                className="h-12 w-full rounded-[10px] border border-[#E2B8FF] bg-white px-4 text-base outline-none transition-shadow placeholder:text-muted-foreground/70 focus:border-violet-500 focus:ring-3 focus:ring-violet-500/20"
               />
               <Button
                 type="submit"
                 size="lg"
-                className="h-12 w-full rounded-[10px] bg-[#7B45C9] text-base font-medium text-white hover:bg-[#6B3AB3]"
+                className="h-12 w-full rounded-[10px] bg-violet-600 text-base font-medium text-white hover:bg-violet-700"
               >
                 {t.auth.continueWithEmail}
               </Button>
@@ -147,7 +147,7 @@ export default function LoginPage() {
           {/* Placeholder: desktop download is designed but not wired yet */}
           <button
             type="button"
-            className="mt-8 inline-flex items-center gap-2 rounded-full border border-[#E2D4F0] bg-white px-4 py-2 text-sm font-medium transition-colors hover:bg-[#F7EFFD]"
+            className="mt-8 inline-flex items-center gap-2 rounded-full border border-[#E2B8FF] bg-white px-4 py-2 text-sm font-medium transition-colors hover:bg-[#F6EAFF]"
           >
             <HugeiconsIcon icon={Download04Icon} size={16} />
             {t.auth.downloadDesktop}
@@ -158,7 +158,7 @@ export default function LoginPage() {
       {/* App preview: a list of offers, cropped by the panel */}
       <aside
         aria-hidden
-        className="relative hidden overflow-hidden rounded-[28px] border border-[#E9DDF5] bg-[#F6F2FA] lg:block"
+        className="relative hidden overflow-hidden rounded-[28px] border border-[#E2B8FF]/50 bg-[#F6EAFF] lg:block"
       >
         <div className="absolute left-14 top-20 origin-top-left scale-[1.3]">
           <OffersPreview />
