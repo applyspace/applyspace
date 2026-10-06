@@ -1,13 +1,13 @@
 import type { Metadata } from 'next';
 import { headers } from 'next/headers';
-import { Fraunces, Inter } from 'next/font/google';
+import { Fraunces, Geist } from 'next/font/google';
 import './globals.css';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { Providers } from '@/components/providers/Providers';
 import { getCurrentUser } from '@/lib/auth';
 import { cn } from "@/lib/utils";
 
-const inter = Inter({subsets:['latin'],variable:'--font-sans'});
+const geist = Geist({ subsets: ['latin'], variable: '--font-sans' });
 // Display serif for headlines (sign-in landing). Variable axes give the soft, chunky cut.
 const fraunces = Fraunces({ subsets: ['latin'], variable: '--font-display', axes: ['SOFT', 'WONK', 'opsz'] });
 
@@ -33,7 +33,7 @@ export default async function RootLayout({
   const initialLocale = /^fr/i.test(preferred) ? 'fr' : 'en';
 
   return (
-    <html lang={initialLocale} className={cn("font-sans", inter.variable, fraunces.variable)}>
+    <html lang={initialLocale} className={cn("font-sans", geist.variable, fraunces.variable)}>
       <body className="antialiased">
         <Providers user={user} initialLocale={initialLocale}>
           <TooltipProvider>
