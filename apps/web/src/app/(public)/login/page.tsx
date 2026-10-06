@@ -16,9 +16,9 @@ import { isSupabaseConfigured } from "@/lib/supabase/env";
 
 type Provider = "google" | "linkedin_oidc";
 
-// Outline color (brand lilac), text color (brand dark) and the soft shadow shared by buttons.
+// Stone outline, stone text and the soft shadow shared by the buttons.
 const CONTROL =
-  "h-9 w-full rounded-lg border border-[#E2B8FF] bg-white text-sm font-medium text-[#1F0D2C] shadow-[0_1px_2px_rgba(31,13,44,0.06),0_4px_8px_-4px_rgba(31,13,44,0.08)] hover:bg-[#F6EAFF]";
+  "h-9 w-full rounded-lg border border-stone-200 bg-white text-sm font-medium text-stone-950 shadow-[0_1px_2px_rgba(0,0,0,0.05),0_4px_8px_-4px_rgba(0,0,0,0.06)] hover:bg-stone-50";
 
 export default function LoginPage() {
   const { t } = useLocale();
@@ -45,13 +45,11 @@ export default function LoginPage() {
   const disabled = pending !== null || !isSupabaseConfigured;
 
   return (
-    <div className="grid min-h-screen bg-white text-[#1F0D2C] lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
-      <div className="flex flex-col">
-        <header className="px-6 pt-6 sm:px-9">
-          <ApplyLogo className="h-6 w-auto text-[#1F0D2C]" />
-        </header>
+    <div className="grid min-h-screen bg-white text-stone-950 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
+      <main className="flex flex-col justify-center px-6 py-12 sm:px-12 lg:px-16">
+        <div className="mx-auto w-full max-w-[34rem]">
+          <ApplyLogo className="mb-12 h-7 w-auto text-stone-950" />
 
-        <main className="flex flex-1 flex-col items-center justify-center px-6 pb-16 pt-10 text-center">
           <h1
             className="font-[family-name:var(--font-display)] text-[3rem] font-semibold leading-[1.02] tracking-[-0.04em]"
             style={{ fontVariationSettings: '"SOFT" 100, "WONK" 1, "opsz" 64' }}
@@ -61,9 +59,9 @@ export default function LoginPage() {
             {t.auth.headlineLine2}
           </h1>
 
-          <p className="mt-4 text-sm lg:whitespace-nowrap">{t.auth.tagline}</p>
+          <p className="mt-4 text-sm text-stone-700 lg:whitespace-nowrap">{t.auth.tagline}</p>
 
-          <div className="mt-8 flex w-full max-w-[21rem] flex-col gap-2.5 rounded-3xl border border-[#E2B8FF] bg-white p-4 shadow-[0_4px_24px_rgba(31,13,44,0.06)]">
+          <div className="mt-8 flex w-full max-w-[22rem] flex-col gap-2.5 rounded-3xl border border-stone-200 bg-white p-4 shadow-[0_4px_24px_rgba(0,0,0,0.06)]">
             <Button
               onClick={() => handleSignIn("google")}
               disabled={disabled}
@@ -92,10 +90,10 @@ export default function LoginPage() {
               {t.auth.signInWith}
             </Button>
 
-            <div className="flex items-center gap-3 text-[11px] font-medium">
-              <span className="h-px flex-1 bg-[#E2B8FF]/60" />
+            <div className="flex items-center gap-3 text-[11px] font-medium text-stone-500">
+              <span className="h-px flex-1 bg-stone-200" />
               {t.auth.or}
-              <span className="h-px flex-1 bg-[#E2B8FF]/60" />
+              <span className="h-px flex-1 bg-stone-200" />
             </div>
 
             {/* Placeholder: email sign-in is designed but not wired yet */}
@@ -112,16 +110,16 @@ export default function LoginPage() {
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder={t.auth.emailPlaceholder}
                 autoComplete="email"
-                className="h-9 w-full rounded-lg border border-[#E2B8FF] bg-white px-3 text-sm outline-none transition-shadow placeholder:text-[#1F0D2C]/45 focus:ring-3 focus:ring-[#E2B8FF]/60"
+                className="h-9 w-full rounded-lg border border-stone-200 bg-white px-3 text-sm outline-none transition-shadow placeholder:text-stone-400 focus:border-stone-400 focus:ring-3 focus:ring-stone-200"
               />
               <Button
                 type="submit"
-                className="h-9 w-full rounded-lg bg-[#1F0D2C] text-sm font-medium text-white hover:bg-[#1F0D2C]/85"
+                className="h-9 w-full rounded-lg bg-stone-950 text-sm font-medium text-white hover:bg-stone-800"
               >
                 {t.auth.continueWithEmail}
               </Button>
               {emailNotice && (
-                <p role="status" className="text-xs">
+                <p role="status" className="text-xs text-stone-600">
                   {t.auth.emailSoon}
                 </p>
               )}
@@ -133,9 +131,9 @@ export default function LoginPage() {
               </p>
             )}
 
-            <p className="px-1 text-[11px] leading-snug text-[#1F0D2C]/70">
+            <p className="px-1 text-[11px] leading-snug text-stone-500">
               {t.auth.legalBefore}{" "}
-              <span className="cursor-pointer underline underline-offset-2 transition-colors hover:text-[#1F0D2C]">
+              <span className="cursor-pointer underline underline-offset-2 transition-colors hover:text-stone-950">
                 {t.auth.privacy}
               </span>
               .
@@ -145,18 +143,18 @@ export default function LoginPage() {
           {/* Placeholder: desktop download is designed but not wired yet */}
           <button
             type="button"
-            className="mt-5 inline-flex h-9 items-center gap-2 rounded-lg border border-[#E2B8FF] bg-white px-3.5 text-sm font-medium shadow-[0_1px_2px_rgba(31,13,44,0.06),0_4px_8px_-4px_rgba(31,13,44,0.08)] transition-colors hover:bg-[#F6EAFF]"
+            className="mt-5 inline-flex h-9 items-center gap-2 rounded-lg border border-stone-200 bg-white px-3.5 text-sm font-medium shadow-[0_1px_2px_rgba(0,0,0,0.05),0_4px_8px_-4px_rgba(0,0,0,0.06)] transition-colors hover:bg-stone-50"
           >
             <AppleIcon className="size-5" />
             {t.auth.downloadDesktop}
           </button>
-        </main>
-      </div>
+        </div>
+      </main>
 
-      {/* App preview: a small window on a list of offers, cropped on the right */}
+      {/* App preview: a small window on a list of offers, cropped on the right and bottom */}
       <aside aria-hidden className="hidden items-center justify-center pr-12 lg:flex">
-        <div className="relative h-[min(41rem,80vh)] w-full max-w-[33rem] overflow-hidden rounded-2xl bg-[#F6EAFF] shadow-[0_4px_24px_rgba(31,13,44,0.08)]">
-          <div className="absolute left-6 top-6">
+        <div className="relative h-[min(41rem,80vh)] w-full max-w-[33rem] overflow-hidden rounded-[2rem] bg-stone-100 shadow-[0_4px_24px_rgba(0,0,0,0.06)]">
+          <div className="absolute left-14 top-16">
             <OffersPreview />
           </div>
         </div>
