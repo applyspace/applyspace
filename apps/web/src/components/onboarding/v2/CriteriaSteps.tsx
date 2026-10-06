@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { HugeiconsIcon, type IconSvgElement } from '@hugeicons/react';
 import {
   Agreement03Icon,
@@ -25,16 +26,17 @@ import {
   Stethoscope02Icon,
   User02Icon,
   UserGroupIcon,
-  UserMultiple02Icon,
-  Building04Icon,
+  Building02Icon,
+  Building05Icon,
+  Tick02Icon,
   BankIcon,
   Wallet01Icon,
 } from '@hugeicons/core-free-icons';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Input } from '@/components/ui/input';
 import { Slider } from '@/components/ui/slider';
 import { ChoiceCard, toggle } from '@/components/onboarding/v2/fields';
-import { Flag, type FlagCode } from '@/components/onboarding/v2/flags';
 import { StepHeader } from '@/components/onboarding/v2/StepHeader';
 import { cn } from '@/lib/utils';
 
@@ -49,24 +51,24 @@ const CURRENCIES = [
 export const SALARY_MIN = 0;
 export const SALARY_MAX = 300;
 
-/** Placeholder salary distribution (purely visual for now), one bar per 10K. */
-const SALARY_BARS = [2, 4, 7, 12, 22, 34, 46, 58, 64, 60, 52, 44, 36, 30, 24, 19, 15, 12, 9, 8, 6, 5, 4, 4, 3, 3, 2, 2, 2, 3];
+/**
+ * Placeholder salary distribution (purely visual for now), one bar per 5K.
+ * Two overlapping bumps (junior and senior pay) plus deterministic jitter, so it looks like real data.
+ */
+const SALARY_BARS = Array.from({ length: 60 }, (_, i) => {
+  const x = (i + 0.5) * 5;
+  const bump = (mu: number, sigma: number, h: number) => h * Math.exp(-((x - mu) ** 2) / (2 * sigma ** 2));
+  const jitter = 0.72 + 0.56 * Math.abs(Math.sin(i * 12.9898 + 4.1) * Math.cos(i * 3.7 + 1.3));
+  const roundNumber = x % 50 === 2.5 ? 1.12 : 1; // salaries cluster around round figures
+  return Math.max(1.5, (bump(42, 13, 100) + bump(78, 20, 62) + bump(130, 40, 14)) * jitter * roundNumber);
+});
 
 const SIZES: { label: string; icon: IconSvgElement }[] = [
   { label: '1-10', icon: User02Icon },
   { label: '11-50', icon: UserGroupIcon },
-  { label: '51-200', icon: UserMultiple02Icon },
-  { label: '201-1,000', icon: Building04Icon },
+  { label: '51-200', icon: Building02Icon },
+  { label: '201-1,000', icon: Building05Icon },
   { label: '1,000+', icon: City01Icon },
-];
-
-const LANGUAGES: { label: string; flag: FlagCode }[] = [
-  { label: 'English', flag: 'en' },
-  { label: 'French', flag: 'fr' },
-  { label: 'German', flag: 'de' },
-  { label: 'Spanish', flag: 'es' },
-  { label: 'Italian', flag: 'it' },
-  { label: 'Portuguese', flag: 'pt' },
 ];
 
 type Tone = 'blue' | 'emerald' | 'rose' | 'orange' | 'violet' | 'teal' | 'amber' | 'slate';
@@ -105,7 +107,29 @@ const SECTORS: { label: string; icon: IconSvgElement; tone: Tone }[] = [
   { label: 'Public sector', icon: Building06Icon, tone: 'slate' },
 ];
 
-/** Airbnb-style salary range: a placeholder distribution above a two-thumb slider, with a ghost currency dropdown. */
+/** Editable amount (in K): commits on blur or Enter, clamped to the bounds. */
+function AmountInput({ value, min, max, onCommit, label }: { value: number; min: number; max: number; onCommit: (n: number) => void; label: string }) {
+  const [draft, setDraft] = useState<string | null>(null);
+  const commit = () => {
+    const n = Number(draft);
+    if (draft !== null && draft.trim() !== '' && Number.isFinite(n)) onCommit(Math.min(max, Math.max(min, Math.round(n))));
+    setDraft(null);
+  };
+  return (
+    <Input
+      inputMode="numeric"
+      aria-label={label}
+      value={draft ?? String(value)}
+      onChange={(e) => setDraft(e.target.value.replace(/[^\d]/g, ''))}
+      onFocus={(e) => e.currentTarget.select()}
+      onBlur={commit}
+      onKeyDown={(e) => e.key === 'Enter' && e.currentTarget.blur()}
+      className="h-10 w-16 rounded-xl px-2 text-center text-base font-medium tabular-nums"
+    />
+  );
+}
+
+/** Airbnb-style salary range: a placeholder distribution above a two-thumb slider, editable bounds and a ghost currency dropdown. */
 function SalaryRange({
   range,
   onRange,
@@ -124,11 +148,11 @@ function SalaryRange({
 
   return (
     <div className="mx-auto w-full max-w-xl">
-      <div className="flex h-20 items-end gap-0.5 px-2" aria-hidden>
+      <div className="flex h-20 items-end gap-px px-2" aria-hidden>
         {SALARY_BARS.map((v, i) => {
           const from = SALARY_MIN + i * perBar;
           const inside = from + perBar > lo && from < hi;
-          return <div key={i} className={cn('flex-1 rounded-t-sm', inside ? 'bg-foreground' : 'bg-foreground/15')} style={{ height: `${(v / peak) * 100}%` }} />;
+          return <div key={i} className={cn('flex-1 rounded-t-[2px]', inside ? 'bg-pink-500' : 'bg-pink-500/20')} style={{ height: `${(v / peak) * 100}%` }} />;
         })}
       </div>
       <Slider
@@ -139,18 +163,20 @@ function SalaryRange({
         minStepsBetweenValues={1}
         onValueChange={(v) => Array.isArray(v) && onRange([...v])}
         aria-label="Salary range"
-        className="mt-3"
+        className="mt-3 **:data-[slot=slider-range]:bg-pink-500"
       />
-      <div className="mt-5 flex items-center justify-center gap-1 text-lg font-medium tabular-nums">
-        <span>
-          {lo}K – {hi === SALARY_MAX ? `${SALARY_MAX}K+` : `${hi}K`}
-        </span>
+      <div className="mt-5 flex items-center justify-center gap-1.5 text-lg font-medium">
+        <AmountInput value={lo} min={SALARY_MIN} max={hi - 5} onCommit={(n) => onRange([n, hi])} label="Minimum salary in thousands" />
+        <span>K</span>
+        <span className="px-1 text-muted-foreground">–</span>
+        <AmountInput value={hi} min={lo + 5} max={SALARY_MAX} onCommit={(n) => onRange([lo, n])} label="Maximum salary in thousands" />
+        <span>K{hi === SALARY_MAX && '+'}</span>
         <DropdownMenu>
-          <DropdownMenuTrigger render={<Button variant="ghost" size="sm" className="gap-1 px-2 text-lg font-medium" aria-label="Currency" />}>
+          <DropdownMenuTrigger render={<Button variant="ghost" size="sm" className="h-8 gap-0.5 px-1.5 text-lg font-medium" aria-label="Currency" />}>
             {symbol}
-            <HugeiconsIcon icon={ArrowDown01Icon} size={14} strokeWidth={2} />
+            <HugeiconsIcon icon={ArrowDown01Icon} size={12} strokeWidth={2} />
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="center">
+          <DropdownMenuContent align="center" className="min-w-0">
             {CURRENCIES.map((c) => (
               <DropdownMenuItem key={c.code} onClick={() => onCurrency(c.code)}>
                 {c.symbol} {c.code}
@@ -198,19 +224,15 @@ export function ContractStep({
   );
 }
 
-/** Company size, languages and sectors. Empty means no filter. */
+/** Company size and sectors. Empty means no filter. */
 export function CompanyStep({
   sizes,
   onSizes,
-  languages,
-  onLanguages,
   sectors,
   onSectors,
 }: {
   sizes: string[];
   onSizes: (next: string[]) => void;
-  languages: string[];
-  onLanguages: (next: string[]) => void;
   sectors: string[];
   onSectors: (next: string[]) => void;
 }) {
@@ -220,18 +242,19 @@ export function CompanyStep({
       <div className="mx-auto flex max-w-3xl flex-col items-center gap-6">
         <div className="flex flex-wrap justify-center gap-4">
           {SIZES.map((s) => (
-            <ChoiceCard key={s.label} selected={sizes.includes(s.label)} onClick={() => onSizes(toggle(sizes, s.label))}>
-              <HugeiconsIcon icon={s.icon} size={18} strokeWidth={1.8} />
+            <button
+              key={s.label}
+              type="button"
+              aria-pressed={sizes.includes(s.label)}
+              onClick={() => onSizes(toggle(sizes, s.label))}
+              className={cn(
+                'flex h-24 w-32 flex-col items-center justify-center gap-2.5 rounded-xl bg-card text-sm font-medium ring-1 ring-foreground/10 transition-colors outline-none hover:bg-muted/50 focus-visible:ring-3 focus-visible:ring-ring/30',
+                sizes.includes(s.label) && 'bg-muted ring-2 ring-foreground hover:bg-muted',
+              )}
+            >
+              <HugeiconsIcon icon={s.icon} size={26} strokeWidth={1.6} />
               {s.label}
-            </ChoiceCard>
-          ))}
-        </div>
-        <div className="flex flex-wrap justify-center gap-3">
-          {LANGUAGES.map((l) => (
-            <ChoiceCard key={l.label} selected={languages.includes(l.label)} onClick={() => onLanguages(toggle(languages, l.label))}>
-              <Flag code={l.flag} />
-              {l.label}
-            </ChoiceCard>
+            </button>
           ))}
         </div>
         <div className="flex flex-wrap justify-center gap-3 border-t pt-6">
@@ -244,7 +267,7 @@ export function CompanyStep({
                 aria-pressed={selected}
                 onClick={() => onSectors(toggle(sectors, s.label))}
                 className={cn(
-                  'flex h-9 items-center gap-2 rounded-full bg-card pr-3.5 pl-1.5 text-sm font-medium ring-1 ring-foreground/10 transition-colors outline-none hover:bg-muted/50 focus-visible:ring-3 focus-visible:ring-ring/30',
+                  'flex h-9 items-center gap-2 rounded-full bg-card pr-2 pl-1.5 text-sm font-medium ring-1 ring-foreground/10 transition-colors outline-none hover:bg-muted/50 focus-visible:ring-3 focus-visible:ring-ring/30',
                   selected && 'bg-muted ring-2 ring-foreground hover:bg-muted',
                 )}
               >
@@ -252,6 +275,15 @@ export function CompanyStep({
                   <HugeiconsIcon icon={s.icon} size={14} strokeWidth={2} />
                 </span>
                 {s.label}
+                <span
+                  className={cn(
+                    'flex size-5 items-center justify-center rounded-full bg-foreground text-background transition-all',
+                    selected ? 'scale-100 opacity-100' : 'scale-50 opacity-0',
+                  )}
+                  aria-hidden
+                >
+                  <HugeiconsIcon icon={Tick02Icon} size={12} strokeWidth={3} />
+                </span>
               </button>
             );
           })}

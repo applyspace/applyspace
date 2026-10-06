@@ -1,6 +1,8 @@
 'use client';
 
+import { useState } from 'react';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { StepHeader } from '@/components/onboarding/v2/StepHeader';
 import { cn } from '@/lib/utils';
@@ -19,10 +21,23 @@ const PLATFORMS: PlatformOption[] = [
   { name: 'France Travail', description: 'The French public employment service, with offers across the country.', franceOnly: true },
 ];
 
+/** Shown after "See more". */
+const MORE_PLATFORMS: PlatformOption[] = [
+  { name: 'Apec', description: 'The French platform dedicated to executives and experienced professionals.', franceOnly: true },
+  { name: 'Cadremploi', description: 'Offers for managers and qualified profiles, mostly in France.', franceOnly: true },
+  { name: 'Free-Work', description: 'IT and tech missions and permanent roles, with freelance in focus.', franceOnly: true },
+  { name: 'Malt', description: 'A marketplace connecting freelancers with companies for missions.' },
+  { name: 'Wellfound', description: 'Startup jobs with salary and equity shown upfront.' },
+  { name: 'Monster', description: 'A long-running international job board with a wide range of roles.' },
+  { name: 'ZipRecruiter', description: 'Matches your profile with offers and pushes it to employers.' },
+  { name: 'Jobijoba', description: 'A French aggregator that gathers offers from many job boards.', franceOnly: true },
+];
+
 /** Which job platforms to search. Logos will come from Brandfetch; initials stand in for now. */
 export function PlatformsStep({ places, values, onChange }: { places: string[]; values: string[]; onChange: (next: string[]) => void }) {
   const inFrance = places.length === 0 || places.some((p) => /france|paris|lyon|bordeaux|nantes|le-de-france/i.test(p));
-  const list = PLATFORMS.filter((p) => !p.franceOnly || inFrance);
+  const [expanded, setExpanded] = useState(false);
+  const list = (expanded ? [...PLATFORMS, ...MORE_PLATFORMS] : PLATFORMS).filter((p) => !p.franceOnly || inFrance);
 
   return (
     <>
@@ -53,6 +68,13 @@ export function PlatformsStep({ places, values, onChange }: { places: string[]; 
           );
         })}
       </div>
+      {!expanded && (
+        <div className="mt-6 flex justify-center">
+          <Button variant="outline" size="lg" onClick={() => setExpanded(true)}>
+            See more
+          </Button>
+        </div>
+      )}
     </>
   );
 }

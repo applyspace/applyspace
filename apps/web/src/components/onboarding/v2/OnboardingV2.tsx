@@ -71,7 +71,6 @@ export function OnboardingV2() {
   const [range, setRange] = useState([0, 300]);
   const [currency, setCurrency] = useState('EUR');
   const [sizes, setSizes] = useState<string[]>([]);
-  const [languages, setLanguages] = useState<string[]>([]);
   const [sectors, setSectors] = useState<string[]>([]);
   const [platforms, setPlatforms] = useState<string[]>([]);
 
@@ -90,7 +89,7 @@ export function OnboardingV2() {
 
   return (
     <div className="flex min-h-dvh flex-col bg-background text-foreground">
-      <div className="flex justify-center pt-[5vh] pb-[7vh]">
+      <div className="flex justify-center pt-12 pb-[12vh]">
         <ApplyLogo className="h-8 w-auto text-foreground" />
       </div>
 
@@ -146,9 +145,7 @@ export function OnboardingV2() {
         {current === 'contract' && (
           <ContractStep contracts={contracts} onContracts={setContracts} range={range} onRange={setRange} currency={currency} onCurrency={setCurrency} />
         )}
-        {current === 'company' && (
-          <CompanyStep sizes={sizes} onSizes={setSizes} languages={languages} onLanguages={setLanguages} sectors={sectors} onSectors={setSectors} />
-        )}
+        {current === 'company' && <CompanyStep sizes={sizes} onSizes={setSizes} sectors={sectors} onSectors={setSectors} />}
         {current === 'platforms' && <PlatformsStep places={places} values={platforms} onChange={setPlatforms} />}
         {current === 'plan' && <PlanStep onSelect={() => router.push('/')} />}
       </main>

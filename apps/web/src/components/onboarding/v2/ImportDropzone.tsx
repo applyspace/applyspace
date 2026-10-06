@@ -34,12 +34,12 @@ export function ImportDropzone({
   return (
     <div className="mx-auto flex w-full max-w-xl flex-col items-center gap-4">
       <Tabs value={source} onValueChange={(v) => setSource(v as Source)}>
-        <TabsList className="h-12">
-          <TabsTrigger value="cv">
+        <TabsList className="h-14 p-1.5">
+          <TabsTrigger value="cv" className="px-5 text-base">
             <HugeiconsIcon icon={File01Icon} strokeWidth={1.8} />
             Resume
           </TabsTrigger>
-          <TabsTrigger value="linkedin">
+          <TabsTrigger value="linkedin" className="px-5 text-base">
             <LinkedInIcon className="size-4 text-[#0A66C2]" />
             LinkedIn Profile
           </TabsTrigger>
