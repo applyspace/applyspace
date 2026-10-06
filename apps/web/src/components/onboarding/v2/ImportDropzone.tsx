@@ -61,7 +61,7 @@ export function ImportDropzone({
               onFile(e.dataTransfer.files[0] ?? null);
             }}
             className={cn(
-              'flex min-h-44 flex-col items-center justify-center gap-3 rounded-3xl border border-dashed border-border px-6 py-8 text-center transition-colors',
+              'flex min-h-40 flex-col items-center justify-center gap-3 rounded-3xl border border-dashed border-border px-6 py-6 text-center transition-colors',
               dragging && 'border-foreground bg-muted',
             )}
           >
@@ -87,22 +87,20 @@ export function ImportDropzone({
       </Card>
 
       {source === 'linkedin' && (
-        <div className="flex w-full items-start gap-3 rounded-3xl bg-muted px-5 py-4 text-sm text-foreground">
-          <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-pink-100 text-pink-500">
-            <HugeiconsIcon icon={BulbIcon} size={18} strokeWidth={1.8} />
-          </span>
+        <div className="flex w-full items-start gap-3 rounded-3xl bg-yellow-50 px-5 py-3 text-sm text-yellow-900">
+          <HugeiconsIcon icon={BulbIcon} size={20} strokeWidth={1.8} className="mt-0.5 shrink-0 text-yellow-700" />
           <div>
-            <p className="font-medium">Export your LinkedIn profile in 3 steps</p>
-            <ol className="mt-1.5 list-decimal space-y-0.5 pl-4 text-muted-foreground">
+            <p className="font-medium">Export your LinkedIn profile as a PDF</p>
+            <ol className="mt-1.5 list-decimal space-y-0.5 pl-4 text-yellow-800">
               <li>
                 Go to{' '}
-                <a href="https://www.linkedin.com/in/me/" target="_blank" rel="noopener noreferrer" className="font-medium text-foreground underline underline-offset-2">
+                <a href="https://www.linkedin.com/in/me/" target="_blank" rel="noopener noreferrer" className="font-medium text-yellow-900 underline underline-offset-2">
                   your profile on LinkedIn
                 </a>
                 .
               </li>
-              <li>Choose More, then Save to PDF.</li>
-              <li>Upload the PDF in the card above.</li>
+              <li>Click More (or Resources) under your name, then Save to PDF.</li>
+              <li>Drop the downloaded PDF in the box above.</li>
             </ol>
           </div>
         </div>
