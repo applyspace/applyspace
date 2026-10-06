@@ -150,16 +150,14 @@ export function OnboardingV2() {
         {current === 'plan' && <PlanStep onSelect={() => router.push('/')} />}
       </main>
 
-      <div className="px-6 pt-4 pb-[5vh]">
-        <div className="relative mx-auto flex max-w-xl items-center justify-between">
-          <Button variant="outline" size="icon-lg" aria-label="Back" className={cn(step === 0 && 'invisible')} onClick={() => setStep(step - 1)}>
-            <HugeiconsIcon icon={ArrowLeft01Icon} size={20} strokeWidth={1.8} />
-          </Button>
-          {last ? (
-            <Button variant="ghost" size="lg" className="absolute left-1/2 -translate-x-1/2">
-              Compare all features
+      {last ? (
+        <div className="pb-[5vh]" />
+      ) : (
+        <div className="px-6 pt-4 pb-[5vh]">
+          <div className="relative mx-auto flex max-w-xl items-center justify-between">
+            <Button variant="outline" size="icon-lg" aria-label="Back" className={cn(step === 0 && 'invisible')} onClick={() => setStep(step - 1)}>
+              <HugeiconsIcon icon={ArrowLeft01Icon} size={20} strokeWidth={1.8} />
             </Button>
-          ) : (
             <div className="flex items-center gap-2">
               <Button variant="ghost" size="lg" onClick={() => setStep(step + 1)}>
                 Skip this step
@@ -168,9 +166,9 @@ export function OnboardingV2() {
                 Next
               </Button>
             </div>
-          )}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }
