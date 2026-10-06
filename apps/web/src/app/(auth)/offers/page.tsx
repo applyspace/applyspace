@@ -8,8 +8,10 @@ import {
   HomeWifiIcon,
 } from "@hugeicons/core-free-icons";
 import { readOffers } from "@/lib/offers";
+import { readSearches } from "@/lib/searches";
 import { readSettings } from "@/lib/settings";
 import { EditSearchButton } from "@/components/jobs/EditSearchButton";
+import { SearchNowButton } from "@/components/jobs/SearchNowButton";
 import { JobTable } from "@/components/jobs/JobTable";
 
 const CONTRACT_EN: Record<string, string> = {
@@ -67,7 +69,11 @@ function mergeCompanySizes(sizes: string[]): string | null {
 }
 
 export default async function OffersPage() {
-  const [offers, settings] = await Promise.all([readOffers(), readSettings()]);
+  const [offers, settings, searches] = await Promise.all([
+    readOffers(),
+    readSettings(),
+    readSearches(),
+  ]);
 
   const salaryLabel = (() => {
     const { salaryMin, salaryMax } = settings;
@@ -167,7 +173,10 @@ export default async function OffersPage() {
             </div>
 
             {/* Edit button */}
-            <EditSearchButton settings={settings} />
+            <div className="flex shrink-0 items-start gap-3">
+              {searches[0] && <SearchNowButton searchId={searches[0].id} />}
+              <EditSearchButton settings={settings} />
+            </div>
           </div>
         </div>
       </div>

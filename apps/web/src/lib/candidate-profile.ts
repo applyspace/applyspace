@@ -1,10 +1,14 @@
+import type { ExperienceLevel } from '@apply/db';
 import { UUID_RE } from '@/lib/supabase/rows';
+import { entrySlug } from '@/lib/slug';
 import type { SupabaseScope } from '@/lib/supabase/scope';
 import {
   ACCOUNT_PLAN_VALUES,
   DOCUMENTS_BUCKET,
   type Account,
   type AccountPlan,
+  type ContractToken,
+  type CreatedSearch,
   type DocumentEntry,
   type DocumentKind,
   type DocumentUploadInput,
@@ -165,7 +169,7 @@ async function findDefaultProfile({ supabase }: SupabaseScope): Promise<ProfileR
 }
 
 /** Experiences, education and skills hang off the default profile; create it on first use. */
-async function getOrCreateDefaultProfile(s: SupabaseScope, jobTitle?: string): Promise<ProfileRef> {
+export async function getOrCreateDefaultProfile(s: SupabaseScope, jobTitle?: string): Promise<ProfileRef> {
   const existing = await findDefaultProfile(s);
   if (existing) return existing;
   const created = must(
@@ -238,6 +242,64 @@ export async function saveFirstSearch(s: SupabaseScope, input: FirstSearchInput)
       );
     }
   }
+}
+
+/** Thrown when a Free account tries to add a second search profile. */
+export class PlanLimitError extends Error {
+  constructor() {
+    super('The Free plan includes one search profile.');
+  }
+}
+
+export interface NewSearchValues {
+  title: string;
+  location: string;
+  contractTypes: ContractToken[];
+  experienceLevels: ExperienceLevel[];
+}
+
+/**
+ * Adds one search profile on the default profile. A Free account that already
+ * has a search is refused up front; the database trigger
+ * `searches_free_plan_limit` (message `free_plan_search_limit`) is the backstop
+ * for races and maps to the same `PlanLimitError`.
+ */
+export async function insertSearch(s: SupabaseScope, input: NewSearchValues): Promise<CreatedSearch> {
+  const title = clean(input.title);
+  if (!title) throw new InvalidInputError('Add a job title.');
+
+  const { plan } = await getAccount(s);
+  if (plan !== 'plus') {
+    const { count, error } = await s.supabase.from('searches').select('id', { count: 'exact', head: true });
+    if (error) throw new Error(`Supabase searches: ${error.message}`);
+    if ((count ?? 0) > 0) throw new PlanLimitError();
+  }
+
+  const profile = await getOrCreateDefaultProfile(s, title);
+  const { data, error } = await s.supabase
+    .from('searches')
+    .insert({
+      user_id: s.userId,
+      profile_id: profile.id,
+      search_title: title,
+      location: orNull(input.location),
+      contract_types: input.contractTypes,
+      experience_levels: input.experienceLevels,
+    })
+    .select('id, search_title, location')
+    .single();
+  if (error) {
+    if (error.message.startsWith('free_plan_search_limit')) throw new PlanLimitError();
+    if (error.code === '23505') throw new InvalidInputError('You already have a search with this title.');
+    throw new Error(`Supabase searches: ${error.message}`);
+  }
+  const row = data as { id: string; search_title: string; location: string | null };
+  return {
+    id: row.id,
+    searchTitle: row.search_title,
+    location: row.location,
+    slug: entrySlug([row.search_title, row.location], row.id),
+  };
 }
 
 // --- companies ---------------------------------------------------------------

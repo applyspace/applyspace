@@ -133,3 +133,25 @@ export type DocumentsData =
 export type ActionResult<T = void> =
   | { ok: true; data: T }
   | { ok: false; reason: 'signed-out' | 'invalid' | 'unavailable'; message: string };
+
+/** Criteria of a search profile created from the sidebar "New search" dialog. */
+export interface NewSearchInput {
+  title: string;
+  location: string;
+  contractTypes: ContractToken[];
+  experienceLevels: ExperienceLevel[];
+}
+
+/** A search just created: enough to navigate to its page. */
+export interface CreatedSearch {
+  id: string;
+  searchTitle: string;
+  location: string | null;
+  /** `<title>-<location>-<id>` segment of `/offers/[slug]`. */
+  slug: string;
+}
+
+/** `plan-limit`: the Free plan already has its one search profile. */
+export type CreateSearchResult =
+  | ActionResult<CreatedSearch>
+  | { ok: false; reason: 'plan-limit'; message: string };
