@@ -1,57 +1,65 @@
 'use client';
 
-import { HugeiconsIcon } from '@hugeicons/react';
-import { Tick02Icon } from '@hugeicons/core-free-icons';
-import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader } from '@/components/ui/card';
 import { StepHeader } from '@/components/onboarding/v2/StepHeader';
 import { cn } from '@/lib/utils';
 
 const PLANS = [
   {
-    name: 'Apply FREE',
+    key: 'FREE',
+    color: 'text-emerald-600',
     tagline: 'Everything to start your search.',
-    current: true,
-    features: ['1 search profile', '3 job titles, 3 locations', '15 active applications', 'Fit message generation'],
+    intro: null,
+    features: ['1 search profile', '15 applications, whatever their status', 'Fit message generation', 'Application and interview tracking'],
+    cta: 'outline',
   },
   {
-    name: 'Apply PLUS',
-    tagline: 'More profiles, more criteria.',
-    current: false,
-    features: ['3 search profiles', '6 job titles', '99 active applications', 'Network connections at a company'],
+    key: 'PLUS',
+    color: 'text-violet-600',
+    tagline: 'More profiles, sharper search.',
+    intro: 'Everything in FREE, and:',
+    features: ['3 search profiles', '99 applications', 'Advanced search filters', 'Company insights', 'Network connections at a company'],
+    cta: 'default',
   },
   {
-    name: 'Apply MAX',
-    tagline: 'No limits.',
-    current: false,
-    features: ['Unlimited search profiles', 'Unlimited titles and locations', 'Unlimited applications', 'Everything in PLUS'],
+    key: 'MAX',
+    color: 'text-amber-500',
+    tagline: 'No limits, all features.',
+    intro: 'Everything in PLUS, and:',
+    features: ['Unlimited search profiles', 'Unlimited applications', 'Unlimited extra files in Resources'],
+    cta: 'default',
   },
 ] as const;
 
-/** Final step: the user starts on FREE. Paid plans are shown but cannot be bought yet, so there is nothing to select. */
-export function PlanStep() {
+/** Final step. Plans are not selectable cards: each "Select plan" button moves forward. Billing is fictional for now. */
+export function PlanStep({ onSelect }: { onSelect: (plan: string) => void }) {
   return (
     <>
-      <StepHeader title="You start on Apply FREE" subtitle="Paid plans are coming soon. Your data stays if you switch later." />
-      <div className="mx-auto grid max-w-3xl grid-cols-3 gap-4">
+      <StepHeader title="Choose your plan" subtitle="Start free and upgrade whenever you need more." />
+      <div className="mx-auto grid max-w-5xl grid-cols-3 gap-5">
         {PLANS.map((p) => (
-          <Card key={p.name} className={cn('gap-4', p.current && 'ring-2 ring-foreground')}>
+          <Card key={p.key} className="gap-5 py-6">
             <CardHeader>
-              <CardTitle className="flex items-center justify-between">
-                {p.name}
-                {p.current ? <Badge>Your plan</Badge> : <Badge variant="secondary">Coming soon</Badge>}
-              </CardTitle>
-              <CardDescription>{p.tagline}</CardDescription>
+              <p className="text-sm font-medium text-muted-foreground">Apply</p>
+              <p className={cn('font-sans text-5xl font-extrabold tracking-[0.08em]', p.color)}>{p.key}</p>
+              <CardDescription className="pt-1">{p.tagline}</CardDescription>
             </CardHeader>
-            <CardContent>
-              <ul className="space-y-2.5 text-sm">
-                {p.features.map((f) => (
-                  <li key={f} className="flex items-start gap-2">
-                    <HugeiconsIcon icon={Tick02Icon} size={16} strokeWidth={2} className="mt-0.5 shrink-0" />
-                    {f}
-                  </li>
-                ))}
-              </ul>
+            <CardContent className="flex flex-1 flex-col gap-5">
+              <Button variant={p.cta} size="lg" className="w-full" onClick={() => onSelect(p.key)}>
+                Select plan
+              </Button>
+              <div className="space-y-3 text-sm">
+                {p.intro && <p className="font-medium">{p.intro}</p>}
+                <ul className="space-y-2.5">
+                  {p.features.map((f) => (
+                    <li key={f} className="flex items-start gap-2.5">
+                      <span className="mt-[7px] size-1.5 shrink-0 rounded-full bg-foreground" />
+                      {f}
+                    </li>
+                  ))}
+                </ul>
+              </div>
             </CardContent>
           </Card>
         ))}
