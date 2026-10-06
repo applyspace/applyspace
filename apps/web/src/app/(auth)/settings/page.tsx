@@ -1,16 +1,19 @@
-import { readSettings, checkSourceConnected } from '@/lib/settings';
-import { ALL_SOURCES } from '@/lib/sources';
-import { SettingsShell } from '@/components/settings/SettingsShell';
+import { redirect } from 'next/navigation';
+import { SETTINGS_PARAM, isSettingsSection } from '@/lib/settingsSections';
 
-export default async function SettingsPage() {
-  const [settings, ...connectedResults] = await Promise.all([
-    readSettings(),
-    ...ALL_SOURCES.map((src) => checkSourceConnected(src)),
-  ]);
-
-  const statuses = Object.fromEntries(
-    ALL_SOURCES.map((src, i) => [src, connectedResults[i]])
-  );
-
-  return <SettingsShell settings={settings} statuses={statuses} />;
+/**
+ * Settings is a modal now (see `SettingsModal`). This route stays so old links
+ * keep working: it opens the modal over the offers. `/settings?section=billing`
+ * lands on that section.
+ *
+ * The target is `/offers` and not `/` because the proxy redirects `/` and
+ * drops the query string on the way.
+ */
+export default async function SettingsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ section?: string }>;
+}) {
+  const { section } = await searchParams;
+  redirect(`/offers?${SETTINGS_PARAM}=${isSettingsSection(section) ? section : 'general'}`);
 }
