@@ -154,8 +154,8 @@ export default function LoginPage() {
       </main>
 
       {/* App preview: a small window on a list of offers, cropped on the right and bottom */}
-      <aside aria-hidden className="hidden items-center justify-end pl-8 pr-[5.25rem] lg:-ml-16 lg:flex">
-        <div className="relative h-[min(41rem,80vh)] w-full max-w-[44rem] overflow-hidden rounded-[2rem] bg-stone-100 shadow-[0_4px_24px_rgba(0,0,0,0.06)]">
+      <aside aria-hidden className="hidden items-center justify-end pl-8 pr-[5.25rem] lg:-ml-24 lg:flex">
+        <div className="relative h-[min(41rem,80vh)] w-full max-w-[46rem] overflow-hidden rounded-[2rem] bg-stone-100 shadow-[0_4px_24px_rgba(0,0,0,0.06)]">
           <div className="absolute left-14 top-16">
             <OffersPreview />
           </div>
