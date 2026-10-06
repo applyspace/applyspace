@@ -91,8 +91,8 @@ export const translations = {
       addNoGo: 'Add a custom no-go…',
     },
     contractOptions: {
-      CDI: 'Permanent (CDI)',
-      CDD: 'Fixed-term (CDD)',
+      CDI: 'Permanent',
+      CDD: 'Fixed-term',
       Freelance: 'Freelance',
       Alternance: 'Apprenticeship',
       Stage: 'Internship',

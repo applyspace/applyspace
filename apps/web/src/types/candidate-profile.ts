@@ -1,4 +1,4 @@
-import type { Contract, ExperienceLevel } from '@apply/db';
+import type { ExperienceLevel } from '@apply/db';
 
 /**
  * Candidate profile data that only exists in Supabase (signed-in users):
@@ -100,9 +100,13 @@ export interface FitMessageInput {
   text: string;
 }
 
+/** Contract tokens a search may store (the database check accepts exactly these). */
+export const CONTRACT_TOKENS = ['CDI', 'CDD', 'Stage', 'Freelance', 'Apprentissage', 'Bénévolat'] as const;
+export type ContractToken = (typeof CONTRACT_TOKENS)[number];
+
 export interface FirstSearchInput {
   titles: string[];
-  contractTypes: Contract[];
+  contractTypes: ContractToken[];
   experienceLevels: ExperienceLevel[];
   location: string;
 }

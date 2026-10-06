@@ -1,12 +1,14 @@
 'use server';
 
 import { redirect } from 'next/navigation';
-import { CONTRACT_VALUES, EXPERIENCE_LEVEL_VALUES, type Contract, type ExperienceLevel } from '@apply/db';
+import { EXPERIENCE_LEVEL_VALUES, type ExperienceLevel } from '@apply/db';
 import * as candidate from '@/lib/candidate-profile';
 import { extractDocxText } from '@/lib/docxText';
 import { getSupabaseScope, type SupabaseScope } from '@/lib/supabase/scope';
 import {
+  CONTRACT_TOKENS,
   CV_MAX_BYTES,
+  type ContractToken,
   CV_MIME_TYPES,
   SKILL_LEVEL_VALUES,
   type ActionResult,
@@ -170,7 +172,7 @@ export async function saveFirstSearch(input: FirstSearchInput): Promise<ActionRe
       titles,
       location: input.location,
       // Only canonical tokens reach the database (CHECK constraints).
-      contractTypes: input.contractTypes.filter((c): c is Contract => CONTRACT_VALUES.includes(c)),
+      contractTypes: input.contractTypes.filter((c): c is ContractToken => CONTRACT_TOKENS.includes(c)),
       experienceLevels: input.experienceLevels.filter((l): l is ExperienceLevel =>
         EXPERIENCE_LEVEL_VALUES.includes(l),
       ),

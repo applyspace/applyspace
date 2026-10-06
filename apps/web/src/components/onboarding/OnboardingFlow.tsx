@@ -11,7 +11,7 @@ import {
   Loading02Icon,
   PencilEdit01Icon,
 } from '@hugeicons/core-free-icons';
-import type { Contract, ExperienceLevel } from '@apply/db';
+import type { ExperienceLevel } from '@apply/db';
 import { completeOnboarding, saveFirstSearch, saveName } from '@/app/onboarding/actions';
 import { ApplyLogo } from '@/components/brand/ApplyLogo';
 import { DocumentsPanel } from '@/components/profile/DocumentsPanel';
@@ -25,17 +25,18 @@ import {
   TextField,
 } from '@/components/profile/fields';
 import { cn } from '@/lib/utils';
-import type { ActionResult } from '@/types/candidate-profile';
+import type { ActionResult, ContractToken } from '@/types/candidate-profile';
 
 const STEPS = ['Your name', 'Your background', 'What you are looking for'] as const;
 
 // Chip label → canonical token stored in `searches`.
-const CONTRACT_OPTIONS: ReadonlyArray<{ value: Contract; label: string }> = [
-  { value: 'CDI', label: 'Permanent (CDI)' },
-  { value: 'CDD', label: 'Fixed-term (CDD)' },
+const CONTRACT_OPTIONS: ReadonlyArray<{ value: ContractToken; label: string }> = [
+  { value: 'CDI', label: 'Permanent' },
+  { value: 'CDD', label: 'Fixed-term' },
   { value: 'Freelance', label: 'Freelance' },
   { value: 'Apprentissage', label: 'Apprenticeship' },
   { value: 'Stage', label: 'Internship' },
+  { value: 'Bénévolat', label: 'Volunteer' },
 ];
 
 const LEVEL_OPTIONS: ReadonlyArray<{ value: ExperienceLevel; label: string }> = [
@@ -73,7 +74,7 @@ export function OnboardingFlow({
   // Step 3
   const [titles, setTitles] = useState<string[]>([]);
   const [titleDraft, setTitleDraft] = useState('');
-  const [contractTypes, setContractTypes] = useState<Contract[]>([]);
+  const [contractTypes, setContractTypes] = useState<ContractToken[]>([]);
   const [experienceLevels, setExperienceLevels] = useState<ExperienceLevel[]>([]);
   const [location, setLocation] = useState('');
 
@@ -247,7 +248,7 @@ export function OnboardingFlow({
               lead="These essentials create your first search profile. You can refine it later with work mode, company size, salary and no-gos."
             >
               <div className="flex flex-col gap-7">
-                <Field label="Target job titles" hint="Press Enter to add several">
+                <Field label="Target job titles" hint="Press Enter to add several. Free keeps one search (the first title); Plus gives each title its own.">
                   {(id) => (
                     <div className="flex flex-col gap-2">
                       {titles.length > 0 && (

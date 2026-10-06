@@ -180,16 +180,20 @@ async function getOrCreateDefaultProfile(s: SupabaseScope, jobTitle?: string): P
 }
 
 /**
- * Creates the user's first search profile from onboarding: a default
- * `profiles` row named after the first target title (if there is none yet) and
- * one `searches` row holding the criteria. All target titles are kept in
- * `search_title`, comma-separated. Called again, it updates that same search
- * instead of adding a second one (the Free plan has a single search profile).
+ * Creates the user's search profiles from onboarding: a default `profiles` row
+ * named after the first target title (if there is none yet) and one `searches`
+ * row per target title, all with the same criteria. The Free plan has a single
+ * search profile, so only the first title is kept; Plus keeps them all. Called
+ * again, it updates the matching searches instead of adding duplicates (the
+ * database also refuses a second search on the Free plan).
  */
 export async function saveFirstSearch(s: SupabaseScope, input: FirstSearchInput): Promise<void> {
   const titles = Array.from(new Set(input.titles.map(clean).filter(Boolean)));
   const [firstTitle] = titles;
   if (!firstTitle) throw new Error('A target job title is required');
+
+  const { plan } = await getAccount(s);
+  const toSave = plan === 'plus' ? titles : [firstTitle];
 
   const profile = await getOrCreateDefaultProfile(s, firstTitle);
   // A profile created earlier by the editor only has the placeholder title.
@@ -201,30 +205,38 @@ export async function saveFirstSearch(s: SupabaseScope, input: FirstSearchInput)
   }
 
   const values = {
-    search_title: titles.join(', '),
     location: orNull(input.location),
     contract_types: input.contractTypes,
     experience_levels: input.experienceLevels,
   };
-  const existing = must(
-    await s.supabase
-      .from('searches')
-      .select('id')
-      .eq('profile_id', profile.id)
-      .order('created_at', { ascending: true })
-      .limit(1),
-    'searches',
-  );
-  const searchId = (existing?.[0] as { id: string } | undefined)?.id;
-  if (searchId) {
-    must(await s.supabase.from('searches').update(values).eq('id', searchId), 'searches');
-  } else {
+  const existing =
     must(
       await s.supabase
         .from('searches')
-        .insert({ user_id: s.userId, profile_id: profile.id, ...values }),
+        .select('id, search_title')
+        .eq('profile_id', profile.id)
+        .order('created_at', { ascending: true }),
       'searches',
-    );
+    ) ?? [];
+  const rows = existing as { id: string; search_title: string }[];
+
+  for (const [index, title] of toSave.entries()) {
+    const match = rows.find((r) => r.search_title.toLowerCase() === title.toLowerCase());
+    // On Free, the one search is renamed to the (possibly new) first title.
+    const target = match ?? (plan === 'free' && index === 0 ? rows[0] : undefined);
+    if (target) {
+      must(
+        await s.supabase.from('searches').update({ search_title: title, ...values }).eq('id', target.id),
+        'searches',
+      );
+    } else {
+      must(
+        await s.supabase
+          .from('searches')
+          .insert({ user_id: s.userId, profile_id: profile.id, search_title: title, ...values }),
+        'searches',
+      );
+    }
   }
 }
 
