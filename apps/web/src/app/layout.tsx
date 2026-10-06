@@ -34,7 +34,7 @@ export default async function RootLayout({
 
   return (
     <html lang={initialLocale} className={cn("font-sans", geist.variable, fraunces.variable)}>
-      <body className="antialiased">
+      <body className="antialiased tracking-[-0.011em]">
         <Providers user={user} initialLocale={initialLocale}>
           <TooltipProvider>
             {children}
