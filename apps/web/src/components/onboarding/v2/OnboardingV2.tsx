@@ -5,19 +5,20 @@ import { HugeiconsIcon } from '@hugeicons/react';
 import {
   ArrowLeft01Icon,
   Building02Icon,
-  Cancel01Icon,
   Globe02Icon,
   FlashIcon,
   Home03Icon,
   IncognitoIcon,
-  Search01Icon,
   SearchList01Icon,
 } from '@hugeicons/core-free-icons';
 import { ApplyLogo } from '@/components/brand/ApplyLogo';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { ImportDropzone } from '@/components/onboarding/v2/ImportDropzone';
 import { OptionRow } from '@/components/onboarding/v2/OptionRow';
+import { ChoiceCard, TagSearch, toggle } from '@/components/onboarding/v2/fields';
+import { CompanyStep, ContractStep } from '@/components/onboarding/v2/CriteriaSteps';
+import { PlanStep } from '@/components/onboarding/v2/PlanStep';
+import { PlatformsStep } from '@/components/onboarding/v2/PlatformsStep';
 import { StepHeader } from '@/components/onboarding/v2/StepHeader';
 import { cn } from '@/lib/utils';
 
@@ -39,85 +40,6 @@ const WORKPLACES = [
 const TITLE_SUGGESTIONS = ['Product Designer', 'Senior Product Designer', 'UX Designer', 'UI Designer', 'Design Lead', 'UX Researcher'];
 const PLACE_SUGGESTIONS = ['Paris, France', 'Lyon, France', 'Bordeaux, France', 'Nantes, France', 'Île-de-France', 'France', 'Berlin, Germany', 'London, United Kingdom'];
 
-const toggle = <T,>(list: T[], value: T) => (list.includes(value) ? list.filter((v) => v !== value) : [...list, value]);
-
-/** Searchable field: large search bar, suggestions below, chosen items listed under it (left-aligned). */
-function TagSearch({
-  placeholder,
-  suggestions,
-  values,
-  onChange,
-}: {
-  placeholder: string;
-  suggestions: string[];
-  values: string[];
-  onChange: (next: string[]) => void;
-}) {
-  const [query, setQuery] = useState('');
-  const q = query.trim().toLowerCase();
-  const matches = q ? suggestions.filter((s) => s.toLowerCase().includes(q) && !values.includes(s)).slice(0, 5) : [];
-
-  return (
-    <div className="mx-auto w-full max-w-xl">
-      <div className="relative">
-        <HugeiconsIcon icon={Search01Icon} size={20} strokeWidth={1.8} className="pointer-events-none absolute top-1/2 left-5 -translate-y-1/2 text-muted-foreground" />
-        <Input
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder={placeholder}
-          aria-label={placeholder}
-          className="h-14 rounded-full pr-6 pl-13 text-base md:text-base"
-        />
-        {matches.length > 0 && (
-          <ul className="absolute inset-x-0 top-full z-10 mt-2 overflow-hidden rounded-3xl bg-popover p-1 text-left shadow-md ring-1 ring-foreground/5">
-            {matches.map((m) => (
-              <li key={m}>
-                <button
-                  type="button"
-                  onClick={() => {
-                    onChange([...values, m]);
-                    setQuery('');
-                  }}
-                  className="w-full rounded-2xl px-4 py-2.5 text-left text-sm hover:bg-muted"
-                >
-                  {m}
-                </button>
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
-      {values.length > 0 && (
-        <div className="mt-4 flex flex-wrap justify-start gap-2">
-          {values.map((v) => (
-            <Button key={v} variant="secondary" size="lg" onClick={() => onChange(values.filter((x) => x !== v))}>
-              {v}
-              <HugeiconsIcon icon={Cancel01Icon} size={14} strokeWidth={2} data-icon="inline-end" />
-            </Button>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
-
-/** Compact selectable card (multi-select). */
-function ChoiceCard({ selected, onClick, children }: { selected: boolean; onClick: () => void; children: React.ReactNode }) {
-  return (
-    <button
-      type="button"
-      aria-pressed={selected}
-      onClick={onClick}
-      className={cn(
-        'flex h-11 shrink-0 items-center gap-2.5 whitespace-nowrap rounded-xl bg-card px-4 text-sm font-medium ring-1 ring-foreground/10 transition-colors outline-none hover:bg-muted/50 focus-visible:ring-3 focus-visible:ring-ring/30',
-        selected && 'bg-muted ring-2 ring-foreground hover:bg-muted',
-      )}
-    >
-      {children}
-    </button>
-  );
-}
-
 /** Seniority indicator: five bars of rising height, the first `level` filled. */
 function LevelBars({ level }: { level: number }) {
   return (
@@ -129,7 +51,7 @@ function LevelBars({ level }: { level: number }) {
   );
 }
 
-const STEPS = ['import', 'status', 'role', 'location'] as const;
+const STEPS = ['import', 'status', 'role', 'location', 'contract', 'company', 'platforms', 'plan'] as const;
 
 /**
  * Onboarding v2 preview (dev only): built with the app's own shadcn components and Hugeicons.
@@ -143,10 +65,26 @@ export function OnboardingV2() {
   const [levels, setLevels] = useState<string[]>([]);
   const [places, setPlaces] = useState<string[]>([]);
   const [workplaces, setWorkplaces] = useState<Workplace[]>([]);
+  const [contracts, setContracts] = useState<string[]>([]);
+  const [salary, setSalary] = useState('');
+  const [currency, setCurrency] = useState('EUR');
+  const [sizes, setSizes] = useState<string[]>([]);
+  const [languages, setLanguages] = useState<string[]>([]);
+  const [sectors, setSectors] = useState<string[]>([]);
+  const [platforms, setPlatforms] = useState<string[]>([]);
 
   const current = STEPS[step];
-  const canNext =
-    current === 'import' ? file !== null : current === 'status' ? status !== null : current === 'role' ? titles.length > 0 : places.length > 0;
+  const last = step === STEPS.length - 1;
+  const canNext = {
+    import: file !== null,
+    status: status !== null,
+    role: titles.length > 0,
+    location: places.length > 0,
+    contract: contracts.length > 0,
+    company: true,
+    platforms: platforms.length > 0,
+    plan: true,
+  }[current];
 
   return (
     <div className="flex min-h-dvh flex-col bg-background text-foreground">
@@ -154,7 +92,7 @@ export function OnboardingV2() {
         <ApplyLogo className="h-8 w-auto text-foreground" />
       </div>
 
-      <main className="mx-auto w-full max-w-3xl flex-1 px-6">
+      <main className="mx-auto w-full max-w-3xl flex-1 px-6 pt-[2vh]">
         {current === 'import' && (
           <>
             <StepHeader title="Start from what you already have" subtitle="Import your resume or LinkedIn profile to prefill your details." />
@@ -177,7 +115,7 @@ export function OnboardingV2() {
           <>
             <StepHeader title="Which roles are you after?" subtitle="Your job titles and seniority shape the offers we show you." />
             <TagSearch placeholder="Search a job title" suggestions={TITLE_SUGGESTIONS} values={titles} onChange={setTitles} />
-            <div className="mx-auto mt-10 flex max-w-3xl flex-nowrap justify-center gap-2 border-t pt-10">
+            <div className="mx-auto mt-10 flex max-w-3xl flex-nowrap justify-center gap-4 border-t pt-10">
               {LEVELS.map((l, i) => (
                 <ChoiceCard key={l} selected={levels.includes(l)} onClick={() => setLevels(toggle(levels, l))}>
                   <LevelBars level={i + 1} />
@@ -192,7 +130,7 @@ export function OnboardingV2() {
           <>
             <StepHeader title="Where do you want to work?" subtitle="Pick the places you would consider and the workplace type." />
             <TagSearch placeholder="Search a city, region or country" suggestions={PLACE_SUGGESTIONS} values={places} onChange={setPlaces} />
-            <div className="mx-auto mt-10 flex max-w-xl flex-wrap justify-center gap-3 border-t pt-10">
+            <div className="mx-auto mt-10 flex max-w-xl flex-wrap justify-center gap-4 border-t pt-10">
               {WORKPLACES.map((w) => (
                 <ChoiceCard key={w.value} selected={workplaces.includes(w.value)} onClick={() => setWorkplaces(toggle(workplaces, w.value))}>
                   <HugeiconsIcon icon={w.icon} size={20} strokeWidth={1.8} />
@@ -202,6 +140,15 @@ export function OnboardingV2() {
             </div>
           </>
         )}
+
+        {current === 'contract' && (
+          <ContractStep contracts={contracts} onContracts={setContracts} salary={salary} onSalary={setSalary} currency={currency} onCurrency={setCurrency} />
+        )}
+        {current === 'company' && (
+          <CompanyStep sizes={sizes} onSizes={setSizes} languages={languages} onLanguages={setLanguages} sectors={sectors} onSectors={setSectors} />
+        )}
+        {current === 'platforms' && <PlatformsStep places={places} values={platforms} onChange={setPlatforms} />}
+        {current === 'plan' && <PlanStep />}
       </main>
 
       <div className="px-6 pt-4 pb-[5vh]">
@@ -210,11 +157,13 @@ export function OnboardingV2() {
             <HugeiconsIcon icon={ArrowLeft01Icon} size={20} strokeWidth={1.8} />
           </Button>
           <div className="flex items-center gap-2">
-            <Button variant="ghost" size="lg" onClick={() => setStep(Math.min(STEPS.length - 1, step + 1))}>
-              Skip this step
-            </Button>
+            {!last && (
+              <Button variant="ghost" size="lg" onClick={() => setStep(step + 1)}>
+                Skip this step
+              </Button>
+            )}
             <Button size="lg" disabled={!canNext} onClick={() => setStep(Math.min(STEPS.length - 1, step + 1))}>
-              Next
+              {last ? 'See offers' : 'Next'}
             </Button>
           </div>
         </div>
