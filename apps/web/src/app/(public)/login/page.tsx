@@ -47,11 +47,11 @@ export default function LoginPage() {
 
           <h1
             className="font-[family-name:var(--font-display)] text-[3rem] font-black leading-[1] tracking-[-0.055em]"
-            style={{ fontVariationSettings: '"SOFT" 100, "opsz" 144' }}
+            style={{ fontVariationSettings: '"SOFT" 100, "WONK" 1, "opsz" 144' }}
           >
-            <span className="text-foreground/45">{t.auth.headlineLine1}</span>
+            {t.auth.headlineLine1}
             <br />
-            <span className="text-foreground">{t.auth.headlineLine2}</span>
+            {t.auth.headlineLine2}
           </h1>
 
           <p className="mt-4 text-balance text-base leading-relaxed text-muted-foreground">

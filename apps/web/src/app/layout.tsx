@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils";
 
 const inter = Inter({subsets:['latin'],variable:'--font-sans'});
 // Display serif for headlines (sign-in landing). Variable axes give the soft, chunky cut.
-const fraunces = Fraunces({ subsets: ['latin'], variable: '--font-display', axes: ['SOFT', 'opsz'] });
+const fraunces = Fraunces({ subsets: ['latin'], variable: '--font-display', axes: ['SOFT', 'WONK', 'opsz'] });
 
 // Force dynamic rendering for the whole tree — this Electron app has zero
 // static content: every page reads from the local SQLite DB or the Supabase
