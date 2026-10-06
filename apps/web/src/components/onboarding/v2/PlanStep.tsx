@@ -1,6 +1,7 @@
 'use client';
 
-import { Avatar, AvatarFallback, AvatarGroup, AvatarImage } from '@/components/ui/avatar';
+import { useState } from 'react';
+import { AvatarGroup } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader } from '@/components/ui/card';
 import { brandLogoUrl } from '@/lib/brandfetch';
@@ -73,15 +74,41 @@ const PLANS: {
   },
 ];
 
+/** Round logo; plain <img> (same approach as the sign-in offers list) with an initial if it fails to load. */
+function ToolLogo({ name, domain }: { name: string; domain: string }) {
+  const [missing, setMissing] = useState(false);
+  return (
+    <span
+      data-slot="avatar"
+      title={name}
+      className="flex size-6 shrink-0 items-center justify-center overflow-hidden rounded-full border bg-card text-xs text-muted-foreground"
+    >
+      {missing ? (
+        name[0]
+      ) : (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={brandLogoUrl(domain)}
+          alt={name}
+          width={48}
+          height={48}
+          className="size-full object-cover"
+          onError={() => setMissing(true)}
+          ref={(img) => {
+            if (img && img.complete && img.naturalWidth === 0) setMissing(true);
+          }}
+        />
+      )}
+    </span>
+  );
+}
+
 /** Round, overlapping logos of the supported AI tools. */
 function AiToolsStack() {
   return (
     <AvatarGroup className="ml-auto">
       {AI_TOOLS.map((t) => (
-        <Avatar key={t.name} size="sm" title={t.name}>
-          <AvatarImage src={brandLogoUrl(t.domain)} alt={t.name} />
-          <AvatarFallback>{t.name.slice(0, 1)}</AvatarFallback>
-        </Avatar>
+        <ToolLogo key={t.name} name={t.name} domain={t.domain} />
       ))}
     </AvatarGroup>
   );
