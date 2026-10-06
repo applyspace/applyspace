@@ -34,7 +34,7 @@ const COLLAPSED_WIDTH = 56;
 export const MIN_SIDEBAR_WIDTH = 180;
 export const MAX_SIDEBAR_WIDTH = 360;
 
-/* ── Helpers ──────────────────────────────────────────────────────── */
+/* ── Helpers ────────────────────────────────────────────────────────── */
 
 function daysAgo(dateStr: string): string {
   const date = new Date(dateStr);
@@ -239,7 +239,7 @@ function StatusBadge({
   );
 }
 
-/* ── Sidebar ──────────────────────────────────────────────────────── */
+/* ── Sidebar ────────────────────────────────────────────────────────── */
 
 interface SidebarProps {
   collapsed: boolean;
