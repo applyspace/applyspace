@@ -101,7 +101,7 @@ function TagSearch({
   );
 }
 
-/** Horizontal selectable card (multi-select). */
+/** Compact selectable card (multi-select). */
 function ChoiceCard({ selected, onClick, children }: { selected: boolean; onClick: () => void; children: React.ReactNode }) {
   return (
     <button
@@ -109,12 +109,23 @@ function ChoiceCard({ selected, onClick, children }: { selected: boolean; onClic
       aria-pressed={selected}
       onClick={onClick}
       className={cn(
-        'flex h-14 items-center gap-3 rounded-2xl bg-card px-5 text-base font-medium ring-1 ring-foreground/10 transition-colors outline-none hover:bg-muted/50 focus-visible:ring-3 focus-visible:ring-ring/30',
+        'flex h-11 shrink-0 items-center gap-2.5 whitespace-nowrap rounded-xl bg-card px-4 text-sm font-medium ring-1 ring-foreground/10 transition-colors outline-none hover:bg-muted/50 focus-visible:ring-3 focus-visible:ring-ring/30',
         selected && 'bg-muted ring-2 ring-foreground hover:bg-muted',
       )}
     >
       {children}
     </button>
+  );
+}
+
+/** Seniority indicator: five bars of rising height, the first `level` filled. */
+function LevelBars({ level }: { level: number }) {
+  return (
+    <span className="flex h-4 items-end gap-0.5" aria-hidden>
+      {[1, 2, 3, 4, 5].map((i) => (
+        <span key={i} className={cn('w-1 rounded-full', i <= level ? 'bg-foreground' : 'bg-foreground/15')} style={{ height: `${40 + i * 12}%` }} />
+      ))}
+    </span>
   );
 }
 
@@ -139,7 +150,7 @@ export function OnboardingV2() {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <div className="flex justify-center pt-14 pb-12">
+      <div className="flex justify-center pt-14 pb-24">
         <ApplyLogo className="h-8 w-auto text-foreground" />
       </div>
 
@@ -166,9 +177,10 @@ export function OnboardingV2() {
           <>
             <StepHeader title="Which roles are you after?" subtitle="Your job titles and seniority shape the offers we show you." />
             <TagSearch placeholder="Search a job title" suggestions={TITLE_SUGGESTIONS} values={titles} onChange={setTitles} />
-            <div className="mx-auto mt-10 flex max-w-xl flex-wrap justify-center gap-3 border-t pt-10">
-              {LEVELS.map((l) => (
+            <div className="mx-auto mt-10 flex max-w-3xl flex-nowrap justify-center gap-2 border-t pt-10">
+              {LEVELS.map((l, i) => (
                 <ChoiceCard key={l} selected={levels.includes(l)} onClick={() => setLevels(toggle(levels, l))}>
+                  <LevelBars level={i + 1} />
                   {l}
                 </ChoiceCard>
               ))}

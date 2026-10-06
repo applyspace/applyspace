@@ -2,7 +2,8 @@
 
 import { useRef, useState } from 'react';
 import { HugeiconsIcon } from '@hugeicons/react';
-import { CloudUploadIcon, File01Icon, Linkedin01Icon } from '@hugeicons/core-free-icons';
+import { CloudUploadIcon, File01Icon } from '@hugeicons/core-free-icons';
+import { LinkedInIcon } from '@/components/icons/LinkedInIcon';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -40,7 +41,7 @@ export function ImportDropzone({
             CV
           </TabsTrigger>
           <TabsTrigger value="linkedin">
-            <HugeiconsIcon icon={Linkedin01Icon} strokeWidth={1.8} />
+            <LinkedInIcon className="size-4 text-[#0A66C2]" />
             LinkedIn profile
           </TabsTrigger>
         </TabsList>
