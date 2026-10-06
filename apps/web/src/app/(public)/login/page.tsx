@@ -16,9 +16,9 @@ import { isSupabaseConfigured } from "@/lib/supabase/env";
 
 type Provider = "google" | "linkedin_oidc";
 
-// Stone outline, stone text and the soft shadow shared by the buttons.
+// Stone outline, stone text and a barely-there shadow for the sign-in buttons.
 const CONTROL =
-  "h-9 w-full rounded-lg border border-stone-200 bg-white text-sm font-medium text-stone-950 shadow-[0_1px_2px_rgba(0,0,0,0.05),0_4px_8px_-4px_rgba(0,0,0,0.06)] hover:bg-stone-50";
+  "h-9 w-full rounded-lg border border-stone-200 bg-white text-sm font-medium text-stone-950 shadow-[0_1px_1px_rgba(0,0,0,0.04)] hover:bg-stone-50";
 
 export default function LoginPage() {
   const { t } = useLocale();
@@ -85,7 +85,7 @@ export default function LoginPage() {
               {pending === "linkedin_oidc" ? (
                 <HugeiconsIcon icon={Loading02Icon} size={16} className="animate-spin" />
               ) : (
-                <LinkedInIcon className="size-4 shrink-0" />
+                <LinkedInIcon className="size-4 shrink-0 text-[#0A66C2]" />
               )}
               {t.auth.signInWith}
             </Button>
@@ -131,7 +131,7 @@ export default function LoginPage() {
               </p>
             )}
 
-            <p className="px-1 text-[11px] leading-snug text-stone-500">
+            <p className="px-1 text-center text-[11px] leading-snug text-stone-500">
               {t.auth.legalBefore}{" "}
               <span className="cursor-pointer underline underline-offset-2 transition-colors hover:text-stone-950">
                 {t.auth.privacy}
@@ -141,13 +141,15 @@ export default function LoginPage() {
           </div>
 
           {/* Placeholder: desktop download is designed but not wired yet */}
-          <button
-            type="button"
-            className="mt-5 inline-flex h-9 items-center gap-2 rounded-lg border border-stone-200 bg-white px-3.5 text-sm font-medium shadow-[0_1px_2px_rgba(0,0,0,0.05),0_4px_8px_-4px_rgba(0,0,0,0.06)] transition-colors hover:bg-stone-50"
-          >
-            <AppleIcon className="size-5" />
-            {t.auth.downloadDesktop}
-          </button>
+          <div className="mt-5 flex w-full max-w-[22rem] justify-center">
+            <button
+              type="button"
+              className="inline-flex h-9 items-center gap-2 rounded-lg border border-stone-200 bg-white px-3.5 text-sm font-medium shadow-[0_1px_2px_rgba(0,0,0,0.05),0_4px_8px_-4px_rgba(0,0,0,0.06)] transition-colors hover:bg-stone-50"
+            >
+              <AppleIcon className="size-5" />
+              {t.auth.downloadDesktop}
+            </button>
+          </div>
         </div>
       </main>
 
