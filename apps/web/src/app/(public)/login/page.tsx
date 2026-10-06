@@ -2,7 +2,7 @@
 
 import { useSearchParams } from "next/navigation";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { Loading02Icon } from "@hugeicons/core-free-icons";
+import { Download04Icon, Loading02Icon } from "@hugeicons/core-free-icons";
 import { useState } from "react";
 import { OffersPreview } from "@/components/auth/OffersPreview";
 import { ApplyLogo } from "@/components/brand/ApplyLogo";
@@ -19,6 +19,8 @@ export default function LoginPage() {
   const { t } = useLocale();
   const searchParams = useSearchParams();
   const [pending, setPending] = useState<Provider | null>(null);
+  const [email, setEmail] = useState("");
+  const [emailNotice, setEmailNotice] = useState(false);
   const [failed, setFailed] = useState(searchParams.get("error") !== null);
 
   async function handleSignIn(provider: Provider) {
@@ -43,7 +45,10 @@ export default function LoginPage() {
         <div className="mx-auto w-full max-w-md">
           <ApplyLogo className="mb-12 h-7 w-auto text-foreground" />
 
-          <h1 className="font-serif text-[2.6rem] leading-[1.1] tracking-[-0.02em]">
+          <h1
+            className="font-[family-name:var(--font-display)] text-[3rem] font-black leading-[1] tracking-[-0.055em]"
+            style={{ fontVariationSettings: '"SOFT" 100, "opsz" 144' }}
+          >
             <span className="text-foreground/45">{t.auth.headlineLine1}</span>
             <br />
             <span className="text-foreground">{t.auth.headlineLine2}</span>
@@ -84,6 +89,42 @@ export default function LoginPage() {
               {t.auth.signInWith}
             </Button>
 
+            <div className="flex items-center gap-3 py-1 text-xs font-medium text-muted-foreground">
+              <span className="h-px flex-1 bg-[#E9DDF5]" />
+              {t.auth.or}
+              <span className="h-px flex-1 bg-[#E9DDF5]" />
+            </div>
+
+            {/* Placeholder: email sign-in is designed but not wired yet */}
+            <form
+              className="flex flex-col gap-3"
+              onSubmit={(e) => {
+                e.preventDefault();
+                setEmailNotice(true);
+              }}
+            >
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder={t.auth.emailPlaceholder}
+                autoComplete="email"
+                className="h-12 w-full rounded-[10px] border border-[#E2D4F0] bg-white px-4 text-base outline-none transition-shadow placeholder:text-muted-foreground/70 focus:border-[#7B45C9] focus:ring-3 focus:ring-[#7B45C9]/20"
+              />
+              <Button
+                type="submit"
+                size="lg"
+                className="h-12 w-full rounded-[10px] bg-[#7B45C9] text-base font-medium text-white hover:bg-[#6B3AB3]"
+              >
+                {t.auth.continueWithEmail}
+              </Button>
+              {emailNotice && (
+                <p role="status" className="text-sm text-muted-foreground">
+                  {t.auth.emailSoon}
+                </p>
+              )}
+            </form>
+
             {failed && (
               <p role="alert" className="text-sm text-destructive">
                 {t.auth.signInError}
@@ -102,15 +143,24 @@ export default function LoginPage() {
             </span>
             .
           </p>
+
+          {/* Placeholder: desktop download is designed but not wired yet */}
+          <button
+            type="button"
+            className="mt-8 inline-flex items-center gap-2 rounded-full border border-[#E2D4F0] bg-white px-4 py-2 text-sm font-medium transition-colors hover:bg-[#F7EFFD]"
+          >
+            <HugeiconsIcon icon={Download04Icon} size={16} />
+            {t.auth.downloadDesktop}
+          </button>
         </div>
       </main>
 
       {/* App preview: a list of offers, cropped by the panel */}
       <aside
         aria-hidden
-        className="relative hidden overflow-hidden rounded-[28px] bg-gradient-to-br from-[#E2B8FF] via-[#D9A8FF] to-[#B98CFF] lg:block"
+        className="relative hidden overflow-hidden rounded-[28px] border border-[#E9DDF5] bg-[#F3EBFA] lg:block"
       >
-        <div className="absolute left-20 top-24">
+        <div className="absolute left-14 top-20 origin-top-left scale-[1.3]">
           <OffersPreview />
         </div>
       </aside>
