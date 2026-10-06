@@ -9,6 +9,7 @@ import type {
   InterviewWithRelations,
 } from '@/types/applications';
 import type { SearchWithCount } from '@/types/searches';
+import type { AccountPlan } from '@/types/candidate-profile';
 
 const DEFAULT_WIDTH = 240;
 const MIN_WIDTH = 180;
@@ -22,6 +23,7 @@ export function AppShell({
   firstName,
   lastName,
   platformStatuses,
+  plan,
 }: {
   children: React.ReactNode;
   searches: SearchWithCount[];
@@ -32,6 +34,8 @@ export function AppShell({
   lastName: string;
   /** Job board connection status per source, for Settings > Connectors. */
   platformStatuses: Record<string, boolean>;
+  /** Account plan, or null when nobody is signed in (demo, desktop). */
+  plan: AccountPlan | null;
 }) {
   const [savedCollapsed, saveCollapsed] = useLocalStorageItem('apply-sidebar-collapsed');
   const [savedWidth, saveWidth] = useLocalStorageItem('apply-sidebar-width');
@@ -62,6 +66,7 @@ export function AppShell({
           interviews={interviews}
           firstName={firstName}
           lastName={lastName}
+          plan={plan}
         />
         <main className="flex-1 overflow-y-auto">{children}</main>
       </div>
