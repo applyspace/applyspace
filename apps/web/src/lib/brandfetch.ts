@@ -11,3 +11,8 @@ const CLIENT_ID = process.env.NEXT_PUBLIC_BRANDFETCH_CLIENT_ID ?? "1idEY8aGXLTnA
 export function brandLogoUrl(domain: string): string {
   return `https://cdn.brandfetch.io/domain/${domain}/w/256/h/256/theme/light/fallback/404/type/symbol?c=${CLIENT_ID}`;
 }
+
+/** Default Brandfetch logo, used when a brand has no simplified symbol. */
+export function brandLogoFallbackUrl(domain: string): string {
+  return `https://cdn.brandfetch.io/${domain}?c=${CLIENT_ID}`;
+}
