@@ -28,13 +28,13 @@ import type {
 } from '@/types/applications';
 import type { SearchWithCount } from '@/types/searches';
 
-/* ── Constants ───────────────────────────────────────────────────────────────── */
+/* ── Constants ────────────────────────────────────────────────────── */
 
 const COLLAPSED_WIDTH = 56;
 export const MIN_SIDEBAR_WIDTH = 180;
 export const MAX_SIDEBAR_WIDTH = 360;
 
-/* ── Helpers ─────────────────────────────────────────────────────────────────── */
+/* ── Helpers ──────────────────────────────────────────────────────── */
 
 function daysAgo(dateStr: string): string {
   const date = new Date(dateStr);
@@ -57,7 +57,7 @@ const STAGE_COLORS: Record<InterviewStage, string> = {
   Other: 'bg-zinc-100 text-zinc-700',
 };
 
-/* ── Nav primitives ─────────────────────────────────────────────────────────────── */
+/* ── Nav primitives ───────────────────────────────────────────── */
 
 /** Short date for an upcoming interview, e.g. "12 Oct". */
 function shortDate(dateStr: string): string {
@@ -239,7 +239,7 @@ function StatusBadge({
   );
 }
 
-/* ── Sidebar ──────────────────────────────────────────────────────────────────── */
+/* ── Sidebar ──────────────────────────────────────────────────────── */
 
 interface SidebarProps {
   collapsed: boolean;
