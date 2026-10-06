@@ -5,53 +5,36 @@ import { usePathname } from 'next/navigation';
 import { HugeiconsIcon } from '@hugeicons/react';
 import {
   Briefcase08Icon,
-  DashboardCircleIcon,
+  Home01Icon,
   Chatting01Icon,
-  Globe02Icon,
-  Logout01Icon,
   PanelLeftIcon,
   Sent02Icon,
-  Settings01Icon,
   Add01Icon,
-  User02Icon,
-  Plug01Icon,
   CheckmarkCircle02Icon,
   CancelCircleIcon,
   Clock01Icon,
 } from '@hugeicons/core-free-icons';
 import { cn } from '@/lib/utils';
 import { useState, useCallback } from 'react';
-import { useAuth, useLocale } from '@/components/providers/Providers';
-import { WhatsNew } from '@/components/changelog/WhatsNew';
-import { CURRENT_VERSION } from '@/lib/changelog';
+import { useLocale } from '@/components/providers/Providers';
 import { ApplyLogo } from '@/components/brand/ApplyLogo';
-import { LOCALES } from '@/lib/i18n';
+import { UserMenu } from '@/components/layout/UserMenu';
 import { entrySlug } from '@/lib/slug';
-import {
-  DropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuLabel,
-} from '@/components/ui/dropdown-menu';
-import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 import type {
   ApplicationWithRelations,
   InterviewStage,
   InterviewWithRelations,
 } from '@/types/applications';
-import type { Profile } from '@/types/profiles';
 import type { SearchWithCount } from '@/types/searches';
 
-/* ── Constants ────────────────────────────────────────────────────── */
+/* ── Constants ───────────────────────────────────────────────────────────────── */
 
 const COLLAPSED_WIDTH = 56;
 export const MIN_SIDEBAR_WIDTH = 180;
 export const MAX_SIDEBAR_WIDTH = 360;
 
-/* ── Helpers ──────────────────────────────────────────────────────── */
+/* ── Helpers ─────────────────────────────────────────────────────────────────── */
 
 function daysAgo(dateStr: string): string {
   const date = new Date(dateStr);
@@ -74,9 +57,14 @@ const STAGE_COLORS: Record<InterviewStage, string> = {
   Other: 'bg-zinc-100 text-zinc-700',
 };
 
-/* ── Nav primitives ───────────────────────────────────────────────── */
+/* ── Nav primitives ─────────────────────────────────────────────────────────────── */
 
-/** Simple nav link (no sub-items, no [+] button) — used for Home & Integrations. */
+/** Short date for an upcoming interview, e.g. "12 Oct". */
+function shortDate(dateStr: string): string {
+  return new Date(dateStr).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+}
+
+/** Simple nav link (no sub-items, no [+] button) — used for Home. */
 function NavLink({
   href,
   label,
@@ -85,7 +73,7 @@ function NavLink({
 }: {
   href: string;
   label: string;
-  icon: typeof DashboardCircleIcon;
+  icon: typeof Home01Icon;
   collapsed: boolean;
 }) {
   const pathname = usePathname();
@@ -136,7 +124,7 @@ function NavSection({
 }: {
   href: string;
   label: string;
-  icon: typeof DashboardCircleIcon;
+  icon: typeof Home01Icon;
   collapsed: boolean;
   addHref: string;
   badges?: React.ReactNode;
@@ -251,17 +239,19 @@ function StatusBadge({
   );
 }
 
-/* ── Sidebar ──────────────────────────────────────────────────────── */
+/* ── Sidebar ──────────────────────────────────────────────────────────────────── */
 
 interface SidebarProps {
   collapsed: boolean;
   onToggle: () => void;
   width: number;
   onWidthChange: (width: number) => void;
-  profiles: Profile[];
   searches: SearchWithCount[];
   applications: ApplicationWithRelations[];
   interviews: InterviewWithRelations[];
+  /** Account name shown on the user button (empty when not set). */
+  firstName: string;
+  lastName: string;
 }
 
 export function Sidebar({
@@ -269,18 +259,15 @@ export function Sidebar({
   onToggle,
   width,
   onWidthChange,
-  profiles,
   searches,
   applications,
   interviews,
+  firstName,
+  lastName,
 }: SidebarProps) {
   const pathname = usePathname();
-  const { user, signOut } = useAuth();
-  const { t, locale, setLocale } = useLocale();
-  const [whatsNewOpen, setWhatsNewOpen] = useState(false);
+  const { t } = useLocale();
   const [isDragging, setIsDragging] = useState(false);
-
-  const handleWhatsNew = useCallback(() => setWhatsNewOpen(true), []);
 
   const handleResizeMouseDown = useCallback(
     (e: React.MouseEvent) => {
@@ -316,10 +303,6 @@ export function Sidebar({
 
   if (pathname === '/login') return null;
 
-  const initials = user?.name
-    ? user.name.split(' ').map((p) => p[0]).join('').slice(0, 2).toUpperCase()
-    : '?';
-
   // Applications derived data
   const acceptedCount = applications.filter((a) => a.status === 'accepted').length;
   const rejectedCount = applications.filter((a) => a.status === 'rejected').length;
@@ -327,12 +310,24 @@ export function Sidebar({
   const pendingWaitingCount = applications.filter(
     (a) => a.status !== 'accepted' && a.status !== 'rejected',
   ).length;
-  const recentApplications = [...applications]
-    .sort((a, b) => new Date(b.appliedAt).getTime() - new Date(a.appliedAt).getTime())
-    .slice(0, 4);
+  // Every tracked application, most recent first.
+  const trackedApplications = [...applications].sort(
+    (a, b) => new Date(b.appliedAt).getTime() - new Date(a.appliedAt).getTime(),
+  );
+
+  // Upcoming = not completed yet; scheduled ones first (soonest on top), then unscheduled.
+  const upcomingInterviews = interviews
+    .filter((i) => !i.completedAt)
+    .sort((a, b) => {
+      if (a.scheduledAt && b.scheduledAt) {
+        return new Date(a.scheduledAt).getTime() - new Date(b.scheduledAt).getTime();
+      }
+      if (a.scheduledAt) return -1;
+      if (b.scheduledAt) return 1;
+      return 0;
+    });
 
   return (
-    <>
       <aside
         style={{ width: collapsed ? COLLAPSED_WIDTH : width }}
         className={cn(
@@ -371,49 +366,17 @@ export function Sidebar({
           <NavLink
             href="/"
             label={t.nav.home ?? 'Home'}
-            icon={DashboardCircleIcon}
+            icon={Home01Icon}
             collapsed={collapsed}
           />
 
-          {/* Integrations */}
-          <NavLink
-            href="/integrations"
-            label={t.nav.integrations ?? 'Integrations'}
-            icon={Plug01Icon}
-            collapsed={collapsed}
-          />
-
-          {/* Spacer between top links and sections */}
-          {!collapsed && <div className="h-3" />}
-
-          {/* Profiles */}
-          <NavSection
-            href="/profiles"
-            label={t.nav.profiles ?? 'Profiles'}
-            icon={User02Icon}
-            collapsed={collapsed}
-            addHref="/profiles"
-          >
-            {profiles.length > 0 ? (
-              profiles.map((p) => (
-                <SubItem
-                  key={p.id}
-                  label={p.jobTitle}
-                  href={`/profiles/${entrySlug([p.jobTitle], p.id)}`}
-                />
-              ))
-            ) : (
-              <EmptySubItem label="No profiles yet" />
-            )}
-          </NavSection>
-
-          {/* Offers */}
+          {/* Offers — one entry per search profile */}
           <NavSection
             href="/offers"
             label={t.nav.offers ?? 'Offers'}
             icon={Briefcase08Icon}
             collapsed={collapsed}
-            addHref="/settings"
+            addHref="/offers"
           >
             {searches.length > 0 ? (
               searches.map((s) => {
@@ -473,8 +436,8 @@ export function Sidebar({
               ) : null
             }
           >
-            {recentApplications.length > 0 ? (
-              recentApplications.map((app) => (
+            {trackedApplications.length > 0 ? (
+              trackedApplications.map((app) => (
                 <SubItem
                   key={app.id}
                   label={`${app.company.name}, ${app.jobTitle}`}
@@ -499,8 +462,8 @@ export function Sidebar({
             collapsed={collapsed}
             addHref="/interviews"
           >
-            {interviews.length > 0 ? (
-              interviews.map((interview) => {
+            {upcomingInterviews.length > 0 ? (
+              upcomingInterviews.map((interview) => {
                 const companyName = interview.application.company.name;
                 const jobTitle = interview.application.jobTitle;
                 return (
@@ -515,98 +478,22 @@ export function Sidebar({
                           STAGE_COLORS[interview.stage]
                         )}
                       >
-                        {interview.stage}
+                        {interview.scheduledAt
+                          ? `${shortDate(interview.scheduledAt)} · ${interview.stage}`
+                          : interview.stage}
                       </span>
                     }
                   />
                 );
               })
             ) : (
-              <EmptySubItem label="No active interviews" />
+              <EmptySubItem label="No upcoming interviews" />
             )}
           </NavSection>
         </nav>
 
-        {/* Profile / account */}
-        <DropdownMenu>
-          <DropdownMenuTrigger
-            className={cn(
-              'flex w-full items-center rounded-md px-2 py-2 text-sm transition-colors hover:bg-accent outline-none',
-              collapsed ? 'justify-center' : 'gap-2.5'
-            )}
-          >
-            <Avatar size="sm">
-              <AvatarImage src={user?.image ?? ''} alt={user?.name ?? ''} />
-              <AvatarFallback className="text-[10px]">{initials}</AvatarFallback>
-            </Avatar>
-            {!collapsed && (
-              <span className="flex-1 truncate text-left text-xs font-medium text-foreground">
-                {user?.name ?? t.menu.signIn}
-              </span>
-            )}
-          </DropdownMenuTrigger>
-
-          <DropdownMenuContent side="top" align="start" sideOffset={6}>
-            {user && (
-              <>
-                <DropdownMenuLabel className="flex flex-col gap-0.5">
-                  <span className="text-xs font-medium text-foreground">{user.name}</span>
-                  {user.email && (
-                    <span className="text-[10px] font-normal text-muted-foreground">
-                      {user.email}
-                    </span>
-                  )}
-                </DropdownMenuLabel>
-                <DropdownMenuSeparator />
-              </>
-            )}
-
-            <DropdownMenuItem render={<Link href="/settings" />} className="gap-2">
-              <HugeiconsIcon icon={Settings01Icon} size={14} />
-              {t.menu.settings}
-            </DropdownMenuItem>
-
-            <div className="flex items-center gap-2 px-1.5 py-1">
-              <HugeiconsIcon icon={Globe02Icon} size={14} className="shrink-0 text-muted-foreground" />
-              <span className="flex-1 text-sm text-muted-foreground">{t.menu.language}</span>
-              <div className="flex gap-1">
-                {LOCALES.map((l) => (
-                  <button
-                    key={l.value}
-                    onClick={() => setLocale(l.value)}
-                    className={cn(
-                      'rounded px-1.5 py-0.5 text-[10px] font-medium transition-colors',
-                      locale === l.value
-                        ? 'bg-foreground text-background'
-                        : 'text-muted-foreground hover:text-foreground'
-                    )}
-                  >
-                    {l.value.toUpperCase()}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <DropdownMenuItem onSelect={handleWhatsNew} className="gap-2">
-              <span>✦</span>
-              {t.menu.whatsNew}
-              <span className="ml-auto rounded-full bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground">
-                v{CURRENT_VERSION}
-              </span>
-            </DropdownMenuItem>
-
-            <DropdownMenuSeparator />
-
-            <DropdownMenuItem
-              variant="destructive"
-              onSelect={() => signOut()}
-              className="gap-2"
-            >
-              <HugeiconsIcon icon={Logout01Icon} size={14} />
-              {t.menu.signOut}
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        {/* User button + account menu */}
+        <UserMenu collapsed={collapsed} firstName={firstName} lastName={lastName} />
 
         {/* Resize handle */}
         {!collapsed && (
@@ -619,8 +506,5 @@ export function Sidebar({
           />
         )}
       </aside>
-
-      <WhatsNew open={whatsNewOpen} onOpenChange={setWhatsNewOpen} />
-    </>
   );
 }
