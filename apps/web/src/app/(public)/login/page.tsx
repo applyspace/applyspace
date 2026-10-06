@@ -40,7 +40,7 @@ export default function LoginPage() {
   const disabled = pending !== null || !isSupabaseConfigured;
 
   return (
-    <div className="grid min-h-screen bg-[#FBF8FD] lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] lg:p-3">
+    <div className="grid min-h-screen bg-white lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] lg:p-3">
       <main className="flex flex-col justify-center px-6 py-12 sm:px-12 lg:px-16">
         <div className="mx-auto w-full max-w-md">
           <ApplyLogo className="mb-12 h-7 w-auto text-foreground" />
@@ -158,7 +158,7 @@ export default function LoginPage() {
       {/* App preview: a list of offers, cropped by the panel */}
       <aside
         aria-hidden
-        className="relative hidden overflow-hidden rounded-[28px] border border-[#E9DDF5] bg-[#F3EBFA] lg:block"
+        className="relative hidden overflow-hidden rounded-[28px] border border-[#E9DDF5] bg-[#F6F2FA] lg:block"
       >
         <div className="absolute left-14 top-20 origin-top-left scale-[1.3]">
           <OffersPreview />
