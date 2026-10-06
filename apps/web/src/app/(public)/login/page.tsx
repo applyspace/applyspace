@@ -45,7 +45,7 @@ export default function LoginPage() {
   const disabled = pending !== null || !isSupabaseConfigured;
 
   return (
-    <div className="grid min-h-screen bg-white text-stone-950 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
+    <div className="grid min-h-screen bg-white text-stone-950 lg:grid-cols-2">
       <main className="flex flex-col justify-center px-6 py-12 sm:px-12 lg:px-16">
         <div className="mx-auto w-full max-w-[34rem]">
           <ApplyLogo className="mb-12 h-7 w-auto text-stone-950" />
@@ -59,7 +59,7 @@ export default function LoginPage() {
             {t.auth.headlineLine2}
           </h1>
 
-          <p className="mt-4 text-sm text-stone-700 lg:whitespace-nowrap">{t.auth.tagline}</p>
+          <p className="mt-4 text-sm text-stone-700 xl:whitespace-nowrap">{t.auth.tagline}</p>
 
           <div className="mt-8 flex w-full max-w-[22rem] flex-col gap-2.5 rounded-3xl border border-stone-200 bg-white p-4 shadow-[0_4px_24px_rgba(0,0,0,0.06)]">
             <Button
@@ -154,8 +154,8 @@ export default function LoginPage() {
       </main>
 
       {/* App preview: a small window on a list of offers, cropped on the right and bottom */}
-      <aside aria-hidden className="hidden items-center justify-center pr-12 lg:flex">
-        <div className="relative h-[min(41rem,80vh)] w-full max-w-[33rem] overflow-hidden rounded-[2rem] bg-stone-100 shadow-[0_4px_24px_rgba(0,0,0,0.06)]">
+      <aside aria-hidden className="hidden items-center justify-end pr-12 lg:flex">
+        <div className="relative h-[min(41rem,80vh)] w-full max-w-[40rem] overflow-hidden rounded-[2rem] bg-stone-100 shadow-[0_4px_24px_rgba(0,0,0,0.06)]">
           <div className="absolute left-14 top-16">
             <OffersPreview />
           </div>
