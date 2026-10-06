@@ -65,7 +65,7 @@ export function ImportDropzone({
             }}
             className={cn(
               'flex min-h-64 flex-col items-center justify-center gap-3 rounded-3xl border border-dashed border-border px-6 py-10 text-center transition-colors',
-              dragging && 'border-[#e2b8ff] bg-[#f6eaff]',
+              dragging && 'border-foreground bg-muted',
             )}
           >
             <span className="flex size-12 items-center justify-center rounded-full bg-muted text-foreground">
@@ -90,7 +90,7 @@ export function ImportDropzone({
       </Card>
 
       {source === 'linkedin' && (
-        <div className="w-full rounded-3xl bg-[#f6eaff] px-5 py-4 text-sm text-foreground">
+        <div className="w-full rounded-3xl bg-muted px-5 py-4 text-sm text-foreground">
           <p className="font-medium">Export your LinkedIn profile in 3 steps</p>
           <ol className="mt-2 list-decimal space-y-1 pl-5 text-muted-foreground">
             <li>Open your profile on LinkedIn.</li>

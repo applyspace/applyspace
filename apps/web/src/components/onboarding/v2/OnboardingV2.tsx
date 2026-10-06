@@ -90,7 +90,7 @@ function TagSearch({
       {values.length > 0 && (
         <div className="mt-4 flex flex-wrap justify-start gap-2">
           {values.map((v) => (
-            <Button key={v} variant="secondary" size="lg" className="bg-[#f6eaff] hover:bg-[#f6eaff]/70" onClick={() => onChange(values.filter((x) => x !== v))}>
+            <Button key={v} variant="secondary" size="lg" onClick={() => onChange(values.filter((x) => x !== v))}>
               {v}
               <HugeiconsIcon icon={Cancel01Icon} size={14} strokeWidth={2} data-icon="inline-end" />
             </Button>
@@ -110,7 +110,7 @@ function ChoiceCard({ selected, onClick, children }: { selected: boolean; onClic
       onClick={onClick}
       className={cn(
         'flex h-14 items-center gap-3 rounded-2xl bg-card px-5 text-base font-medium ring-1 ring-foreground/10 transition-colors outline-none hover:bg-muted/50 focus-visible:ring-3 focus-visible:ring-ring/30',
-        selected && 'bg-[#f6eaff] ring-2 ring-[#e2b8ff] hover:bg-[#f6eaff]',
+        selected && 'bg-muted ring-2 ring-foreground hover:bg-muted',
       )}
     >
       {children}

@@ -26,7 +26,7 @@ export function OptionRow({
       onClick={onSelect}
       className={cn(
         'flex w-full items-center gap-4 rounded-3xl bg-card px-5 py-4 text-left ring-1 ring-foreground/10 transition-colors outline-none hover:bg-muted/50 focus-visible:ring-3 focus-visible:ring-ring/30',
-        selected && 'bg-[#f6eaff] ring-2 ring-[#e2b8ff] hover:bg-[#f6eaff]',
+        selected && 'bg-muted ring-2 ring-foreground hover:bg-muted',
       )}
     >
       <span className="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-muted">
