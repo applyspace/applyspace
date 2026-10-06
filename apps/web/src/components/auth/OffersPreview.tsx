@@ -1,55 +1,74 @@
-const OFFERS = [
-  { company: "Alan", title: "Senior Product Designer", place: "Paris", contract: "CDI", salary: "60–75K", color: "#4D6EF8", match: 94 },
-  { company: "Qonto", title: "Product Designer", place: "Paris · Hybride", contract: "CDI", salary: "55–70K", color: "#7C5CFC", match: 91 },
-  { company: "Doctolib", title: "Lead Product Designer", place: "Remote", contract: "CDI", salary: "70–90K", color: "#2EA3F2", match: 88 },
-  { company: "PayFit", title: "Product Designer, Design System", place: "Paris", contract: "CDI", salary: "55–68K", color: "#E2528B", match: 85 },
-  { company: "Swile", title: "Product Designer", place: "Lyon · Hybride", contract: "CDI", salary: "50–62K", color: "#F59E42", match: 82 },
-  { company: "Back Market", title: "Senior UX/UI Designer", place: "Paris", contract: "CDI", salary: "60–72K", color: "#22A06B", match: 79 },
-  { company: "Pennylane", title: "Product Designer", place: "Paris · Hybride", contract: "CDI", salary: "52–65K", color: "#3B82F6", match: 76 },
-  { company: "Ledger", title: "Senior Product Designer", place: "Paris", contract: "CDI", salary: "65–80K", color: "#111827", match: 74 },
-  { company: "Mirakl", title: "Product Designer", place: "Paris · Hybride", contract: "CDI", salary: "52–64K", color: "#0EA5A4", match: 72 },
-  { company: "Spendesk", title: "UX Designer", place: "Paris", contract: "CDI", salary: "48–60K", color: "#A855F7", match: 70 },
-] as const;
+"use client";
+
+import { useState } from "react";
+import { brandLogoUrl } from "@/lib/brandfetch";
+
+/* Placeholder offers. Brand logos come from Brandfetch by domain; the tile falls back to the brand's initial. */
+const OFFERS: ReadonlyArray<{
+  company: string;
+  title: string;
+  place: string;
+  salary: string;
+  domain: string;
+}> = [
+  { company: "Nike", title: "Senior Footwear Designer", place: "Amsterdam", salary: "65–80K", domain: "nike.com" },
+  { company: "On", title: "Footwear Designer, Running", place: "Zurich · Hybride", salary: "70–90K", domain: "on.com" },
+  { company: "Adidas", title: "Footwear Designer, Lifestyle", place: "Herzogenaurach", salary: "55–70K", domain: "adidas.com" },
+  { company: "Asics", title: "Lead Footwear Designer", place: "Paris", salary: "70–85K", domain: "asics.com" },
+  { company: "Puma", title: "Footwear Designer, Football", place: "Herzogenaurach", salary: "50–62K", domain: "puma.com" },
+  { company: "Salomon", title: "Footwear Designer, Performance", place: "Annecy", salary: "55–68K", domain: "salomon.com" },
+  { company: "Nike", title: "Footwear Designer, Basketball", place: "Amsterdam", salary: "60–75K", domain: "nike.com" },
+  { company: "On", title: "Senior Footwear Designer", place: "Zurich", salary: "75–95K", domain: "on.com" },
+];
+
+function LogoTile({ company, domain }: { company: string; domain: string }) {
+  const [missing, setMissing] = useState(false);
+  return (
+    <span className="flex size-16 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-stone-200 bg-stone-50 text-2xl font-semibold text-stone-900">
+      {missing ? (
+        company[0]
+      ) : (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={brandLogoUrl(domain)}
+          alt=""
+          width={128}
+          height={128}
+          className="size-full object-cover"
+          onError={() => setMissing(true)}
+          // The error can fire before hydration: catch images that already failed.
+          ref={(img) => {
+            if (img && img.complete && img.naturalWidth === 0) setMissing(true);
+          }}
+        />
+      )}
+    </span>
+  );
+}
 
 /**
- * Decorative list of offers shown beside the sign-in card. Static and
- * aria-hidden: it only suggests what the app looks like. The list is meant to
- * overflow its container, which crops it on the right and at the bottom.
+ * Decorative list of offers shown beside the sign-in card: one list, rows
+ * separated by hairlines. Static and aria-hidden. The list is much wider and
+ * taller than the panel that holds it, so it is cropped on the right and bottom.
  */
 export function OffersPreview() {
   return (
-    <div aria-hidden className="w-[38rem] select-none rounded-2xl border border-black/5 bg-white shadow-[0_30px_80px_-20px_rgba(77,50,140,0.35)]">
-      <div className="flex items-center justify-between border-b border-black/5 px-5 py-4">
-        <div className="text-sm font-semibold">Product Designer</div>
-        <div className="flex gap-2">
-          {["CDI", "Paris", "55K+"].map((chip) => (
-            <span key={chip} className="rounded-full bg-[#F3E8FF] px-2.5 py-1 text-[11px] font-medium text-[#6B3FA0]">
-              {chip}
-            </span>
-          ))}
-        </div>
-      </div>
-      <ul>
-        {OFFERS.map((o) => (
-          <li key={o.company + o.title} className="flex items-center gap-4 border-b border-black/5 px-5 py-4 last:border-b-0">
-            <span
-              className="flex size-10 shrink-0 items-center justify-center rounded-xl text-sm font-semibold text-white"
-              style={{ backgroundColor: o.color }}
-            >
-              {o.company[0]}
-            </span>
-            <div className="min-w-0 flex-1">
-              <div className="truncate text-sm font-medium">{o.title}</div>
-              <div className="mt-0.5 truncate text-xs text-neutral-500">
-                {o.company} · {o.place}
-              </div>
+    <ul
+      aria-hidden
+      className="w-[60rem] select-none divide-y divide-stone-200 overflow-hidden rounded-[2rem] bg-white shadow-[0_8px_30px_rgba(0,0,0,0.08)]"
+    >
+      {OFFERS.map((o) => (
+        <li key={o.company + o.title} className="flex items-center gap-5 px-7 py-6">
+          <LogoTile company={o.company} domain={o.domain} />
+          <div className="whitespace-nowrap">
+            <div className="text-2xl font-semibold text-stone-950">{o.title}</div>
+            <div className="mt-1 text-lg text-stone-500">
+              {o.company} · {o.place}
             </div>
-            <span className="rounded-md bg-neutral-100 px-2 py-1 text-[11px] font-medium text-neutral-600">{o.contract}</span>
-            <span className="w-16 text-right text-xs text-neutral-500">{o.salary}</span>
-            <span className="w-10 rounded-full bg-[#F3E8FF] py-1 text-center text-[11px] font-semibold text-[#6B3FA0]">{o.match}%</span>
-          </li>
-        ))}
-      </ul>
-    </div>
+          </div>
+          <span className="ml-auto whitespace-nowrap text-lg font-medium text-stone-950">{o.salary}</span>
+        </li>
+      ))}
+    </ul>
   );
 }
