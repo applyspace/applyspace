@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { HugeiconsIcon } from '@hugeicons/react';
 import {
   ArrowLeft01Icon,
@@ -58,6 +59,7 @@ const STEPS = ['import', 'status', 'role', 'location', 'contract', 'company', 'p
  * Layout rule: content is anchored from the top and never moves when something appears.
  */
 export function OnboardingV2() {
+  const router = useRouter();
   const [step, setStep] = useState(0);
   const [file, setFile] = useState<File | null>(null);
   const [status, setStatus] = useState<Status | null>(null);
@@ -148,7 +150,7 @@ export function OnboardingV2() {
           <CompanyStep sizes={sizes} onSizes={setSizes} languages={languages} onLanguages={setLanguages} sectors={sectors} onSectors={setSectors} />
         )}
         {current === 'platforms' && <PlatformsStep places={places} values={platforms} onChange={setPlatforms} />}
-        {current === 'plan' && <PlanStep onSelect={() => undefined} />}
+        {current === 'plan' && <PlanStep onSelect={() => router.push('/')} />}
       </main>
 
       <div className="px-6 pt-4 pb-[5vh]">
