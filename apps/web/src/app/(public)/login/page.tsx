@@ -46,7 +46,7 @@ export default function LoginPage() {
 
   return (
     <div className="grid min-h-screen bg-white text-stone-950 lg:grid-cols-2">
-      <main className="flex flex-col justify-center px-6 py-12 sm:px-12 lg:px-16">
+      <main className="flex flex-col justify-center px-6 py-12 sm:px-12 lg:px-28">
         <div className="mx-auto w-full max-w-[34rem]">
           <ApplyLogo className="mb-12 h-7 w-auto text-stone-950" />
 
