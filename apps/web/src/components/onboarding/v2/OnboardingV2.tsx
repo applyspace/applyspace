@@ -66,7 +66,7 @@ export function OnboardingV2() {
   const [places, setPlaces] = useState<string[]>([]);
   const [workplaces, setWorkplaces] = useState<Workplace[]>([]);
   const [contracts, setContracts] = useState<string[]>([]);
-  const [salary, setSalary] = useState('');
+  const [range, setRange] = useState([0, 300]);
   const [currency, setCurrency] = useState('EUR');
   const [sizes, setSizes] = useState<string[]>([]);
   const [languages, setLanguages] = useState<string[]>([]);
@@ -92,7 +92,7 @@ export function OnboardingV2() {
         <ApplyLogo className="h-8 w-auto text-foreground" />
       </div>
 
-      <main className="mx-auto w-full max-w-3xl flex-1 px-6 pt-[2vh]">
+      <main className={cn('mx-auto w-full flex-1 px-6 pt-[2vh]', last ? 'max-w-5xl' : 'max-w-4xl')}>
         {current === 'import' && (
           <>
             <StepHeader title="Start from what you already have" subtitle="Import your resume or LinkedIn profile to prefill your details." />
@@ -142,30 +142,34 @@ export function OnboardingV2() {
         )}
 
         {current === 'contract' && (
-          <ContractStep contracts={contracts} onContracts={setContracts} salary={salary} onSalary={setSalary} currency={currency} onCurrency={setCurrency} />
+          <ContractStep contracts={contracts} onContracts={setContracts} range={range} onRange={setRange} currency={currency} onCurrency={setCurrency} />
         )}
         {current === 'company' && (
           <CompanyStep sizes={sizes} onSizes={setSizes} languages={languages} onLanguages={setLanguages} sectors={sectors} onSectors={setSectors} />
         )}
         {current === 'platforms' && <PlatformsStep places={places} values={platforms} onChange={setPlatforms} />}
-        {current === 'plan' && <PlanStep />}
+        {current === 'plan' && <PlanStep onSelect={() => undefined} />}
       </main>
 
       <div className="px-6 pt-4 pb-[5vh]">
-        <div className="mx-auto flex max-w-xl items-center justify-between">
+        <div className="relative mx-auto flex max-w-xl items-center justify-between">
           <Button variant="outline" size="icon-lg" aria-label="Back" className={cn(step === 0 && 'invisible')} onClick={() => setStep(step - 1)}>
             <HugeiconsIcon icon={ArrowLeft01Icon} size={20} strokeWidth={1.8} />
           </Button>
-          <div className="flex items-center gap-2">
-            {!last && (
+          {last ? (
+            <Button variant="ghost" size="lg" className="absolute left-1/2 -translate-x-1/2">
+              Compare all features
+            </Button>
+          ) : (
+            <div className="flex items-center gap-2">
               <Button variant="ghost" size="lg" onClick={() => setStep(step + 1)}>
                 Skip this step
               </Button>
-            )}
-            <Button size="lg" disabled={!canNext} onClick={() => setStep(Math.min(STEPS.length - 1, step + 1))}>
-              {last ? 'See offers' : 'Next'}
-            </Button>
-          </div>
+              <Button size="lg" disabled={!canNext} onClick={() => setStep(step + 1)}>
+                Next
+              </Button>
+            </div>
+          )}
         </div>
       </div>
     </div>
