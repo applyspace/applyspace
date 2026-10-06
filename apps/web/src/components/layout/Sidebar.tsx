@@ -19,6 +19,7 @@ import { useState, useCallback } from 'react';
 import { useLocale } from '@/components/providers/Providers';
 import { ApplyLogo } from '@/components/brand/ApplyLogo';
 import { UserMenu } from '@/components/layout/UserMenu';
+import { NewSearchDialog } from '@/components/layout/NewSearchDialog';
 import { entrySlug } from '@/lib/slug';
 import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 import type {
@@ -27,6 +28,7 @@ import type {
   InterviewWithRelations,
 } from '@/types/applications';
 import type { SearchWithCount } from '@/types/searches';
+import type { AccountPlan } from '@/types/candidate-profile';
 
 /* ── Constants ────────────────────────────────────────────────────── */
 
@@ -119,6 +121,7 @@ function NavSection({
   icon,
   collapsed,
   addHref,
+  onAdd,
   badges,
   children,
 }: {
@@ -127,6 +130,8 @@ function NavSection({
   icon: typeof Home01Icon;
   collapsed: boolean;
   addHref: string;
+  /** When set, the [+] button calls this instead of linking to `addHref`. */
+  onAdd?: () => void;
   badges?: React.ReactNode;
   children?: React.ReactNode;
 }) {
@@ -166,13 +171,24 @@ function NavSection({
           {badges}
         </div>
         {/* [+] button */}
-        <Link
-          href={addHref}
-          className="absolute right-1.5 top-1/2 flex size-5 -translate-y-1/2 items-center justify-center rounded text-muted-foreground opacity-0 transition-opacity hover:bg-accent group-hover/section:opacity-100"
-          aria-label={`Add to ${label}`}
-        >
-          <HugeiconsIcon icon={Add01Icon} size={12} />
-        </Link>
+        {onAdd ? (
+          <button
+            type="button"
+            onClick={onAdd}
+            className="absolute right-1.5 top-1/2 flex size-5 -translate-y-1/2 items-center justify-center rounded text-muted-foreground opacity-0 transition-opacity hover:bg-accent focus-visible:opacity-100 group-hover/section:opacity-100"
+            aria-label="New search"
+          >
+            <HugeiconsIcon icon={Add01Icon} size={12} />
+          </button>
+        ) : (
+          <Link
+            href={addHref}
+            className="absolute right-1.5 top-1/2 flex size-5 -translate-y-1/2 items-center justify-center rounded text-muted-foreground opacity-0 transition-opacity hover:bg-accent group-hover/section:opacity-100"
+            aria-label={`Add to ${label}`}
+          >
+            <HugeiconsIcon icon={Add01Icon} size={12} />
+          </Link>
+        )}
       </div>
 
       {/* Page items */}
@@ -252,6 +268,8 @@ interface SidebarProps {
   /** Account name shown on the user button (empty when not set). */
   firstName: string;
   lastName: string;
+  /** Account plan, or null when nobody is signed in (demo, desktop). */
+  plan: AccountPlan | null;
 }
 
 export function Sidebar({
@@ -264,10 +282,12 @@ export function Sidebar({
   interviews,
   firstName,
   lastName,
+  plan,
 }: SidebarProps) {
   const pathname = usePathname();
   const { t } = useLocale();
   const [isDragging, setIsDragging] = useState(false);
+  const [newSearchOpen, setNewSearchOpen] = useState(false);
 
   const handleResizeMouseDown = useCallback(
     (e: React.MouseEvent) => {
@@ -377,6 +397,7 @@ export function Sidebar({
             icon={Briefcase08Icon}
             collapsed={collapsed}
             addHref="/offers"
+            onAdd={() => setNewSearchOpen(true)}
           >
             {searches.length > 0 ? (
               searches.map((s) => {
@@ -491,6 +512,13 @@ export function Sidebar({
             )}
           </NavSection>
         </nav>
+
+        <NewSearchDialog
+          open={newSearchOpen}
+          onOpenChange={setNewSearchOpen}
+          plan={plan}
+          searchCount={searches.length}
+        />
 
         {/* User button + account menu */}
         <UserMenu collapsed={collapsed} firstName={firstName} lastName={lastName} />

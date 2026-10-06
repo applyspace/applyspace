@@ -1,11 +1,17 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import type { Search } from '@apply/db';
+import { EXPERIENCE_LEVEL_VALUES, type Search } from '@apply/db';
+import * as candidate from '@/lib/candidate-profile';
 import { getConnector } from '@/lib/connectors';
 import { getSupabaseScope } from '@/lib/supabase/scope';
 import { selectById } from '@/lib/supabase/rows';
 import { saveOffers } from '@/lib/supabase/saveOffers';
+import {
+  CONTRACT_TOKENS,
+  type CreateSearchResult,
+  type NewSearchInput,
+} from '@/types/candidate-profile';
 
 export type RunSearchResult =
   | { ok: true; found: number; inserted: number; updated: number }
@@ -61,6 +67,57 @@ export async function runSearch(searchId: string): Promise<RunSearchResult> {
       ok: false,
       reason: 'failed',
       message: 'The search failed. Please try again.',
+
+    };
+  }
+}
+
+const PLAN_LIMIT_MESSAGE =
+  'Free includes one search profile. Plus gives each job title its own search.';
+
+/**
+ * Creates one more search profile for the signed-in user. Never throws to the
+ * client: the result is typed, with `reason: 'plan-limit'` when the Free plan
+ * already has its one search (checked here and again by the database trigger).
+ */
+export async function createSearch(input: NewSearchInput): Promise<CreateSearchResult> {
+  const scope = await getSupabaseScope();
+  if (!scope) {
+    return { ok: false, reason: 'signed-out', message: 'Sign in to create a search.' };
+  }
+
+  const title = (input.title ?? '').trim();
+  if (!title) return { ok: false, reason: 'invalid', message: 'Add a job title.' };
+  if (title.length > 120) {
+    return { ok: false, reason: 'invalid', message: 'The job title is too long.' };
+  }
+
+  try {
+    const data = await candidate.insertSearch(scope, {
+      title,
+      location: (input.location ?? '').trim().slice(0, 120),
+      // Only canonical tokens reach the database (CHECK constraints).
+      contractTypes: Array.from(new Set(input.contractTypes ?? [])).filter((c) =>
+        CONTRACT_TOKENS.includes(c),
+      ),
+      experienceLevels: Array.from(new Set(input.experienceLevels ?? [])).filter((l) =>
+        EXPERIENCE_LEVEL_VALUES.includes(l),
+      ),
+    });
+    return { ok: true, data };
+  } catch (error) {
+    if (error instanceof candidate.PlanLimitError) {
+      return { ok: false, reason: 'plan-limit', message: PLAN_LIMIT_MESSAGE };
+    }
+    if (error instanceof candidate.InvalidInputError) {
+      return { ok: false, reason: 'invalid', message: error.message };
+    }
+    console.error('[searches] creating a search failed:', error);
+    return {
+      ok: false,
+      reason: 'unavailable',
+      message: 'This is not available yet. Please try again later.',
+
     };
   }
 }

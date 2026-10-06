@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation';
 import { AppShell } from '@/components/layout/AppShell';
-import { needsOnboarding } from '@/lib/candidate-profile';
+import { getAccount, needsOnboarding } from '@/lib/candidate-profile';
 import { getSupabaseScope } from '@/lib/supabase/scope';
 import { readOffers } from '@/lib/offers';
 import { readApplications, readInterviews } from '@/lib/applications';
@@ -23,6 +23,9 @@ export default async function AuthLayout({ children }: { children: React.ReactNo
   // `needsOnboarding` answers false while the column does not exist yet.
   const scope = await getSupabaseScope();
   if (scope && (await needsOnboarding(scope))) redirect('/onboarding');
+
+  // Plan for the sidebar's "New search" gating; unknown (null) when it cannot be read.
+  const plan = scope ? await getAccount(scope).then((a) => a.plan, () => null) : null;
 
   const [offers, applications, interviews, searches, settings, connected] = await Promise.all([
     readOffers(),
@@ -53,6 +56,7 @@ export default async function AuthLayout({ children }: { children: React.ReactNo
       firstName={settings.firstName}
       lastName={settings.lastName}
       platformStatuses={platformStatuses}
+      plan={plan}
     >
       {children}
     </AppShell>
