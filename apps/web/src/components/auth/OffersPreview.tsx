@@ -13,14 +13,14 @@ const OFFERS: ReadonlyArray<{
   salary: string;
   logo: string;
 }> = [
-  { company: "Nike", title: "Senior Product Designer", place: "Paris", salary: "65–80K", logo: "/logos/nike.svg" },
-  { company: "On", title: "Product Designer", place: "Zurich · Hybride", salary: "70–90K", logo: "/logos/on.svg" },
-  { company: "Adidas", title: "UX Designer", place: "Remote", salary: "55–70K", logo: "/logos/adidas.svg" },
-  { company: "Asics", title: "Lead Product Designer", place: "Paris", salary: "70–85K", logo: "/logos/asics.svg" },
-  { company: "Puma", title: "Digital Product Designer", place: "Lyon · Hybride", salary: "50–62K", logo: "/logos/puma.svg" },
-  { company: "Salomon", title: "Product Designer, Apps", place: "Annecy", salary: "55–68K", logo: "/logos/salomon.svg" },
-  { company: "Nike", title: "Product Designer", place: "Amsterdam", salary: "60–75K", logo: "/logos/nike.svg" },
-  { company: "On", title: "Senior UX/UI Designer", place: "Zurich", salary: "75–95K", logo: "/logos/on.svg" },
+  { company: "Nike", title: "Senior Footwear Designer", place: "Amsterdam", salary: "65–80K", logo: "/logos/nike.svg" },
+  { company: "On", title: "Footwear Designer, Running", place: "Zurich · Hybride", salary: "70–90K", logo: "/logos/on.svg" },
+  { company: "Adidas", title: "Footwear Designer, Lifestyle", place: "Herzogenaurach", salary: "55–70K", logo: "/logos/adidas.svg" },
+  { company: "Asics", title: "Lead Footwear Designer", place: "Paris", salary: "70–85K", logo: "/logos/asics.svg" },
+  { company: "Puma", title: "Footwear Designer, Football", place: "Herzogenaurach", salary: "50–62K", logo: "/logos/puma.svg" },
+  { company: "Salomon", title: "Footwear Designer, Performance", place: "Annecy", salary: "55–68K", logo: "/logos/salomon.svg" },
+  { company: "Nike", title: "Footwear Designer, Basketball", place: "Amsterdam", salary: "60–75K", logo: "/logos/nike.svg" },
+  { company: "On", title: "Senior Footwear Designer", place: "Zurich", salary: "75–95K", logo: "/logos/on.svg" },
 ];
 
 function LogoTile({ company, logo }: { company: string; logo: string }) {
