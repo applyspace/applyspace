@@ -292,7 +292,7 @@ const FREE_FEATURES = [
   'No advanced connectors',
 ];
 const PLUS_FEATURES = [
-  'Unlimited search profiles',
+  'One search profile per job title',
   'Unlimited tracked applications',
   'Unlimited fit messages',
   'Advanced connectors',
@@ -327,7 +327,7 @@ export function BillingSection() {
 
       <div className={cn(CARD, 'flex flex-col bg-stone-50')}>
         <h3 className="text-base font-semibold text-stone-950">Plus</h3>
-        <p className="mt-1 text-sm text-stone-500">Price to be announced.</p>
+        <p className="mt-1 text-sm text-stone-500">$3.99 / €3.99 per month.</p>
         <FeatureList items={PLUS_FEATURES} />
         <div className="mt-6 flex items-center gap-3">
           <button type="button" disabled className={PRIMARY_BUTTON}>
