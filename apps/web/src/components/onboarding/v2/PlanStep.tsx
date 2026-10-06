@@ -270,7 +270,7 @@ export function PlanStep({ onSelect }: { onSelect: (plan: string) => void }) {
     <>
       <StepHeader title="Choose your plan" subtitle="Start free and upgrade whenever you need more." />
       <div className="mb-6 flex justify-center">
-        <ToggleGroup value={[periodKey]} onValueChange={(v) => v[0] && setPeriodKey(v[0] as Period)} aria-label="Billing period">
+        <ToggleGroup variant="outline" size="lg" spacing={2} value={[periodKey]} onValueChange={(v) => v[0] && setPeriodKey(v[0] as Period)} aria-label="Billing period">
           {PERIODS.map((p) => (
             <ToggleGroupItem key={p.value} value={p.value}>
               {p.label}
