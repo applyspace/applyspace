@@ -149,15 +149,15 @@ export function OnboardingV2() {
     current === 'import' ? file !== null : current === 'status' ? status !== null : current === 'role' ? titles.length > 0 : places.length > 0;
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      <div className="flex justify-center pt-14 pb-24">
+    <div className="flex min-h-dvh flex-col bg-background text-foreground">
+      <div className="flex justify-center pt-[5vh] pb-[7vh]">
         <ApplyLogo className="h-8 w-auto text-foreground" />
       </div>
 
-      <main className="mx-auto w-full max-w-3xl px-6 pb-48">
+      <main className="mx-auto w-full max-w-3xl flex-1 px-6">
         {current === 'import' && (
           <>
-            <StepHeader title="Start from what you already have" subtitle="Import your CV or LinkedIn profile to prefill your details." />
+            <StepHeader title="Start from what you already have" subtitle="Import your resume or LinkedIn profile to prefill your details." />
             <ImportDropzone file={file} onFile={setFile} />
           </>
         )}
@@ -204,7 +204,7 @@ export function OnboardingV2() {
         )}
       </main>
 
-      <div className="fixed inset-x-0 bottom-20 px-6">
+      <div className="px-6 pt-4 pb-[5vh]">
         <div className="mx-auto flex max-w-xl items-center justify-between">
           <Button variant="outline" size="icon-lg" aria-label="Back" className={cn(step === 0 && 'invisible')} onClick={() => setStep(step - 1)}>
             <HugeiconsIcon icon={ArrowLeft01Icon} size={20} strokeWidth={1.8} />

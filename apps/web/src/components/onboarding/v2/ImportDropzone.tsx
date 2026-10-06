@@ -2,22 +2,22 @@
 
 import { useRef, useState } from 'react';
 import { HugeiconsIcon } from '@hugeicons/react';
-import { CloudUploadIcon, File01Icon } from '@hugeicons/core-free-icons';
+import { BulbIcon, CloudUploadIcon, File01Icon } from '@hugeicons/core-free-icons';
 import { LinkedInIcon } from '@/components/icons/LinkedInIcon';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { cn } from '@/lib/utils';
 
 type Source = 'cv' | 'linkedin';
 
 const COPY: Record<Source, { title: string; hint: string }> = {
-  cv: { title: 'Upload your CV', hint: 'PDF or DOCX, up to 3 MB' },
+  cv: { title: 'Upload your resume', hint: 'PDF or DOCX, up to 3 MB' },
   linkedin: { title: 'Upload your LinkedIn PDF', hint: 'PDF, up to 3 MB' },
 };
 
 /**
- * Onboarding import step: a CV / LinkedIn switch above a Luma upload card.
+ * Onboarding import step: a Resume / LinkedIn Profile switch above a Luma upload card.
  * The LinkedIn export tip is rendered below the card so nothing above it moves.
  */
 export function ImportDropzone({
@@ -33,25 +33,21 @@ export function ImportDropzone({
   const copy = COPY[source];
 
   return (
-    <div className="mx-auto flex w-full max-w-xl flex-col items-center gap-6">
+    <div className="mx-auto flex w-full max-w-xl flex-col items-center gap-5">
       <Tabs value={source} onValueChange={(v) => setSource(v as Source)}>
         <TabsList>
           <TabsTrigger value="cv">
             <HugeiconsIcon icon={File01Icon} strokeWidth={1.8} />
-            CV
+            Resume
           </TabsTrigger>
           <TabsTrigger value="linkedin">
-            <LinkedInIcon className="size-4 text-[#0A66C2]" />
-            LinkedIn profile
+            <LinkedInIcon className="size-5 text-[#0A66C2]" />
+            LinkedIn Profile
           </TabsTrigger>
         </TabsList>
       </Tabs>
 
-      <Card className="w-full">
-        <CardHeader>
-          <CardTitle>File upload</CardTitle>
-          <CardDescription>Drag and drop or browse</CardDescription>
-        </CardHeader>
+      <Card className="w-full py-4">
         <CardContent>
           <div
             onDragOver={(e) => {
@@ -65,7 +61,7 @@ export function ImportDropzone({
               onFile(e.dataTransfer.files[0] ?? null);
             }}
             className={cn(
-              'flex min-h-64 flex-col items-center justify-center gap-3 rounded-3xl border border-dashed border-border px-6 py-10 text-center transition-colors',
+              'flex min-h-44 flex-col items-center justify-center gap-3 rounded-3xl border border-dashed border-border px-6 py-8 text-center transition-colors',
               dragging && 'border-foreground bg-muted',
             )}
           >
@@ -91,13 +87,24 @@ export function ImportDropzone({
       </Card>
 
       {source === 'linkedin' && (
-        <div className="w-full rounded-3xl bg-muted px-5 py-4 text-sm text-foreground">
-          <p className="font-medium">Export your LinkedIn profile in 3 steps</p>
-          <ol className="mt-2 list-decimal space-y-1 pl-5 text-muted-foreground">
-            <li>Open your profile on LinkedIn.</li>
-            <li>Choose More, then Save to PDF.</li>
-            <li>Upload the PDF in the card above.</li>
-          </ol>
+        <div className="flex w-full items-start gap-3 rounded-3xl bg-muted px-5 py-4 text-sm text-foreground">
+          <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-pink-100 text-pink-500">
+            <HugeiconsIcon icon={BulbIcon} size={18} strokeWidth={1.8} />
+          </span>
+          <div>
+            <p className="font-medium">Export your LinkedIn profile in 3 steps</p>
+            <ol className="mt-1.5 list-decimal space-y-0.5 pl-4 text-muted-foreground">
+              <li>
+                Go to{' '}
+                <a href="https://www.linkedin.com/in/me/" target="_blank" rel="noopener noreferrer" className="font-medium text-foreground underline underline-offset-2">
+                  your profile on LinkedIn
+                </a>
+                .
+              </li>
+              <li>Choose More, then Save to PDF.</li>
+              <li>Upload the PDF in the card above.</li>
+            </ol>
+          </div>
         </div>
       )}
     </div>
