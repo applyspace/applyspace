@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { brandLogoFallbackUrl, brandLogoUrl } from "@/lib/brandfetch";
+import { brandLogoUrl } from "@/lib/brandfetch";
 
 /* Placeholder offers. Brand logos come from Brandfetch by domain; the tile falls back to the brand's initial. */
 const OFFERS: ReadonlyArray<{
@@ -22,27 +22,23 @@ const OFFERS: ReadonlyArray<{
 ];
 
 function LogoTile({ company, domain }: { company: string; domain: string }) {
-  // 0: simplified symbol, 1: default logo, 2: initial
-  const [stage, setStage] = useState(0);
-  // Idempotent per stage: onError and the ref check can both report the same failure.
-  const next = () => setStage((s) => (s === stage ? stage + 1 : s));
+  const [missing, setMissing] = useState(false);
   return (
     <span className="flex size-16 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-stone-200 bg-stone-50 text-2xl font-semibold text-stone-900">
-      {stage > 1 ? (
+      {missing ? (
         company[0]
       ) : (
         // eslint-disable-next-line @next/next/no-img-element
         <img
-          key={stage}
-          src={stage === 0 ? brandLogoUrl(domain) : brandLogoFallbackUrl(domain)}
+          src={brandLogoUrl(domain)}
           alt=""
           width={128}
           height={128}
-          className={stage === 0 ? "size-full object-cover" : "size-full object-contain p-2.5"}
-          onError={next}
+          className="size-full object-cover"
+          onError={() => setMissing(true)}
           // The error can fire before hydration: catch images that already failed.
           ref={(img) => {
-            if (img && img.complete && img.naturalWidth === 0) next();
+            if (img && img.complete && img.naturalWidth === 0) setMissing(true);
           }}
         />
       )}
