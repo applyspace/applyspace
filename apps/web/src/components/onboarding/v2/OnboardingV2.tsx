@@ -4,11 +4,11 @@ import { useState } from 'react';
 import { HugeiconsIcon } from '@hugeicons/react';
 import {
   ArrowLeft01Icon,
-  Building02Icon,
+  ArrowReloadHorizontalIcon,
   Globe02Icon,
   FlashIcon,
-  Home03Icon,
   IncognitoIcon,
+  Location09Icon,
   SearchList01Icon,
 } from '@hugeicons/core-free-icons';
 import { ApplyLogo } from '@/components/brand/ApplyLogo';
@@ -33,8 +33,8 @@ const STATUSES = [
 
 const LEVELS = ['Entry level', 'Junior', 'Mid-level', 'Senior', 'Lead or above'];
 const WORKPLACES = [
-  { value: 'onsite', icon: Building02Icon, label: 'On-site' },
-  { value: 'hybrid', icon: Home03Icon, label: 'Hybrid' },
+  { value: 'onsite', icon: Location09Icon, label: 'On-site' },
+  { value: 'hybrid', icon: ArrowReloadHorizontalIcon, label: 'Hybrid' },
   { value: 'remote', icon: Globe02Icon, label: 'Remote' },
 ] as const;
 const TITLE_SUGGESTIONS = ['Product Designer', 'Senior Product Designer', 'UX Designer', 'UI Designer', 'Design Lead', 'UX Researcher'];
