@@ -12,6 +12,7 @@ import { readSearches } from '@/lib/searches';
 import { readSettings } from '@/lib/settings';
 import { matchIdInSlug } from '@/lib/slug';
 import { EditSearchButton } from '@/components/jobs/EditSearchButton';
+import { SearchNowButton } from '@/components/jobs/SearchNowButton';
 import { JobTable } from '@/components/jobs/JobTable';
 
 // Canonical DB tokens → display labels. Keys include both the current canonical
@@ -161,7 +162,10 @@ export default async function SearchPage({
               )}
             </div>
 
-            <EditSearchButton settings={settings} />
+            <div className="flex shrink-0 items-start gap-3">
+              <SearchNowButton searchId={search.id} />
+              <EditSearchButton settings={settings} />
+            </div>
           </div>
         </div>
       </div>
