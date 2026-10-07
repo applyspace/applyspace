@@ -14,6 +14,7 @@ import {
   File01Icon,
   FilterIcon,
   Layers01Icon,
+  Mail01Icon,
   Message01Icon,
   Mic01Icon,
   Mic02Icon,
@@ -66,6 +67,7 @@ const PLUS_FEATURES: Feature[] = [
   { text: 'Advanced search filters', icon: FilterIcon },
   { text: 'Company insights', icon: Building03Icon },
   { text: 'Network connections', icon: UserMultiple02Icon },
+  { text: 'Reply tracking', icon: Mail01Icon },
   { text: 'Interview simulation', icon: Mic02Icon },
 ];
 
