@@ -4,9 +4,14 @@ packages:
 
 # pnpm 11+ replaced onlyBuiltDependencies with allowBuilds. Dependency install scripts
 # are skipped unless approved here (`pnpm approve-builds`). better-sqlite3 needs its
-# install script to fetch/build the native binding.
+# install script to fetch/build the native binding; electron downloads its binary, esbuild
+# and sharp fetch their platform binaries, unrs-resolver its native resolver.
 allowBuilds:
   better-sqlite3: true
+  electron: true
+  esbuild: true
+  sharp: true
+  unrs-resolver: true
 
 # pnpm 11 blocks dependencies resolved from git inside sub-dependencies by default.
 # electron-builder -> @electron/rebuild@3.x pulls @electron/node-gyp from a GitHub tarball,
