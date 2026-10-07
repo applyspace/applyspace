@@ -7,6 +7,22 @@
 /* Design system rule: no drop-shadows. Removing the theme tokens makes every shadow-* and drop-shadow-* utility
    (including the ones inside shadcn components) a no-op; elevation comes from rings and fills instead. */
 @theme {
+  /* Medium is a semibold (600) across the whole site. */
+  --font-weight-medium: 600;
+
+  /* Brand collection (brand-50 … brand-950): lilac #E2B8FF is brand-300, deep aubergine #1F0D2C is brand-950. */
+  --color-brand-50: oklch(0.975 0.015 311);
+  --color-brand-100: oklch(0.945 0.035 311);
+  --color-brand-200: oklch(0.905 0.068 311);
+  --color-brand-300: oklch(0.843 0.106 311);
+  --color-brand-400: oklch(0.76 0.15 310);
+  --color-brand-500: oklch(0.66 0.19 310);
+  --color-brand-600: oklch(0.55 0.2 309);
+  --color-brand-700: oklch(0.45 0.17 309);
+  --color-brand-800: oklch(0.36 0.13 309);
+  --color-brand-900: oklch(0.28 0.095 309);
+  --color-brand-950: oklch(0.204 0.062 309);
+
   --shadow-*: initial;
   --inset-shadow-*: initial;
   --drop-shadow-*: initial;

@@ -21,6 +21,7 @@ import { CompanyStep, ContractStep } from '@/components/onboarding/v2/CriteriaSt
 import { PlanStep } from '@/components/onboarding/v2/PlanStep';
 import { PlatformsStep } from '@/components/onboarding/v2/PlatformsStep';
 import { StepHeader } from '@/components/onboarding/v2/StepHeader';
+import { suggestJobTitles, suggestPlaces } from '@/lib/suggest';
 import { cn } from '@/lib/utils';
 
 type Status = 'active' | 'passive' | 'incognito';
@@ -38,8 +39,6 @@ const WORKPLACES = [
   { value: 'hybrid', icon: ArrowReloadHorizontalIcon, label: 'Hybrid' },
   { value: 'remote', icon: InternetAntenna03Icon, label: 'Remote' },
 ] as const;
-const TITLE_SUGGESTIONS = ['Product Designer', 'Senior Product Designer', 'UX Designer', 'UI Designer', 'Design Lead', 'UX Researcher'];
-const PLACE_SUGGESTIONS = ['Paris, France', 'Lyon, France', 'Bordeaux, France', 'Nantes, France', 'Île-de-France', 'France', 'Berlin, Germany', 'London, United Kingdom'];
 
 /** Seniority indicator: five bars of rising height, the first `level` filled. */
 function LevelBars({ level }: { level: number }) {
@@ -68,7 +67,7 @@ export function OnboardingV2() {
   const [places, setPlaces] = useState<string[]>([]);
   const [workplaces, setWorkplaces] = useState<Workplace[]>([]);
   const [contracts, setContracts] = useState<string[]>([]);
-  const [minSalary, setMinSalary] = useState(0);
+  const [minSalary, setMinSalary] = useState(35);
   const [currency, setCurrency] = useState('EUR');
   const [sizes, setSizes] = useState<string[]>([]);
   const [sectors, setSectors] = useState<string[]>([]);
@@ -119,7 +118,7 @@ export function OnboardingV2() {
         {current === 'role' && (
           <>
             <StepHeader title="Which roles are you after?" subtitle="Your job titles and seniority shape the offers we show you." />
-            <TagSearch placeholder="Search a job title" suggestions={TITLE_SUGGESTIONS} values={titles} onChange={setTitles} />
+            <TagSearch placeholder="Search a job title" fetchSuggestions={suggestJobTitles} values={titles} onChange={setTitles} />
             <div className="mx-auto mt-10 flex max-w-3xl flex-nowrap justify-center gap-4 border-t pt-10">
               {LEVELS.map((l, i) => (
                 <ChoiceCard key={l} selected={levels.includes(l)} onClick={() => setLevels(toggle(levels, l))}>
@@ -134,7 +133,7 @@ export function OnboardingV2() {
         {current === 'location' && (
           <>
             <StepHeader title="Where do you want to work?" subtitle="Pick the places you would consider and the workplace type." />
-            <TagSearch placeholder="Search a city, region or country" suggestions={PLACE_SUGGESTIONS} values={places} onChange={setPlaces} />
+            <TagSearch placeholder="Search a city, region or country" fetchSuggestions={suggestPlaces} values={places} onChange={setPlaces} />
             <div className="mx-auto mt-10 flex max-w-xl flex-wrap justify-center gap-4 border-t pt-10">
               {WORKPLACES.map((w) => (
                 <ChoiceCard key={w.value} selected={workplaces.includes(w.value)} onClick={() => setWorkplaces(toggle(workplaces, w.value))}>

@@ -1,6 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { AnimatePresence, motion } from 'motion/react';
+import { motionTheme } from '@/lib/motion-theme';
 import { HugeiconsIcon, type IconSvgElement } from '@hugeicons/react';
 import {
   Agreement03Icon,
@@ -135,7 +137,36 @@ const SECTORS: { label: string; icon: IconSvgElement; tone: Tone; top?: boolean 
   { label: 'Telecom', icon: SmartPhone01Icon, tone: 'slate' },
 ];
 
-/** Minimum salary: a placeholder distribution above a single-handle slider (0 to 100K, 1K steps), the amount as plain text and a ghost currency dropdown. */
+/** Rolling digit: the old one slides out and the new one slides in, up when the value rises and down when it falls. */
+function Digit({ d, dir }: { d: number; dir: 1 | -1 }) {
+  return (
+    <span className="relative inline-block h-[1.1em] w-[1ch] overflow-hidden text-center leading-[1.1]">
+      <AnimatePresence initial={false} custom={dir}>
+        <motion.span
+          key={d}
+          custom={dir}
+          className="absolute inset-0"
+          variants={{
+            enter: (c: number) => ({ y: c > 0 ? '70%' : '-70%', opacity: 0 }),
+            center: { y: 0, opacity: 1 },
+            exit: (c: number) => ({ y: c > 0 ? '-70%' : '70%', opacity: 0 }),
+          }}
+          initial="enter"
+          animate="center"
+          exit="exit"
+          transition={motionTheme.transitions.ui}
+        >
+          {d}
+        </motion.span>
+      </AnimatePresence>
+    </span>
+  );
+}
+
+/**
+ * Minimum salary: the amount above a placeholder distribution and a single-handle slider (0 to 100K, 1K steps).
+ * Tens, ones and K never move; the currency, the plus and a hundreds digit hang to their left, so reaching 100K shifts nothing.
+ */
 function SalaryMinimum({
   value,
   onValue,
@@ -150,14 +181,52 @@ function SalaryMinimum({
   const symbol = CURRENCIES.find((c) => c.code === currency)?.symbol ?? '€';
   const perBar = (SALARY_MAX - SALARY_MIN) / SALARY_BARS.length;
   const peak = Math.max(...SALARY_BARS);
+  const previous = useRef(value);
+  const dir: 1 | -1 = value >= previous.current ? 1 : -1;
+  useEffect(() => {
+    previous.current = value;
+  }, [value]);
+  const hundreds = Math.floor(value / 100);
+  const tens = Math.floor((value % 100) / 10);
+  const ones = value % 10;
 
   return (
     <div className="mx-auto w-full max-w-xl">
-      <div className="flex h-20 items-end gap-px px-2" aria-hidden>
+      <div className="mb-5 flex justify-center">
+        <div className="relative flex items-start font-heading text-6xl leading-none font-medium tracking-tight tabular-nums">
+          <span className="absolute right-full flex items-start">
+            <DropdownMenu>
+              <DropdownMenuTrigger render={<button type="button" aria-label="Currency" className="mt-1.5 mr-1 rounded-lg px-1 text-2xl font-medium text-muted-foreground outline-none transition-colors hover:bg-muted hover:text-foreground focus-visible:ring-3 focus-visible:ring-ring/30" />}>
+                {symbol}
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="center" className="w-max min-w-0">
+                {CURRENCIES.map((c) => (
+                  <DropdownMenuItem key={c.code} className="whitespace-nowrap" onClick={() => onCurrency(c.code)}>
+                    {c.symbol} {c.code}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+            <span className="leading-[1.1]">+</span>
+            <AnimatePresence initial={false}>
+              {hundreds > 0 && (
+                <motion.span key="hundreds" className="overflow-hidden leading-[1.1]" initial={{ width: 0, opacity: 0 }} animate={{ width: '1ch', opacity: 1 }} exit={{ width: 0, opacity: 0 }} transition={motionTheme.transitions.ui}>
+                  {hundreds}
+                </motion.span>
+              )}
+            </AnimatePresence>
+          </span>
+          <Digit d={tens} dir={dir} />
+          <Digit d={ones} dir={dir} />
+          <span className="leading-[1.1]">K</span>
+          <span className="mt-1.5 ml-1.5 text-lg font-medium tracking-normal text-muted-foreground">/year</span>
+        </div>
+      </div>
+      <div className="flex h-16 items-end gap-px px-2" aria-hidden>
         {SALARY_BARS.map((v, i) => {
           const from = SALARY_MIN + i * perBar;
           const inside = from + perBar > value;
-          return <div key={i} className={cn('flex-1 rounded-t-[2px]', inside ? 'bg-purple-500' : 'bg-purple-500/20')} style={{ height: `${(v / peak) * 100}%` }} />;
+          return <div key={i} className={cn('flex-1 rounded-t-[2px] transition-colors', inside ? 'bg-brand-300' : 'bg-brand-100')} style={{ height: `${(v / peak) * 100}%` }} />;
         })}
       </div>
       <Slider
@@ -167,27 +236,8 @@ function SalaryMinimum({
         step={1}
         onValueChange={(v) => onValue(Array.isArray(v) ? v[0] : v)}
         aria-label="Minimum salary"
-        className="mt-3 **:data-[slot=slider-track]:bg-purple-500 **:data-[slot=slider-range]:bg-purple-100"
+        className="mt-3 **:data-[slot=slider-track]:bg-foreground **:data-[slot=slider-range]:bg-border"
       />
-      <div className="mt-6 flex items-baseline justify-center gap-2">
-        <span className="font-heading text-6xl font-medium tracking-tight tabular-nums">
-          {value}
-          <span className="text-4xl text-muted-foreground">K{value === SALARY_MAX && '+'}</span>
-        </span>
-        <DropdownMenu>
-          <DropdownMenuTrigger render={<button type="button" aria-label="Currency" className="rounded-xl px-2 text-4xl font-medium text-muted-foreground outline-none transition-colors hover:bg-muted hover:text-foreground focus-visible:ring-3 focus-visible:ring-ring/30" />}>
-            {symbol}
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="center" className="w-max min-w-0">
-            {CURRENCIES.map((c) => (
-              <DropdownMenuItem key={c.code} className="whitespace-nowrap" onClick={() => onCurrency(c.code)}>
-                {c.symbol} {c.code}
-              </DropdownMenuItem>
-            ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
-        <span className="text-lg text-muted-foreground">/year</span>
-      </div>
     </div>
   );
 }
@@ -219,7 +269,7 @@ export function ContractStep({
           </ChoiceCard>
         ))}
       </div>
-      <div className="mt-10 border-t pt-10">
+      <div className="mt-6 border-t pt-8">
         <SalaryMinimum value={minSalary} onValue={onMinSalary} currency={currency} onCurrency={onCurrency} />
       </div>
     </>

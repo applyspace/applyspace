@@ -111,10 +111,10 @@ const PLANS: Plan[] = [
     key: 'plus',
     name: 'Plus',
     tagline: 'More room, sharper search.',
-    accent: 'text-[#1F0D2C]',
-    card: 'border border-[#E2B8FF] bg-[#E2B8FF]/40',
+    accent: 'text-brand-950',
+    card: 'border border-brand-300 bg-brand-300/40',
     ring: '#f3e3ff',
-    muted: 'text-[#1F0D2C]/70',
+    muted: 'text-brand-950/70',
     badge: true,
     price: 0.99,
     limits: ['99 applications', '3 search profiles', '3 interview templates'],
@@ -172,7 +172,7 @@ function PlanCard({ plan, period, onSelect }: { plan: Plan; period: (typeof PERI
         <div className="space-y-1">
           <div className="flex items-center justify-between">
             <p className="font-sans text-2xl font-medium">{plan.name}</p>
-            {plan.badge && <span className="rounded-full bg-white/70 px-3 py-1 text-xs font-medium text-[#1F0D2C]">Popular</span>}
+            {plan.badge && <span className="rounded-full bg-white/70 px-3 py-1 text-xs font-medium text-brand-950">Popular</span>}
           </div>
           <p className={cn('text-sm', plan.muted)}>{plan.tagline}</p>
         </div>

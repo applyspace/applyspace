@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { Cancel01Icon, Search01Icon } from '@hugeicons/core-free-icons';
 import { Button } from '@/components/ui/button';
@@ -24,19 +24,38 @@ export function FieldLabel({ children }: { children: React.ReactNode }) {
 export function TagSearch({
   placeholder,
   suggestions,
+  fetchSuggestions,
   values,
   onChange,
   wide,
 }: {
   placeholder: string;
-  suggestions: string[];
+  /** Static list, filtered locally. Ignored when `fetchSuggestions` is given. */
+  suggestions?: string[];
+  /** Remote autocomplete, called after a short pause in typing. */
+  fetchSuggestions?: (query: string, signal: AbortSignal) => Promise<string[]>;
   values: string[];
   onChange: (next: string[]) => void;
   wide?: boolean;
 }) {
   const [query, setQuery] = useState('');
   const q = query.trim().toLowerCase();
-  const matches = q ? suggestions.filter((s) => s.toLowerCase().includes(q) && !values.includes(s)).slice(0, 5) : [];
+  const [remote, setRemote] = useState<string[]>([]);
+  useEffect(() => {
+    if (!fetchSuggestions || q.length < 2) {
+      setRemote([]);
+      return;
+    }
+    const controller = new AbortController();
+    const timer = setTimeout(() => {
+      fetchSuggestions(q, controller.signal).then((list) => !controller.signal.aborted && setRemote(list));
+    }, 250);
+    return () => {
+      clearTimeout(timer);
+      controller.abort();
+    };
+  }, [q, fetchSuggestions]);
+  const matches = (fetchSuggestions ? remote : q ? (suggestions ?? []).filter((s) => s.toLowerCase().includes(q)) : []).filter((s) => !values.includes(s)).slice(0, 5);
 
   return (
     <div className={cn('mx-auto w-full', !wide && 'max-w-xl')}>
