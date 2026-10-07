@@ -8,6 +8,7 @@ import {
   ArrowUp01Icon,
   Briefcase01Icon,
   Building03Icon,
+  Calendar03Icon,
   CheckListIcon,
   CursorMagicSelection01Icon,
   File01Icon,
@@ -25,19 +26,20 @@ import {
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
-import { BrandLogo } from '@/components/onboarding/v2/BrandLogo';
+import { ClaudeLogo, GmailLogo, GoogleCalendarLogo, OpenAILogo } from '@/components/onboarding/v2/BrandIcons';
 import { StepHeader } from '@/components/onboarding/v2/StepHeader';
 import { SEGMENT_GROUP, SEGMENT_ITEM } from '@/components/onboarding/v2/fields';
 import { cn } from '@/lib/utils';
 
-type Logo = { name: string; domain: string };
+type Logo = { name: string; Icon: (props: { className?: string }) => React.ReactNode };
 
-/** AI tools the user can connect their own account to, and the mailbox read by reply tracking. Logos come from Brandfetch. */
+/** Accounts a feature connects to, shown as official inline SVG marks next to its name. */
 const AI_TOOLS: Logo[] = [
-  { name: 'Claude', domain: 'claude.ai' },
-  { name: 'OpenAI', domain: 'openai.com' },
+  { name: 'Claude', Icon: ClaudeLogo },
+  { name: 'OpenAI', Icon: OpenAILogo },
 ];
-const MAIL_TOOLS: Logo[] = [{ name: 'Gmail', domain: 'gmail.com' }];
+const MAIL_TOOLS: Logo[] = [{ name: 'Gmail', Icon: GmailLogo }];
+const CALENDAR_TOOLS: Logo[] = [{ name: 'Google Calendar', Icon: GoogleCalendarLogo }];
 
 /**
  * Billing periods. The discount is hypothetical: -10% for 3 months keeps Apply profitable
@@ -67,6 +69,7 @@ const PLUS_FEATURES: Feature[] = [
   { text: 'Company insights', icon: Building03Icon },
   { text: 'Network connections', icon: UserMultiple02Icon },
   { text: 'Reply tracking', icon: Mail01Icon, logos: MAIL_TOOLS },
+  { text: 'Interview calendar sync', icon: Calendar03Icon, logos: CALENDAR_TOOLS },
   { text: 'Interview simulation', icon: Mic02Icon },
 ];
 
@@ -142,7 +145,7 @@ function InlineLogos({ logos }: { logos: Logo[] }) {
   return (
     <span className="ml-1.5 inline-flex items-center gap-2">
       {logos.map((l) => (
-        <BrandLogo key={l.name} name={l.name} domain={l.domain} kind="symbol" className="size-5" />
+        <l.Icon key={l.name} className="size-5 shrink-0" />
       ))}
     </span>
   );
