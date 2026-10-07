@@ -48,7 +48,7 @@ export function TagSearch({
           className="h-14 rounded-full pr-6 pl-13 text-base md:text-base"
         />
         {matches.length > 0 && (
-          <ul className="absolute inset-x-0 top-full z-10 mt-2 overflow-hidden rounded-3xl bg-popover p-1 text-left shadow-md ring-1 ring-foreground/5">
+          <ul className="absolute inset-x-0 top-full z-10 mt-2 overflow-hidden rounded-3xl bg-popover p-1 text-left ring-1 ring-foreground/5">
             {matches.map((m) => (
               <li key={m}>
                 <button
