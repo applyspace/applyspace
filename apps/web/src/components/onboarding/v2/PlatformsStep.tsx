@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { BrandLogo } from '@/components/onboarding/v2/BrandLogo';
 import { StepHeader } from '@/components/onboarding/v2/StepHeader';
 import { cn } from '@/lib/utils';
@@ -19,7 +18,7 @@ const PLATFORMS: PlatformOption[] = [
   { name: 'HelloWork', domain: 'hellowork.com', description: 'A leading French job board, strong on local and regional offers.' },
   { name: 'JobsThatMakeSense', domain: 'jobsthatmakesense.com', description: 'Offers from companies with a social and environmental impact.' },
   { name: 'Collective.work', domain: 'collective.work', description: 'Freelance missions and jobs for independent professionals.' },
-  { name: 'France Travail', domain: 'francetravail.fr', description: 'The French public employment service, with offers across the country.', franceOnly: true },
+  { name: 'France Travail', domain: 'francetravail.org', description: 'The French public employment service, with offers across the country.', franceOnly: true },
 ];
 
 /** Shown after "See more". */
@@ -47,7 +46,7 @@ export function PlatformsStep({ places, values, onChange }: { places: string[]; 
         <div
           role="group"
           aria-label="Job platforms"
-          className="grid max-h-[45vh] grid-cols-2 gap-4 overflow-y-auto p-1 pb-12 [mask-image:linear-gradient(to_bottom,black_calc(100%-3.5rem),transparent)]"
+          className="grid max-h-[max(10rem,calc(100dvh-31rem))] grid-cols-2 gap-4 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden p-1 pb-12 [mask-image:linear-gradient(to_bottom,black_calc(100%-3.5rem),transparent)]"
         >
           {list.map((p) => {
             const selected = values.includes(p.name);
@@ -65,10 +64,7 @@ export function PlatformsStep({ places, values, onChange }: { places: string[]; 
                 <BrandLogo name={p.name} domain={p.domain} className="size-10 text-sm" />
                 <span className="min-w-0 flex-1">
                   <span className="block text-sm font-medium">{p.name}</span>
-                  <Tooltip>
-                    <TooltipTrigger render={<span className="mt-0.5 line-clamp-2 block text-xs leading-snug text-muted-foreground" />}>{p.description}</TooltipTrigger>
-                    <TooltipContent>{p.description}</TooltipContent>
-                  </Tooltip>
+                  <span className="mt-0.5 line-clamp-2 block text-xs leading-snug text-muted-foreground">{p.description}</span>
                 </span>
                 <Checkbox checked={selected} tabIndex={-1} aria-hidden className="pointer-events-none mt-0.5 size-5" />
               </button>
