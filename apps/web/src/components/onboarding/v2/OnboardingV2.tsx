@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, useTransition } from 'react';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import posthog from 'posthog-js';
 import { HugeiconsIcon } from '@hugeicons/react';
 import {
@@ -58,12 +58,12 @@ type Step = (typeof STEPS)[number];
 
 /** Why Next is disabled, shown above it. Steps that are always complete have no hint. */
 const NEXT_HINTS: Partial<Record<Step, string>> = {
-  import: 'Import a file to continue, or skip this step.',
-  status: 'Pick a status to continue, or skip this step.',
-  role: 'Add at least one job title to continue, or skip this step.',
-  location: 'Add at least one place to continue, or skip this step.',
-  contract: 'Pick at least one contract type to continue, or skip this step.',
-  platforms: 'Pick at least one platform to continue, or skip this step.',
+  import: 'Import a file',
+  status: 'Pick a status',
+  role: 'Add at least one job title',
+  location: 'Add at least one place',
+  contract: 'Pick at least one contract type',
+  platforms: 'Pick at least one platform',
 };
 
 /**
@@ -73,10 +73,9 @@ const NEXT_HINTS: Partial<Record<Step, string>> = {
  */
 export function OnboardingV2() {
   const router = useRouter();
-  const pathname = usePathname();
   const searchParams = useSearchParams();
   const step = Math.max(0, STEPS.indexOf(searchParams.get('step') as Step));
-  const goTo = (next: number) => router.push(`${pathname}?step=${STEPS[next]}`);
+  const goTo = (next: number) => window.history.pushState(null, '', `?step=${STEPS[next]}`);
   const [finishing, startFinishing] = useTransition();
   const [finishError, setFinishError] = useState<string | null>(null);
   const [file, setFile] = useState<File | null>(null);
@@ -214,7 +213,7 @@ export function OnboardingV2() {
         <div className="fixed inset-x-0 bottom-0 z-20 bg-linear-to-t from-background from-70% to-transparent px-6 pt-10 pb-[10vh]">
           <div className="relative mx-auto flex max-w-xl items-center justify-between">
             <p aria-live="polite" className="absolute inset-x-0 -top-8 text-center text-sm text-muted-foreground">
-              {!canNext && NEXT_HINTS[current]}
+              {!canNext && NEXT_HINTS[current] && `${NEXT_HINTS[current]} to continue, or skip this step.`}
             </p>
             <Button variant="outline" size="icon-lg" aria-label="Back" className={cn(step === 0 && 'invisible')} onClick={() => goTo(step - 1)}>
               <HugeiconsIcon icon={ArrowLeft01Icon} size={20} strokeWidth={1.8} />
