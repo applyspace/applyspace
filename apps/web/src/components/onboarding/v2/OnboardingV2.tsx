@@ -88,14 +88,16 @@ export function OnboardingV2() {
   }[current];
 
   return (
-    <div className="flex min-h-dvh flex-col bg-background text-foreground">
+    <div className={cn('flex flex-col bg-background text-foreground', last ? 'min-h-dvh' : 'h-dvh overflow-hidden')}>
+      {/* The plan page scrolls normally, without a visible scrollbar. */}
+      <style>{'html{scrollbar-width:none}html::-webkit-scrollbar{display:none}'}</style>
       {!last && (
         <div className="flex justify-center pt-12 pb-[16vh]">
           <ApplyLogo className="h-8 w-auto text-foreground" />
         </div>
       )}
 
-      <main className={cn('mx-auto w-full flex-1 px-6', last ? 'max-w-5xl pt-12' : 'max-w-4xl pt-[2vh] pb-40')}>
+      <main className={cn('mx-auto w-full flex-1 px-6', last ? 'max-w-5xl pt-12' : 'max-w-4xl min-h-0 pt-[2vh]')}>
         {current === 'import' && (
           <>
             <StepHeader title="Start from what you already have" subtitle="Import your resume or LinkedIn profile to prefill your details." />
