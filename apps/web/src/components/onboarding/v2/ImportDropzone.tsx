@@ -57,7 +57,7 @@ export function ImportDropzone({
           onFile(e.dataTransfer.files[0] ?? null);
         }}
         className={cn(
-          'flex min-h-64 w-full flex-col items-center justify-center gap-3 rounded-3xl border border-dashed border-border bg-card px-6 py-8 text-center transition-colors',
+          'flex min-h-52 w-full flex-col items-center justify-center gap-3 rounded-3xl border border-dashed border-border bg-card px-6 py-8 text-center transition-colors',
           dragging && 'border-foreground bg-muted',
         )}
       >
