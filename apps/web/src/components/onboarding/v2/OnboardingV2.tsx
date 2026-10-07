@@ -28,9 +28,9 @@ type Status = 'active' | 'passive' | 'incognito';
 type Workplace = 'onsite' | 'hybrid' | 'remote';
 
 const STATUSES = [
-  { value: 'active', icon: FlashIcon, title: 'Actively looking', description: 'Prioritize new offers and send alerts.' },
-  { value: 'passive', icon: SearchList01Icon, title: 'Passively browsing', description: 'Show only the best matches, fewer alerts.' },
-  { value: 'incognito', icon: IncognitoIcon, title: 'Incognito', description: 'Not looking. No alerts, profile kept private.' },
+  { value: 'active', icon: FlashIcon, tone: 'amber', title: 'Actively looking', description: 'Prioritize new offers and send alerts.' },
+  { value: 'passive', icon: SearchList01Icon, tone: 'sky', title: 'Passively browsing', description: 'Show only the best matches, fewer alerts.' },
+  { value: 'incognito', icon: IncognitoIcon, tone: 'stone', title: 'Incognito', description: 'Not looking. No alerts, profile kept private.' },
 ] as const;
 
 const LEVELS = ['Entry level', 'Junior', 'Mid-level', 'Senior', 'Lead or above'];
@@ -107,9 +107,9 @@ export function OnboardingV2() {
         {current === 'status' && (
           <>
             <StepHeader title="What's your job search status?" subtitle="It sets which offers come first and how often we alert you." />
-            <div role="radiogroup" aria-label="Job search status" className="mx-auto flex w-full max-w-xl flex-col gap-3">
+            <div role="radiogroup" aria-label="Job search status" className="mx-auto flex w-full max-w-2xl flex-col gap-4">
               {STATUSES.map((s) => (
-                <OptionRow key={s.value} icon={s.icon} title={s.title} description={s.description} selected={status === s.value} onSelect={() => setStatus(s.value)} />
+                <OptionRow key={s.value} icon={s.icon} tone={s.tone} title={s.title} description={s.description} selected={status === s.value} onSelect={() => setStatus(s.value)} />
               ))}
             </div>
           </>

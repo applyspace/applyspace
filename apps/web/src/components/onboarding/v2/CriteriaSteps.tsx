@@ -191,12 +191,12 @@ function SalaryMinimum({
   const ones = value % 10;
 
   return (
-    <div className="mx-auto w-full max-w-xl">
+    <div className="mx-auto w-full max-w-sm">
       <div className="mb-5 flex justify-center">
-        <div className="relative flex items-start font-heading text-6xl leading-none font-medium tracking-tight tabular-nums">
+        <div className="relative flex items-start font-heading text-5xl leading-none font-medium tracking-tight tabular-nums">
           <span className="absolute right-full flex items-start">
             <DropdownMenu>
-              <DropdownMenuTrigger render={<button type="button" aria-label="Currency" className="mt-1.5 mr-1 rounded-lg px-1 text-2xl font-medium text-muted-foreground outline-none transition-colors hover:bg-muted hover:text-foreground focus-visible:ring-3 focus-visible:ring-ring/30" />}>
+              <DropdownMenuTrigger render={<button type="button" aria-label="Currency" className="mr-0.5 rounded-lg px-1 font-medium outline-none transition-colors hover:bg-muted focus-visible:ring-3 focus-visible:ring-ring/30" />}>
                 {symbol}
               </DropdownMenuTrigger>
               <DropdownMenuContent align="center" className="w-max min-w-0">
@@ -207,7 +207,6 @@ function SalaryMinimum({
                 ))}
               </DropdownMenuContent>
             </DropdownMenu>
-            <span className="leading-[1.1]">+</span>
             <AnimatePresence initial={false}>
               {hundreds > 0 && (
                 <motion.span key="hundreds" className="overflow-hidden leading-[1.1]" initial={{ width: 0, opacity: 0 }} animate={{ width: '1ch', opacity: 1 }} exit={{ width: 0, opacity: 0 }} transition={motionTheme.transitions.ui}>
@@ -218,8 +217,8 @@ function SalaryMinimum({
           </span>
           <Digit d={tens} dir={dir} />
           <Digit d={ones} dir={dir} />
-          <span className="leading-[1.1]">K</span>
-          <span className="mt-1.5 ml-1.5 text-lg font-medium tracking-normal text-muted-foreground">/year</span>
+          <span className="leading-[1.1]">K+</span>
+          <span className="mt-1 ml-1.5 text-base font-medium tracking-normal text-muted-foreground">/year</span>
         </div>
       </div>
       <div className="flex h-16 items-end gap-px px-2" aria-hidden>
