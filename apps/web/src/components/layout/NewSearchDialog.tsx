@@ -59,7 +59,7 @@ export function NewSearchDialog({ open, onOpenChange, plan, searchCount }: NewSe
     >
       <Dialog.Portal>
         <Dialog.Backdrop className="fixed inset-0 z-50 bg-black/50 transition-opacity duration-150 data-ending-style:opacity-0 data-starting-style:opacity-0" />
-        <Dialog.Popup className="fixed left-1/2 top-1/2 z-50 flex max-h-[calc(100dvh-2rem)] w-[min(28rem,calc(100vw-2rem))] -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden rounded-3xl bg-white text-stone-950 shadow-[0_4px_24px_rgba(0,0,0,0.06)] outline-none transition-opacity duration-150 data-ending-style:opacity-0 data-starting-style:opacity-0">
+        <Dialog.Popup className="fixed left-1/2 top-1/2 z-50 flex max-h-[calc(100dvh-2rem)] w-[min(28rem,calc(100vw-2rem))] -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden rounded-3xl bg-white text-stone-950 outline-none transition-opacity duration-150 data-ending-style:opacity-0 data-starting-style:opacity-0">
           <header className="flex items-start justify-between gap-4 border-b border-stone-200 px-6 py-4">
             <div>
               <Dialog.Title className="text-base font-semibold">

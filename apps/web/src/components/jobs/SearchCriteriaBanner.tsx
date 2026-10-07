@@ -24,7 +24,7 @@ export function SearchCriteriaBanner({ settings }: SearchCriteriaBannerProps) {
   })();
 
   return (
-    <div className="flex flex-col gap-3 rounded-2xl border border-border bg-card px-5 py-4 shadow-sm">
+    <div className="flex flex-col gap-3 rounded-2xl border border-border bg-card px-5 py-4">
       {/* Roles */}
       {hasRoles && (
         <div className="flex items-center gap-2.5">
