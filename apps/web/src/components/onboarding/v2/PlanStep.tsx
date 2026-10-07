@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import { motionTheme } from '@/lib/motion-theme';
 import { HugeiconsIcon, type IconSvgElement } from '@hugeicons/react';
@@ -12,6 +12,7 @@ import {
   Calendar03Icon,
   FileCheckCornerIcon,
   JobSearchIcon,
+  Link01Icon,
   NotepadTextDashedIcon,
   CheckListIcon,
   CursorMagicSelection01Icon,
@@ -76,7 +77,11 @@ const PLUS_FEATURES: Feature[] = [
   { text: 'Network connections', icon: UserMultiple02Icon },
   { text: 'Reply tracking', icon: Mail01Icon, logos: MAIL_TOOLS },
   { text: 'Interview calendar sync', icon: Calendar03Icon, logos: CALENDAR_TOOLS },
-  { text: 'Interview simulation', icon: Mic02Icon },
+];
+
+const MAX_FEATURES: Feature[] = [
+  { text: 'AI Interview simulation', icon: Mic02Icon },
+  { text: 'Public share link for your applications', icon: Link01Icon },
 ];
 
 type Plan = {
@@ -99,10 +104,10 @@ const PLANS: Plan[] = [
     key: 'free',
     name: 'Free',
     tagline: 'Everything you need to start your search.',
-    accent: 'text-stone-700',
+    accent: 'text-foreground',
     card: 'bg-stone-100',
     ring: '#f5f5f4',
-    muted: 'text-stone-600',
+    muted: 'text-foreground/70',
     price: 0,
     limits: ['15 applications', '1 search profile', '1 interview template'],
     intro: null,
@@ -112,10 +117,10 @@ const PLANS: Plan[] = [
     key: 'plus',
     name: 'Plus',
     tagline: 'More room, sharper search.',
-    accent: 'text-brand-950',
+    accent: 'text-foreground',
     card: 'border border-stone-700 bg-transparent',
     ring: '#f3e3ff',
-    muted: 'text-brand-950/70',
+    muted: 'text-foreground/70',
     badge: true,
     price: 0.99,
     limits: ['99 applications', '3 search profiles', '3 interview templates'],
@@ -126,14 +131,14 @@ const PLANS: Plan[] = [
     key: 'max',
     name: 'Max',
     tagline: 'No limits on anything.',
-    accent: 'text-pink-700',
+    accent: 'text-foreground',
     card: 'border border-stone-700 bg-transparent',
     ring: '#fdecf5',
-    muted: 'text-pink-950/70',
+    muted: 'text-foreground/70',
     price: 3.99,
     limits: ['Unlimited applications', 'Unlimited search profiles', 'Unlimited interview templates'],
-    intro: 'Everything in Plus',
-    features: [],
+    intro: 'Everything in Plus, plus…',
+    features: MAX_FEATURES,
   },
 ];
 
@@ -146,6 +151,7 @@ const COMPARISON: { label: string; values: [boolean | string | undefined, boolea
   { label: 'Interview templates', values: ['1', '3', 'Unlimited'] },
   ...CORE_FEATURES.map((f) => ({ label: f.text, values: [true, true, true] as [boolean, boolean, boolean] })),
   ...PLUS_FEATURES.map((f) => ({ label: f.text, values: [undefined, true, true] as [undefined, boolean, boolean] })),
+  ...MAX_FEATURES.map((f) => ({ label: f.text, values: [undefined, undefined, true] as [undefined, undefined, boolean] })),
 ];
 
 const euro = (n: number) => (n === 0 ? '€0' : `€${n.toFixed(2)}`);
@@ -176,6 +182,51 @@ function InlineLogos({ logos }: { logos: Logo[] }) {
   );
 }
 
+/**
+ * One character of an animated value. When it changes, the old character leaves and the new one enters,
+ * upwards if the new digit is larger and downwards if it is smaller.
+ */
+function RollingChar({ char }: { char: string }) {
+  const [state, setState] = useState({ char, dir: 1 });
+  if (state.char !== char) {
+    const next = Number(char);
+    const prev = Number(state.char);
+    setState({ char, dir: Number.isNaN(next) || Number.isNaN(prev) || next > prev ? 1 : -1 });
+  }
+  return (
+    <span className="relative inline-flex overflow-hidden">
+      <AnimatePresence mode="popLayout" initial={false} custom={state.dir}>
+        <motion.span
+          key={char}
+          custom={state.dir}
+          variants={{
+            enter: (d: number) => ({ y: `${d * 100}%`, opacity: 0 }),
+            center: { y: 0, opacity: 1 },
+            exit: (d: number) => ({ y: `${d * -100}%`, opacity: 0 }),
+          }}
+          initial="enter"
+          animate="center"
+          exit="exit"
+          transition={motionTheme.transitions.ui}
+        >
+          {char}
+        </motion.span>
+      </AnimatePresence>
+    </span>
+  );
+}
+
+/** A value whose digits roll one by one when it changes. */
+function RollingText({ value }: { value: string }) {
+  return (
+    <span className="inline-flex" aria-label={value}>
+      {value.split('').map((c, i) => (
+        <RollingChar key={i} char={c} />
+      ))}
+    </span>
+  );
+}
+
 /** Free is a soft stone fill; Plus and Max are transparent with a dark stone border. Plus carries the Popular badge next to its name; the select button sits at the bottom. */
 function PlanCard({ plan, period, onSelect }: { plan: Plan; period: (typeof PERIODS)[number]; onSelect: (plan: string) => void }) {
   const perMonth = plan.price * (1 - period.discount);
@@ -185,28 +236,16 @@ function PlanCard({ plan, period, onSelect }: { plan: Plan; period: (typeof PERI
         <div className="space-y-1">
           <div className="flex items-center gap-2.5">
             <p className="font-sans text-2xl font-medium">{plan.name}</p>
-            {plan.badge && <span className="rounded-full bg-foreground px-3 py-1 text-xs font-medium text-background">Popular</span>}
+            {plan.badge && <span className="rounded-full bg-brand-300 px-3 py-1 text-xs font-medium text-brand-950">Popular</span>}
           </div>
           <p className={cn('text-sm', plan.muted)}>{plan.tagline}</p>
         </div>
 
-        <div className="mt-1 h-px w-full bg-foreground/20" aria-hidden />
+        <div className="h-px w-full bg-foreground/20" aria-hidden />
 
-        <div className="-mt-3">
+        <div>
           <p className="font-sans text-4xl font-medium tabular-nums">
-            <span className="relative inline-flex">
-              <AnimatePresence mode="popLayout" initial={false}>
-                <motion.span
-                  key={period.value}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  transition={motionTheme.transitions.ui}
-                >
-                  {euro(perMonth)}
-                </motion.span>
-              </AnimatePresence>
-            </span>
+            <RollingText value={euro(perMonth)} />
             <span className={cn('text-base font-normal', plan.muted)}>/mo</span>
           </p>
           <p className={cn('mt-1 text-sm', plan.muted)}>{plan.price === 0 ? 'No card needed' : period.note}</p>
@@ -246,8 +285,12 @@ function PlanCard({ plan, period, onSelect }: { plan: Plan; period: (typeof PERI
 
 /** Full comparison: feature names on the left, a value or a check per plan on the right, no row lines. */
 function ComparisonTable() {
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    ref.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, []);
   return (
-    <div className="mx-auto mt-6 max-w-4xl">
+    <div ref={ref} className="mx-auto mt-6 max-w-4xl scroll-mt-8">
       <div className="grid grid-cols-[1.6fr_1fr_1fr_1fr] items-center gap-y-3 text-sm">
         <span />
         {PLANS.map((p) => (
