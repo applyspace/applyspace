@@ -47,7 +47,6 @@ import {
 } from '@hugeicons/core-free-icons';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { Input } from '@/components/ui/input';
 import { Slider } from '@/components/ui/slider';
 import { ChoiceCard, toggle } from '@/components/onboarding/v2/fields';
 import { StepHeader } from '@/components/onboarding/v2/StepHeader';
@@ -62,18 +61,18 @@ const CURRENCIES = [
 ];
 
 export const SALARY_MIN = 0;
-export const SALARY_MAX = 300;
+export const SALARY_MAX = 100;
 
 /**
- * Placeholder salary distribution (purely visual for now), one bar per 5K.
+ * Placeholder salary distribution (purely visual for now), one bar per 2K.
  * Two overlapping bumps (junior and senior pay) plus deterministic jitter, so it looks like real data.
  */
-const SALARY_BARS = Array.from({ length: 60 }, (_, i) => {
-  const x = (i + 0.5) * 5;
+const SALARY_BARS = Array.from({ length: 50 }, (_, i) => {
+  const x = (i + 0.5) * 2;
   const bump = (mu: number, sigma: number, h: number) => h * Math.exp(-((x - mu) ** 2) / (2 * sigma ** 2));
   const jitter = 0.72 + 0.56 * Math.abs(Math.sin(i * 12.9898 + 4.1) * Math.cos(i * 3.7 + 1.3));
-  const roundNumber = x % 50 === 2.5 ? 1.12 : 1; // salaries cluster around round figures
-  return Math.max(1.5, (bump(42, 13, 100) + bump(78, 20, 62) + bump(130, 40, 14)) * jitter * roundNumber);
+  const roundNumber = x % 10 === 1 ? 1.12 : 1; // salaries cluster around round figures
+  return Math.max(1.5, (bump(32, 10, 100) + bump(55, 14, 62) + bump(85, 18, 22)) * jitter * roundNumber);
 });
 
 const SIZES: { label: string; icon: IconSvgElement }[] = [
@@ -136,29 +135,7 @@ const SECTORS: { label: string; icon: IconSvgElement; tone: Tone; top?: boolean 
   { label: 'Telecom', icon: SmartPhone01Icon, tone: 'slate' },
 ];
 
-/** Editable amount (in K): commits on blur or Enter, clamped to the bounds. */
-function AmountInput({ value, min, max, onCommit, label }: { value: number; min: number; max: number; onCommit: (n: number) => void; label: string }) {
-  const [draft, setDraft] = useState<string | null>(null);
-  const commit = () => {
-    const n = Number(draft);
-    if (draft !== null && draft.trim() !== '' && Number.isFinite(n)) onCommit(Math.min(max, Math.max(min, Math.round(n))));
-    setDraft(null);
-  };
-  return (
-    <Input
-      inputMode="numeric"
-      aria-label={label}
-      value={draft ?? String(value)}
-      onChange={(e) => setDraft(e.target.value.replace(/[^\d]/g, ''))}
-      onFocus={(e) => e.currentTarget.select()}
-      onBlur={commit}
-      onKeyDown={(e) => e.key === 'Enter' && e.currentTarget.blur()}
-      className="h-10 w-16 rounded-xl px-2 text-center text-base font-medium tabular-nums"
-    />
-  );
-}
-
-/** Minimum salary: a placeholder distribution above a single-handle slider, an editable amount and a ghost currency dropdown. */
+/** Minimum salary: a placeholder distribution above a single-handle slider (0 to 100K, 1K steps), the amount as plain text and a ghost currency dropdown. */
 function SalaryMinimum({
   value,
   onValue,
@@ -187,19 +164,19 @@ function SalaryMinimum({
         value={[value]}
         min={SALARY_MIN}
         max={SALARY_MAX}
-        step={5}
+        step={1}
         onValueChange={(v) => onValue(Array.isArray(v) ? v[0] : v)}
         aria-label="Minimum salary"
         className="mt-3 **:data-[slot=slider-range]:bg-transparent"
       />
-      <div className="mt-5 flex items-center justify-center gap-1.5 text-lg font-medium">
-        <span className="mr-2 font-normal text-muted-foreground">Minimum salary</span>
-        <AmountInput value={value} min={SALARY_MIN} max={SALARY_MAX} onCommit={onValue} label="Minimum salary in thousands" />
-        <span>K{value === SALARY_MAX && '+'}</span>
+      <div className="mt-6 flex items-baseline justify-center gap-2">
+        <span className="font-heading text-6xl font-medium tracking-tight tabular-nums">
+          {value}
+          <span className="text-4xl text-muted-foreground">K{value === SALARY_MAX && '+'}</span>
+        </span>
         <DropdownMenu>
-          <DropdownMenuTrigger render={<Button variant="ghost" size="sm" className="h-8 w-auto gap-1 px-2 text-lg font-medium" aria-label="Currency" />}>
+          <DropdownMenuTrigger render={<button type="button" aria-label="Currency" className="rounded-xl px-2 text-4xl font-medium text-muted-foreground outline-none transition-colors hover:bg-muted hover:text-foreground focus-visible:ring-3 focus-visible:ring-ring/30" />}>
             {symbol}
-            <HugeiconsIcon icon={ArrowDown01Icon} size={12} strokeWidth={2} />
           </DropdownMenuTrigger>
           <DropdownMenuContent align="center" className="w-max min-w-0">
             {CURRENCIES.map((c) => (
@@ -209,7 +186,7 @@ function SalaryMinimum({
             ))}
           </DropdownMenuContent>
         </DropdownMenu>
-        <span>/y</span>
+        <span className="text-lg text-muted-foreground">/year</span>
       </div>
     </div>
   );
@@ -262,7 +239,8 @@ export function CompanyStep({
   onSectors: (next: string[]) => void;
 }) {
   const [showAll, setShowAll] = useState(false);
-  const visible = showAll ? SECTORS : SECTORS.filter((s) => s.top);
+  // Same order and same box height in both states: collapsed clips to three full rows, expanded scrolls inside the box, so nothing on the page moves or scrolls.
+  const ordered = [...SECTORS.filter((s) => s.top), ...SECTORS.filter((s) => !s.top)];
   return (
     <>
       <StepHeader title="What kind of company suits you?" subtitle="Leave anything empty to keep every option open." />
@@ -284,8 +262,8 @@ export function CompanyStep({
             </button>
           ))}
         </div>
-        <div className="flex flex-wrap justify-center gap-3 border-t pt-6">
-          {visible.map((s) => {
+        <div className={cn('flex h-40 w-full flex-wrap content-start justify-center gap-3 border-t p-1 pt-6', showAll ? '[scrollbar-width:none] [&::-webkit-scrollbar]:hidden overflow-y-auto [mask-image:linear-gradient(to_bottom,black_calc(100%-2rem),transparent)] pb-8' : 'overflow-hidden')}>
+          {ordered.map((s) => {
             const selected = sectors.includes(s.label);
             return (
               <button
