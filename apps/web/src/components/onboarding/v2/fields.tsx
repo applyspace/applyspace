@@ -66,7 +66,8 @@ export function TagSearch({
         <HugeiconsIcon icon={Search01Icon} size={20} strokeWidth={1.8} className="pointer-events-none absolute top-1/2 left-5 -translate-y-1/2 text-muted-foreground" />
         <Input
           value={query}
-          onChange={(e) => setQuery(e.target.value)}
+          onChange={(e) => setQuery(capitalize(e.target.value))}
+          autoCapitalize="sentences"
           placeholder={placeholder}
           aria-label={placeholder}
           className="h-14 rounded-full pr-6 pl-13 text-base md:text-base"
@@ -94,7 +95,7 @@ export function TagSearch({
         <div className="mt-4 flex flex-wrap justify-start gap-2">
           {values.map((v) => (
             <Button key={v} variant="secondary" size="lg" onClick={() => onChange(values.filter((x) => x !== v))}>
-              {v}
+              {capitalize(v)}
               <HugeiconsIcon icon={Cancel01Icon} size={14} strokeWidth={2} data-icon="inline-end" />
             </Button>
           ))}
