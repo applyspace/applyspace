@@ -167,7 +167,7 @@ function SalaryMinimum({
         step={1}
         onValueChange={(v) => onValue(Array.isArray(v) ? v[0] : v)}
         aria-label="Minimum salary"
-        className="mt-3 **:data-[slot=slider-range]:bg-transparent"
+        className="mt-3 **:data-[slot=slider-track]:bg-purple-500 **:data-[slot=slider-range]:bg-purple-100"
       />
       <div className="mt-6 flex items-baseline justify-center gap-2">
         <span className="font-heading text-6xl font-medium tracking-tight tabular-nums">
@@ -239,7 +239,7 @@ export function CompanyStep({
   onSectors: (next: string[]) => void;
 }) {
   const [showAll, setShowAll] = useState(false);
-  // Same order and same box height in both states: collapsed clips to three full rows, expanded scrolls inside the box, so nothing on the page moves or scrolls.
+  // Same order and same top in both states: collapsed clips to three full rows, expanded grows to the viewport height and scrolls inside, so the page never scrolls.
   const ordered = [...SECTORS.filter((s) => s.top), ...SECTORS.filter((s) => !s.top)];
   return (
     <>
@@ -262,7 +262,7 @@ export function CompanyStep({
             </button>
           ))}
         </div>
-        <div className={cn('flex h-40 w-full flex-wrap content-start justify-center gap-3 border-t p-1 pt-6', showAll ? '[scrollbar-width:none] [&::-webkit-scrollbar]:hidden overflow-y-auto [mask-image:linear-gradient(to_bottom,black_calc(100%-2rem),transparent)] pb-8' : 'overflow-hidden')}>
+        <div className={cn('flex w-full flex-wrap content-start justify-center gap-3 border-t p-1 pt-6', showAll ? 'h-[max(10rem,calc(100dvh-31rem))] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden overflow-y-auto [mask-image:linear-gradient(to_bottom,black_calc(100%-2rem),transparent)] pb-8' : 'h-40 overflow-hidden')}>
           {ordered.map((s) => {
             const selected = sectors.includes(s.label);
             return (

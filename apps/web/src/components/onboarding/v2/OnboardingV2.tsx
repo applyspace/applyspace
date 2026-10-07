@@ -97,7 +97,7 @@ export function OnboardingV2() {
         </div>
       )}
 
-      <main className={cn('mx-auto w-full flex-1 px-6', last ? 'max-w-5xl pt-12' : 'max-w-4xl min-h-0 pt-[2vh]')}>
+      <main className={cn('mx-auto w-full flex-1 px-6', last ? 'max-w-6xl pt-12' : 'max-w-4xl min-h-0 pt-[2vh]')}>
         {current === 'import' && (
           <>
             <StepHeader title="Start from what you already have" subtitle="Import your resume or LinkedIn profile to prefill your details." />
@@ -155,9 +155,9 @@ export function OnboardingV2() {
       </main>
 
       {last ? (
-        <div className="pb-[5vh]" />
+        <div className="pb-[10vh]" />
       ) : (
-        <div className="fixed inset-x-0 bottom-0 z-20 bg-linear-to-t from-background from-70% to-transparent px-6 pt-10 pb-[5vh]">
+        <div className="fixed inset-x-0 bottom-0 z-20 bg-linear-to-t from-background from-70% to-transparent px-6 pt-10 pb-[10vh]">
           <div className="relative mx-auto flex max-w-xl items-center justify-between">
             <Button variant="outline" size="icon-lg" aria-label="Back" className={cn(step === 0 && 'invisible')} onClick={() => setStep(step - 1)}>
               <HugeiconsIcon icon={ArrowLeft01Icon} size={20} strokeWidth={1.8} />

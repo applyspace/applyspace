@@ -5,11 +5,13 @@ import { HugeiconsIcon } from '@hugeicons/react';
 import { Cancel01Icon, Search01Icon } from '@hugeicons/core-free-icons';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { motion } from 'motion/react';
+import { motionTheme } from '@/lib/motion-theme';
 import { cn } from '@/lib/utils';
 
 /** Segmented look for the official ToggleGroup: a muted pill track with a white pill on the selected item, no shadow. */
 export const SEGMENT_GROUP = 'rounded-full bg-muted p-1';
-export const SEGMENT_ITEM = 'rounded-full border-0 bg-transparent px-5 text-muted-foreground hover:bg-background/60 hover:text-foreground aria-pressed:bg-background aria-pressed:text-foreground';
+export const SEGMENT_ITEM = 'relative isolate rounded-full border-0 bg-transparent px-5 text-muted-foreground hover:bg-background/60 hover:text-foreground aria-pressed:bg-transparent aria-pressed:text-foreground aria-pressed:hover:bg-transparent';
 
 export const toggle = <T,>(list: T[], value: T) => (list.includes(value) ? list.filter((v) => v !== value) : [...list, value]);
 
@@ -95,4 +97,9 @@ export function ChoiceCard({ selected, onClick, children }: { selected: boolean;
       {children}
     </button>
   );
+}
+
+/** Sliding white pill behind the selected item of a segmented ToggleGroup. Items of one group share `group` so the pill travels between them. */
+export function SegmentPill({ group }: { group: string }) {
+  return <motion.span layoutId={`segment-${group}`} transition={motionTheme.transitions.ui} className="absolute inset-0 -z-10 rounded-full bg-background" />;
 }

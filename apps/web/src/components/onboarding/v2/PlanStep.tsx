@@ -6,9 +6,11 @@ import {
   AiMagicIcon,
   ArrowDown01Icon,
   ArrowUp01Icon,
-  Briefcase01Icon,
   Building03Icon,
   Calendar03Icon,
+  FileValidationIcon,
+  JobSearchIcon,
+  NotepadTextDashedIcon,
   CheckListIcon,
   CursorMagicSelection01Icon,
   File01Icon,
@@ -18,18 +20,16 @@ import {
   Mic01Icon,
   Mic02Icon,
   Notification01Icon,
-  Presentation01Icon,
-  Search01Icon,
   Tick02Icon,
   UserMultiple02Icon,
 } from '@hugeicons/core-free-icons';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
-import { brandAssetUrl } from '@/lib/brandfetch';
-import { BrandLogo } from '@/components/onboarding/v2/BrandLogo';
+import { Avatar, AvatarFallback, AvatarGroup, AvatarImage } from '@/components/ui/avatar';
+import { brandAssetUrl, brandSymbolUrl } from '@/lib/brandfetch';
 import { StepHeader } from '@/components/onboarding/v2/StepHeader';
-import { SEGMENT_GROUP, SEGMENT_ITEM } from '@/components/onboarding/v2/fields';
+import { SEGMENT_GROUP, SEGMENT_ITEM, SegmentPill } from '@/components/onboarding/v2/fields';
 import { cn } from '@/lib/utils';
 
 type Logo = { name: string; domain: string; src?: string };
@@ -47,12 +47,12 @@ const MAIL_TOOLS: Logo[] = [{ name: 'Gmail', domain: 'google.com', src: google('
 const CALENDAR_TOOLS: Logo[] = [{ name: 'Google Calendar', domain: 'google.com', src: google('idMX2_OMSc') }];
 
 /**
- * Billing periods. The discount is hypothetical: -10% for 3 months keeps Apply profitable
+ * Billing periods. The discount is hypothetical: -15% for 3 months keeps Apply profitable
  * because the payment fee is a fixed part of every charge, so fewer, larger charges leave more margin.
  */
 const PERIODS = [
   { value: 'month', label: 'Monthly', discount: 0, note: 'Billed monthly' },
-  { value: 'quarter', label: 'Quarterly', discount: 0.1, note: 'Billed quarterly' },
+  { value: 'quarter', label: 'Quarterly', discount: 0.15, note: 'Billed quarterly' },
 ] as const;
 type Period = (typeof PERIODS)[number]['value'];
 
@@ -84,6 +84,7 @@ type Plan = {
   tagline: string;
   accent: string;
   card: string;
+  ring: string;
   muted: string;
   badge?: boolean;
   price: number;
@@ -99,6 +100,7 @@ const PLANS: Plan[] = [
     tagline: 'Everything you need to start your search.',
     accent: 'text-stone-700',
     card: 'bg-stone-100',
+    ring: '#f5f5f4',
     muted: 'text-stone-600',
     price: 0,
     limits: ['15 applications', '1 search profile', '1 interview template'],
@@ -110,7 +112,8 @@ const PLANS: Plan[] = [
     name: 'Plus',
     tagline: 'More room, sharper search.',
     accent: 'text-[#1F0D2C]',
-    card: 'bg-[#E2B8FF]',
+    card: 'border border-[#E2B8FF] bg-[#E2B8FF]/40',
+    ring: '#f3e3ff',
     muted: 'text-[#1F0D2C]/70',
     badge: true,
     price: 0.99,
@@ -123,7 +126,8 @@ const PLANS: Plan[] = [
     name: 'Max',
     tagline: 'No limits on anything.',
     accent: 'text-pink-700',
-    card: 'bg-pink-200',
+    card: 'border border-pink-200 bg-pink-200/40',
+    ring: '#fdecf5',
     muted: 'text-pink-950/70',
     price: 3.99,
     limits: ['Unlimited applications', 'Unlimited search profiles', 'Unlimited interview templates'],
@@ -132,7 +136,7 @@ const PLANS: Plan[] = [
   },
 ];
 
-const LIMIT_ICONS = [Briefcase01Icon, Search01Icon, Presentation01Icon];
+const LIMIT_ICONS = [FileValidationIcon, JobSearchIcon, NotepadTextDashedIcon];
 
 /** Rows of the full comparison table: true is a check, a string is shown as is, undefined is empty. */
 const COMPARISON: { label: string; values: [boolean | string | undefined, boolean | string | undefined, boolean | string | undefined] }[] = [
@@ -145,14 +149,17 @@ const COMPARISON: { label: string; values: [boolean | string | undefined, boolea
 
 const euro = (n: number) => (n === 0 ? '€0' : `€${n.toFixed(2)}`);
 
-/** Brand logos shown right next to a feature name. */
-function InlineLogos({ logos }: { logos: Logo[] }) {
+/** Brand logos shown right next to a feature name: overlapping round avatars with a light border, the overlap ring matches the card fill. */
+function InlineLogos({ logos, ring }: { logos: Logo[]; ring: string }) {
   return (
-    <span className="ml-1.5 inline-flex items-center gap-2">
+    <AvatarGroup className="ml-2.5 -space-x-1.5 *:data-[slot=avatar]:ring-(--pc)!" style={{ '--pc': ring } as React.CSSProperties}>
       {logos.map((l) => (
-        <BrandLogo key={l.name} name={l.name} domain={l.domain} src={l.src} kind="symbol" className="size-5" />
+        <Avatar key={l.name} title={l.name} className="size-7 bg-white">
+          <AvatarImage src={l.src ?? brandSymbolUrl(l.domain)} alt={l.name} className="object-contain p-1.5" />
+          <AvatarFallback className="bg-white text-xs">{l.name[0]}</AvatarFallback>
+        </Avatar>
       ))}
-    </span>
+    </AvatarGroup>
   );
 }
 
@@ -161,7 +168,7 @@ function PlanCard({ plan, period, onSelect }: { plan: Plan; period: (typeof PERI
   const perMonth = plan.price * (1 - period.discount);
   return (
     <Card className={cn('gap-0 rounded-3xl py-0 ring-0', plan.card)}>
-      <div className="flex flex-1 flex-col gap-6 p-7">
+      <div className="flex flex-1 flex-col gap-6 px-7 pt-7 pb-10">
         <div className="space-y-1">
           <div className="flex items-center justify-between">
             <p className="font-sans text-2xl font-medium">{plan.name}</p>
@@ -182,9 +189,9 @@ function PlanCard({ plan, period, onSelect }: { plan: Plan; period: (typeof PERI
           Select plan
         </Button>
 
-        <ul className="space-y-3 text-sm">
+        <ul className="space-y-2 text-sm">
           {plan.limits.map((text, i) => (
-            <li key={text} className="flex items-center gap-3">
+            <li key={text} className="flex items-center gap-3 rounded-xl border border-foreground/10 bg-white/60 px-3.5 py-2.5">
               <HugeiconsIcon icon={LIMIT_ICONS[i]} size={18} strokeWidth={1.8} className={cn('shrink-0', plan.accent)} />
               {text}
             </li>
@@ -199,7 +206,7 @@ function PlanCard({ plan, period, onSelect }: { plan: Plan; period: (typeof PERI
                 <HugeiconsIcon icon={Tick02Icon} size={18} strokeWidth={2} className={cn('shrink-0', plan.accent)} />
                 <span className="flex items-center">
                   {f.text}
-                  {f.logos && <InlineLogos logos={f.logos} />}
+                  {f.logos && <InlineLogos logos={f.logos} ring={plan.ring} />}
                 </span>
               </li>
             ))}
@@ -244,18 +251,19 @@ export function PlanStep({ onSelect }: { onSelect: (plan: string) => void }) {
 
   return (
     <>
-      <StepHeader title="Choose your plan" subtitle="Start free and upgrade whenever you need more." />
+      <StepHeader title="Find the plan that fits your search" subtitle="Start free and upgrade whenever you need more." />
       <div className="mb-6 flex justify-center">
         <ToggleGroup spacing={1} className={SEGMENT_GROUP} value={[periodKey]} onValueChange={(v) => v[0] && setPeriodKey(v[0] as Period)} aria-label="Billing period">
           {PERIODS.map((p) => (
-            <ToggleGroupItem key={p.value} value={p.value} className={cn(SEGMENT_ITEM, 'h-10 gap-2 px-5 text-sm')}>
+            <ToggleGroupItem key={p.value} value={p.value} className={cn(SEGMENT_ITEM, 'relative h-10 px-5 text-sm')}>
+              {periodKey === p.value && <SegmentPill group="period" />}
               {p.label}
-              {p.discount > 0 && <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-700">-{p.discount * 100}%</span>}
+              {p.discount > 0 && <span className="absolute -top-2.5 -right-2 rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-700">-{Math.round(p.discount * 100)}%</span>}
             </ToggleGroupItem>
           ))}
         </ToggleGroup>
       </div>
-      <div className="mx-auto grid max-w-5xl grid-cols-3 items-stretch gap-5">
+      <div className="mx-auto grid max-w-6xl grid-cols-3 items-stretch gap-5">
         {PLANS.map((p) => (
           <PlanCard key={p.key} plan={p} period={period} onSelect={onSelect} />
         ))}
