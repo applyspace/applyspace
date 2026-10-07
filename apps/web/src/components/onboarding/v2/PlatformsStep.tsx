@@ -62,7 +62,7 @@ export function PlatformsStep({ places, values, onChange }: { places: string[]; 
                   selected && 'bg-muted ring-2 ring-foreground hover:bg-muted',
                 )}
               >
-                <BrandLogo name={p.name} domain={p.domain} className="size-10 rounded-xl bg-muted text-sm" />
+                <BrandLogo name={p.name} domain={p.domain} className="size-10 text-sm" />
                 <span className="min-w-0 flex-1">
                   <span className="block text-sm font-medium">{p.name}</span>
                   <Tooltip>

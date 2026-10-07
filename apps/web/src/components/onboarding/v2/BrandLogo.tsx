@@ -23,7 +23,7 @@ export function BrandLogo({
   return (
     <span
       title={name}
-      className={cn('flex shrink-0 items-center justify-center overflow-hidden text-xs font-medium text-muted-foreground', className)}
+      className={cn('flex shrink-0 items-center justify-center text-xs font-medium text-muted-foreground', className)}
     >
       {missing ? (
         name[0]
