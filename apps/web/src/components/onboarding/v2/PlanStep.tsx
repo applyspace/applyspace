@@ -22,32 +22,33 @@ import {
   Tick02Icon,
   UserMultiple02Icon,
 } from '@hugeicons/core-free-icons';
-import { AvatarGroup } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
-import { brandSymbolUrl } from '@/lib/brandfetch';
+import { BrandLogo } from '@/components/onboarding/v2/BrandLogo';
 import { StepHeader } from '@/components/onboarding/v2/StepHeader';
 import { cn } from '@/lib/utils';
 
-/** AI tools the user can connect their own account to. Symbols come from Brandfetch; initials stand in if they fail to load. */
-const AI_TOOLS = [
+type Logo = { name: string; domain: string };
+
+/** AI tools the user can connect their own account to, and the mailbox read by reply tracking. Logos come from Brandfetch. */
+const AI_TOOLS: Logo[] = [
   { name: 'Claude', domain: 'claude.ai' },
   { name: 'OpenAI', domain: 'openai.com' },
 ];
+const MAIL_TOOLS: Logo[] = [{ name: 'Gmail', domain: 'gmail.com' }];
 
 /**
- * Billing periods. Discounts are hypothetical: -10% for 3 months and -30% for a year keep Apply profitable
+ * Billing periods. The discount is hypothetical: -10% for 3 months keeps Apply profitable
  * because the payment fee is a fixed part of every charge, so fewer, larger charges leave more margin.
  */
 const PERIODS = [
   { value: 'month', label: 'Monthly', months: 1, discount: 0, billed: 'every month' },
   { value: 'quarter', label: 'Quarterly', months: 3, discount: 0.1, billed: 'every 3 months' },
-  { value: 'year', label: 'Yearly', months: 12, discount: 0.3, billed: 'every year' },
 ] as const;
 type Period = (typeof PERIODS)[number]['value'];
 
-type Feature = { text: string; icon: IconSvgElement; aiTools?: boolean };
+type Feature = { text: string; icon: IconSvgElement; logos?: Logo[] };
 
 /** Ordered like a job search: find, prepare, apply, track, interview, then the AI accounts that power it. */
 const CORE_FEATURES: Feature[] = [
@@ -57,14 +58,14 @@ const CORE_FEATURES: Feature[] = [
   { text: 'Application autofill', icon: CursorMagicSelection01Icon },
   { text: 'Application tracking', icon: CheckListIcon },
   { text: 'Interview preparation', icon: Mic01Icon },
-  { text: 'AI Integrations', icon: AiMagicIcon, aiTools: true },
+  { text: 'AI Integrations', icon: AiMagicIcon, logos: AI_TOOLS },
 ];
 
 const PLUS_FEATURES: Feature[] = [
   { text: 'Advanced search filters', icon: FilterIcon },
   { text: 'Company insights', icon: Building03Icon },
   { text: 'Network connections', icon: UserMultiple02Icon },
-  { text: 'Reply tracking', icon: Mail01Icon },
+  { text: 'Reply tracking', icon: Mail01Icon, logos: MAIL_TOOLS },
   { text: 'Interview simulation', icon: Mic02Icon },
 ];
 
@@ -72,13 +73,12 @@ type Plan = {
   key: string;
   name: string;
   tagline: string;
-  headerClass: string;
   accent: string;
+  featured?: boolean;
   price: number;
   limits: string[];
   intro: string | null;
   features: Feature[];
-  cta: 'outline' | 'default';
 };
 
 const PLANS: Plan[] = [
@@ -86,37 +86,32 @@ const PLANS: Plan[] = [
     key: 'free',
     name: 'Free',
     tagline: 'Everything you need to start your search.',
-    headerClass: 'bg-linear-to-br from-stone-400 via-stone-500 to-stone-700',
-    accent: 'text-stone-600',
+    accent: 'text-stone-700',
     price: 0,
     limits: ['15 applications', '1 search profile', '1 interview template'],
     intro: null,
     features: CORE_FEATURES,
-    cta: 'outline',
   },
   {
     key: 'plus',
     name: 'Plus',
     tagline: 'More room, sharper search.',
-    headerClass: 'bg-linear-to-br from-sky-400 via-blue-500 to-blue-700',
     accent: 'text-blue-600',
+    featured: true,
     price: 0.99,
     limits: ['99 applications', '3 search profiles', '3 interview templates'],
     intro: 'Everything in Free, plus…',
     features: PLUS_FEATURES,
-    cta: 'default',
   },
   {
     key: 'max',
     name: 'Max',
     tagline: 'No limits on anything.',
-    headerClass: 'bg-linear-to-br from-pink-400 via-pink-500 to-rose-600',
     accent: 'text-pink-600',
     price: 3.99,
     limits: ['Unlimited applications', 'Unlimited search profiles', 'Unlimited interview templates'],
     intro: 'Everything in Plus',
     features: [],
-    cta: 'default',
   },
 ];
 
@@ -131,97 +126,75 @@ const COMPARISON: { label: string; values: [boolean | string | undefined, boolea
   ...PLUS_FEATURES.map((f) => ({ label: f.text, values: [undefined, true, true] as [undefined, boolean, boolean] })),
 ];
 
-const euro = (n: number) => `€${n.toFixed(2)}`;
+const euro = (n: number) => (n === 0 ? '€0' : `€${n.toFixed(2)}`);
 
-/** Round logo; plain <img> (same approach as the sign-in offers list) with an initial if it fails to load. */
-function ToolLogo({ name, domain }: { name: string; domain: string }) {
-  const [missing, setMissing] = useState(false);
+/** Brand logos shown right next to a feature name. */
+function InlineLogos({ logos }: { logos: Logo[] }) {
   return (
-    <span
-      data-slot="avatar"
-      title={name}
-      className="flex size-6 shrink-0 items-center justify-center overflow-hidden rounded-full border bg-card text-xs text-muted-foreground"
-    >
-      {missing ? (
-        name[0]
-      ) : (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={brandSymbolUrl(domain)}
-          alt={name}
-          width={48}
-          height={48}
-          className="size-full object-cover"
-          onError={() => setMissing(true)}
-          ref={(img) => {
-            if (img && img.complete && img.naturalWidth === 0) setMissing(true);
-          }}
-        />
-      )}
+    <span className="ml-1 inline-flex items-center gap-1.5">
+      {logos.map((l) => (
+        <BrandLogo key={l.name} name={l.name} domain={l.domain} kind="symbol" className="size-4 rounded-sm bg-transparent" />
+      ))}
     </span>
   );
 }
 
-/** Round, overlapping symbols of the supported AI tools. */
-function AiToolsStack() {
-  return (
-    <AvatarGroup>
-      {AI_TOOLS.map((t) => (
-        <ToolLogo key={t.name} name={t.name} domain={t.domain} />
-      ))}
-    </AvatarGroup>
-  );
-}
-
+/** No header colour and no visible dividers: the featured plan stands out with a solid colour and a Popular badge. */
 function PlanCard({ plan, period, onSelect }: { plan: Plan; period: (typeof PERIODS)[number]; onSelect: (plan: string) => void }) {
   const perMonth = plan.price * (1 - period.discount);
+  const featured = plan.featured;
+  const muted = featured ? 'text-white/75' : 'text-muted-foreground';
   return (
-    <Card className="gap-0 overflow-hidden rounded-3xl bg-muted/40 py-0">
-      <div className={cn('flex min-h-40 flex-col justify-end gap-1 rounded-3xl px-6 py-6 text-white', plan.headerClass)}>
-        <p className="font-sans text-2xl font-medium">{plan.name}</p>
-        <p className="text-sm text-white/85">{plan.tagline}</p>
-      </div>
+    <Card className={cn('gap-0 rounded-3xl py-0 ring-0', featured ? 'bg-blue-600 text-white' : 'bg-muted/40')}>
+      <div className="flex flex-1 flex-col gap-6 p-7">
+        <div className="space-y-1">
+          <div className="flex items-center justify-between">
+            <p className="font-sans text-2xl font-medium">{plan.name}</p>
+            {featured && <span className="rounded-full bg-white px-3 py-1 text-xs font-medium text-blue-700">Popular</span>}
+          </div>
+          <p className={cn('text-sm', muted)}>{plan.tagline}</p>
+        </div>
 
-      <div className="flex flex-1 flex-col gap-5 px-6 pt-6 pb-6">
         <div className="min-h-16">
           <p className="font-sans text-4xl font-medium tabular-nums">
-            {plan.price === 0 ? 'Free' : euro(perMonth)}
-            {plan.price !== 0 && <span className="text-base font-normal text-muted-foreground">/mo</span>}
+            {euro(perMonth)}
+            <span className={cn('text-base font-normal', muted)}>/mo</span>
           </p>
-          <p className="mt-1 text-sm text-muted-foreground">
+          <p className={cn('mt-1 text-sm', muted)}>
             {plan.price === 0 ? 'No card needed' : period.months === 1 ? 'Billed every month' : `${euro(perMonth * period.months)} billed ${period.billed}`}
           </p>
         </div>
 
-        <div className="space-y-2">
+        <ul className="space-y-3 text-sm">
           {plan.limits.map((text, i) => (
-            <div key={text} className="flex h-11 items-center gap-3 rounded-xl bg-card px-3 text-sm ring-1 ring-foreground/10">
-              <HugeiconsIcon icon={LIMIT_ICONS[i]} size={18} strokeWidth={1.8} className={plan.accent} />
+            <li key={text} className="flex items-center gap-3">
+              <HugeiconsIcon icon={LIMIT_ICONS[i]} size={18} strokeWidth={1.8} className={cn('shrink-0', featured ? 'text-white' : plan.accent)} />
               {text}
-            </div>
+            </li>
           ))}
-        </div>
+        </ul>
 
-        <div className="border-t pt-5">
-          {plan.intro && <p className="mb-3 text-sm text-muted-foreground italic">{plan.intro}</p>}
+        <div>
+          {plan.intro && <p className={cn('mb-3 text-sm italic', muted)}>{plan.intro}</p>}
           <ul className="space-y-2.5 text-sm">
             {plan.features.map((f) => (
-              <li key={f.text}>
-                <span className="flex items-center gap-3">
-                  <HugeiconsIcon icon={f.icon} size={18} strokeWidth={1.8} className={cn('shrink-0', plan.accent)} />
+              <li key={f.text} className="flex items-center gap-3">
+                <HugeiconsIcon icon={Tick02Icon} size={18} strokeWidth={2} className={cn('shrink-0', featured ? 'text-white' : plan.accent)} />
+                <span className="flex items-center">
                   {f.text}
+                  {f.logos && <InlineLogos logos={f.logos} />}
                 </span>
-                {f.aiTools && (
-                  <span className="mt-2 flex pl-[30px]">
-                    <AiToolsStack />
-                  </span>
-                )}
               </li>
             ))}
           </ul>
         </div>
 
-        <Button variant={plan.cta} size="lg" className="mt-auto w-full" onClick={() => onSelect(plan.key)}>
+        <Button
+          variant={plan.key === 'free' ? 'outline' : 'default'}
+          size="lg"
+          className={cn('mt-auto w-full', featured && 'bg-white text-blue-700 hover:bg-white/90')}
+          onClick={() => onSelect(plan.key)}
+        >
           Select plan
         </Button>
       </div>

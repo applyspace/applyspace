@@ -5,7 +5,7 @@ import { HugeiconsIcon } from '@hugeicons/react';
 import { BulbIcon, CloudUploadIcon, File01Icon } from '@hugeicons/core-free-icons';
 import { LinkedInIcon } from '@/components/icons/LinkedInIcon';
 import { Button } from '@/components/ui/button';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { cn } from '@/lib/utils';
 
 type Source = 'cv' | 'linkedin';
@@ -33,18 +33,16 @@ export function ImportDropzone({
 
   return (
     <div className="mx-auto flex w-full max-w-xl flex-col items-center gap-4">
-      <Tabs value={source} onValueChange={(v) => setSource(v as Source)}>
-        <TabsList className="h-14 p-1.5">
-          <TabsTrigger value="cv" className="px-5 text-base">
-            <HugeiconsIcon icon={File01Icon} strokeWidth={1.8} />
-            Resume
-          </TabsTrigger>
-          <TabsTrigger value="linkedin" className="px-5 text-base">
-            <LinkedInIcon className="size-4 text-[#0A66C2]" />
-            LinkedIn Profile
-          </TabsTrigger>
-        </TabsList>
-      </Tabs>
+      <ToggleGroup variant="outline" spacing={2} value={[source]} onValueChange={(v) => v[0] && setSource(v[0] as Source)} aria-label="Import source">
+        <ToggleGroupItem value="cv" className="h-14 gap-2.5 px-7 text-base">
+          <HugeiconsIcon icon={File01Icon} size={20} strokeWidth={1.8} />
+          Resume
+        </ToggleGroupItem>
+        <ToggleGroupItem value="linkedin" className="h-14 gap-2.5 px-7 text-base">
+          <LinkedInIcon className="size-5 text-[#0A66C2]" />
+          LinkedIn Profile
+        </ToggleGroupItem>
+      </ToggleGroup>
 
       <div
         onDragOver={(e) => {

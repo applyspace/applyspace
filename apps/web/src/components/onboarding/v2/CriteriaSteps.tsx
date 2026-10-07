@@ -7,6 +7,7 @@ import {
   AiBrain01Icon,
   Airplane01Icon,
   ArrowDown01Icon,
+  ArrowUp01Icon,
   BankIcon,
   Briefcase01Icon,
   Building02Icon,
@@ -35,13 +36,12 @@ import {
   ShoppingBag01Icon,
   SmartPhone01Icon,
   Stethoscope02Icon,
-  Tick02Icon,
   Ticket01Icon,
   TractorIcon,
   UmbrellaIcon,
-  User02Icon,
   UserGroup02Icon,
   UserGroupIcon,
+  UserMultipleIcon,
   Wallet01Icon,
   Wrench01Icon,
 } from '@hugeicons/core-free-icons';
@@ -77,7 +77,7 @@ const SALARY_BARS = Array.from({ length: 60 }, (_, i) => {
 });
 
 const SIZES: { label: string; icon: IconSvgElement }[] = [
-  { label: '1-10', icon: User02Icon },
+  { label: '1-10', icon: UserMultipleIcon },
   { label: '11-50', icon: UserGroupIcon },
   { label: '51-200', icon: Building02Icon },
   { label: '201-1,000', icon: Building05Icon },
@@ -100,30 +100,30 @@ const TONES: Record<Tone, string> = {
  * Sectors, coloured by family: tech blue, finance and property green, health rose, commerce and hospitality orange,
  * creative and media violet, impact and learning teal, industry and mobility amber, public and professional slate.
  */
-const SECTORS: { label: string; icon: IconSvgElement; tone: Tone }[] = [
-  { label: 'Software & IT', icon: CodeIcon, tone: 'blue' },
-  { label: 'AI & data', icon: AiBrain01Icon, tone: 'blue' },
+const SECTORS: { label: string; icon: IconSvgElement; tone: Tone; top?: boolean }[] = [
+  { label: 'Software & IT', icon: CodeIcon, tone: 'blue', top: true },
+  { label: 'AI & data', icon: AiBrain01Icon, tone: 'blue', top: true },
   { label: 'Cybersecurity', icon: Shield01Icon, tone: 'blue' },
   { label: 'Gaming', icon: GameController01Icon, tone: 'blue' },
-  { label: 'Finance & banking', icon: BankIcon, tone: 'emerald' },
+  { label: 'Finance & banking', icon: BankIcon, tone: 'emerald', top: true },
   { label: 'Fintech', icon: Wallet01Icon, tone: 'emerald' },
   { label: 'Insurance', icon: UmbrellaIcon, tone: 'emerald' },
   { label: 'Real estate', icon: Home01Icon, tone: 'emerald' },
-  { label: 'Consulting', icon: Briefcase01Icon, tone: 'emerald' },
-  { label: 'Healthcare', icon: Stethoscope02Icon, tone: 'rose' },
+  { label: 'Consulting', icon: Briefcase01Icon, tone: 'emerald', top: true },
+  { label: 'Healthcare', icon: Stethoscope02Icon, tone: 'rose', top: true },
   { label: 'Pharma & biotech', icon: Medicine01Icon, tone: 'rose' },
   { label: 'Wellness & sport', icon: Dumbbell01Icon, tone: 'rose' },
-  { label: 'Retail & e-commerce', icon: ShoppingBag01Icon, tone: 'orange' },
+  { label: 'Retail & e-commerce', icon: ShoppingBag01Icon, tone: 'orange', top: true },
   { label: 'Fashion & luxury', icon: Shirt01Icon, tone: 'orange' },
   { label: 'Food & beverage', icon: Restaurant01Icon, tone: 'orange' },
   { label: 'Hospitality & tourism', icon: Hotel01Icon, tone: 'orange' },
-  { label: 'Media & entertainment', icon: Film01Icon, tone: 'violet' },
+  { label: 'Media & entertainment', icon: Film01Icon, tone: 'violet', top: true },
   { label: 'Design & architecture', icon: Compass01Icon, tone: 'violet' },
-  { label: 'Marketing & advertising', icon: Megaphone01Icon, tone: 'violet' },
+  { label: 'Marketing & advertising', icon: Megaphone01Icon, tone: 'violet', top: true },
   { label: 'Arts & culture', icon: Ticket01Icon, tone: 'violet' },
-  { label: 'Education', icon: GraduationScrollIcon, tone: 'teal' },
+  { label: 'Education', icon: GraduationScrollIcon, tone: 'teal', top: true },
   { label: 'Nonprofit', icon: FavouriteIcon, tone: 'teal' },
-  { label: 'Energy & environment', icon: EnergyIcon, tone: 'teal' },
+  { label: 'Energy & environment', icon: EnergyIcon, tone: 'teal', top: true },
   { label: 'Agriculture', icon: TractorIcon, tone: 'teal' },
   { label: 'Manufacturing', icon: Factory01Icon, tone: 'amber' },
   { label: 'Construction', icon: Wrench01Icon, tone: 'amber' },
@@ -158,19 +158,18 @@ function AmountInput({ value, min, max, onCommit, label }: { value: number; min:
   );
 }
 
-/** Airbnb-style salary range: a placeholder distribution above a two-thumb slider, editable bounds and a ghost currency dropdown. */
-function SalaryRange({
-  range,
-  onRange,
+/** Minimum salary: a placeholder distribution above a single-handle slider, an editable amount and a ghost currency dropdown. */
+function SalaryMinimum({
+  value,
+  onValue,
   currency,
   onCurrency,
 }: {
-  range: number[];
-  onRange: (next: number[]) => void;
+  value: number;
+  onValue: (next: number) => void;
   currency: string;
   onCurrency: (next: string) => void;
 }) {
-  const [lo, hi] = range;
   const symbol = CURRENCIES.find((c) => c.code === currency)?.symbol ?? '€';
   const perBar = (SALARY_MAX - SALARY_MIN) / SALARY_BARS.length;
   const peak = Math.max(...SALARY_BARS);
@@ -180,34 +179,31 @@ function SalaryRange({
       <div className="flex h-20 items-end gap-px px-2" aria-hidden>
         {SALARY_BARS.map((v, i) => {
           const from = SALARY_MIN + i * perBar;
-          const inside = from + perBar > lo && from < hi;
-          return <div key={i} className={cn('flex-1 rounded-t-[2px]', inside ? 'bg-pink-500' : 'bg-pink-500/20')} style={{ height: `${(v / peak) * 100}%` }} />;
+          const inside = from + perBar > value;
+          return <div key={i} className={cn('flex-1 rounded-t-[2px]', inside ? 'bg-purple-500' : 'bg-purple-500/20')} style={{ height: `${(v / peak) * 100}%` }} />;
         })}
       </div>
       <Slider
-        value={range}
+        value={[value]}
         min={SALARY_MIN}
         max={SALARY_MAX}
         step={5}
-        minStepsBetweenValues={1}
-        onValueChange={(v) => Array.isArray(v) && onRange([...v])}
-        aria-label="Salary range"
-        className="mt-3 **:data-[slot=slider-range]:bg-pink-500"
+        onValueChange={(v) => onValue(Array.isArray(v) ? v[0] : v)}
+        aria-label="Minimum salary"
+        className="mt-3 **:data-[slot=slider-range]:bg-transparent"
       />
       <div className="mt-5 flex items-center justify-center gap-1.5 text-lg font-medium">
-        <AmountInput value={lo} min={SALARY_MIN} max={hi - 5} onCommit={(n) => onRange([n, hi])} label="Minimum salary in thousands" />
-        <span>K</span>
-        <span className="px-1 text-muted-foreground">–</span>
-        <AmountInput value={hi} min={lo + 5} max={SALARY_MAX} onCommit={(n) => onRange([lo, n])} label="Maximum salary in thousands" />
-        <span>K{hi === SALARY_MAX && '+'}</span>
+        <span className="mr-2 font-normal text-muted-foreground">Minimum salary</span>
+        <AmountInput value={value} min={SALARY_MIN} max={SALARY_MAX} onCommit={onValue} label="Minimum salary in thousands" />
+        <span>K{value === SALARY_MAX && '+'}</span>
         <DropdownMenu>
-          <DropdownMenuTrigger render={<Button variant="ghost" size="sm" className="h-8 gap-0.5 px-1.5 text-lg font-medium" aria-label="Currency" />}>
+          <DropdownMenuTrigger render={<Button variant="ghost" size="sm" className="h-8 w-auto gap-1 px-2 text-lg font-medium" aria-label="Currency" />}>
             {symbol}
             <HugeiconsIcon icon={ArrowDown01Icon} size={12} strokeWidth={2} />
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="center" className="min-w-0">
+          <DropdownMenuContent align="center" className="w-max min-w-0">
             {CURRENCIES.map((c) => (
-              <DropdownMenuItem key={c.code} onClick={() => onCurrency(c.code)}>
+              <DropdownMenuItem key={c.code} className="whitespace-nowrap" onClick={() => onCurrency(c.code)}>
                 {c.symbol} {c.code}
               </DropdownMenuItem>
             ))}
@@ -223,21 +219,21 @@ function SalaryRange({
 export function ContractStep({
   contracts,
   onContracts,
-  range,
-  onRange,
+  minSalary,
+  onMinSalary,
   currency,
   onCurrency,
 }: {
   contracts: string[];
   onContracts: (next: string[]) => void;
-  range: number[];
-  onRange: (next: number[]) => void;
+  minSalary: number;
+  onMinSalary: (next: number) => void;
   currency: string;
   onCurrency: (next: string) => void;
 }) {
   return (
     <>
-      <StepHeader title="What kind of contract do you want?" subtitle="Pick the contract types you accept and your yearly salary range." />
+      <StepHeader title="What kind of contract do you want?" subtitle="Pick the contract types you accept and your minimum yearly salary." />
       <div className="mx-auto flex max-w-2xl flex-wrap justify-center gap-4">
         {CONTRACTS.map((c) => (
           <ChoiceCard key={c} selected={contracts.includes(c)} onClick={() => onContracts(toggle(contracts, c))}>
@@ -247,7 +243,7 @@ export function ContractStep({
         ))}
       </div>
       <div className="mt-10 border-t pt-10">
-        <SalaryRange range={range} onRange={onRange} currency={currency} onCurrency={onCurrency} />
+        <SalaryMinimum value={minSalary} onValue={onMinSalary} currency={currency} onCurrency={onCurrency} />
       </div>
     </>
   );
@@ -265,6 +261,8 @@ export function CompanyStep({
   sectors: string[];
   onSectors: (next: string[]) => void;
 }) {
+  const [showAll, setShowAll] = useState(false);
+  const visible = showAll ? SECTORS : SECTORS.filter((s) => s.top);
   return (
     <>
       <StepHeader title="What kind of company suits you?" subtitle="Leave anything empty to keep every option open." />
@@ -287,7 +285,7 @@ export function CompanyStep({
           ))}
         </div>
         <div className="flex flex-wrap justify-center gap-3 border-t pt-6">
-          {SECTORS.map((s) => {
+          {visible.map((s) => {
             const selected = sectors.includes(s.label);
             return (
               <button
@@ -296,7 +294,7 @@ export function CompanyStep({
                 aria-pressed={selected}
                 onClick={() => onSectors(toggle(sectors, s.label))}
                 className={cn(
-                  'flex h-9 items-center gap-2 rounded-full bg-card pr-2 pl-1.5 text-sm font-medium ring-1 ring-foreground/10 transition-colors outline-none hover:bg-muted/50 focus-visible:ring-3 focus-visible:ring-ring/30',
+                  'flex h-9 items-center gap-2 rounded-full bg-card pr-3.5 pl-1.5 text-sm font-medium ring-1 ring-foreground/10 transition-colors outline-none hover:bg-muted/50 focus-visible:ring-3 focus-visible:ring-ring/30',
                   selected && 'bg-muted ring-2 ring-foreground hover:bg-muted',
                 )}
               >
@@ -304,19 +302,14 @@ export function CompanyStep({
                   <HugeiconsIcon icon={s.icon} size={14} strokeWidth={2} />
                 </span>
                 {s.label}
-                <span
-                  className={cn(
-                    'flex size-5 items-center justify-center rounded-full bg-foreground text-background transition-all',
-                    selected ? 'scale-100 opacity-100' : 'scale-50 opacity-0',
-                  )}
-                  aria-hidden
-                >
-                  <HugeiconsIcon icon={Tick02Icon} size={12} strokeWidth={3} />
-                </span>
               </button>
             );
           })}
         </div>
+        <Button variant="ghost" size="lg" onClick={() => setShowAll(!showAll)}>
+          {showAll ? 'See fewer sectors' : 'See more sectors'}
+          <HugeiconsIcon icon={showAll ? ArrowUp01Icon : ArrowDown01Icon} size={16} strokeWidth={2} />
+        </Button>
       </div>
     </>
   );

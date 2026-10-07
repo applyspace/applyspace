@@ -68,7 +68,7 @@ export function OnboardingV2() {
   const [places, setPlaces] = useState<string[]>([]);
   const [workplaces, setWorkplaces] = useState<Workplace[]>([]);
   const [contracts, setContracts] = useState<string[]>([]);
-  const [range, setRange] = useState([0, 300]);
+  const [minSalary, setMinSalary] = useState(0);
   const [currency, setCurrency] = useState('EUR');
   const [sizes, setSizes] = useState<string[]>([]);
   const [sectors, setSectors] = useState<string[]>([]);
@@ -90,12 +90,12 @@ export function OnboardingV2() {
   return (
     <div className="flex min-h-dvh flex-col bg-background text-foreground">
       {!last && (
-        <div className="flex justify-center pt-12 pb-[12vh]">
+        <div className="flex justify-center pt-12 pb-[16vh]">
           <ApplyLogo className="h-8 w-auto text-foreground" />
         </div>
       )}
 
-      <main className={cn('mx-auto w-full flex-1 px-6', last ? 'max-w-5xl pt-12' : 'max-w-4xl pt-[2vh]')}>
+      <main className={cn('mx-auto w-full flex-1 px-6', last ? 'max-w-5xl pt-12' : 'max-w-4xl pt-[2vh] pb-40')}>
         {current === 'import' && (
           <>
             <StepHeader title="Start from what you already have" subtitle="Import your resume or LinkedIn profile to prefill your details." />
@@ -145,7 +145,7 @@ export function OnboardingV2() {
         )}
 
         {current === 'contract' && (
-          <ContractStep contracts={contracts} onContracts={setContracts} range={range} onRange={setRange} currency={currency} onCurrency={setCurrency} />
+          <ContractStep contracts={contracts} onContracts={setContracts} minSalary={minSalary} onMinSalary={setMinSalary} currency={currency} onCurrency={setCurrency} />
         )}
         {current === 'company' && <CompanyStep sizes={sizes} onSizes={setSizes} sectors={sectors} onSectors={setSectors} />}
         {current === 'platforms' && <PlatformsStep places={places} values={platforms} onChange={setPlatforms} />}
@@ -155,7 +155,7 @@ export function OnboardingV2() {
       {last ? (
         <div className="pb-[5vh]" />
       ) : (
-        <div className="px-6 pt-4 pb-[5vh]">
+        <div className="fixed inset-x-0 bottom-0 z-20 bg-linear-to-t from-background from-70% to-transparent px-6 pt-10 pb-[5vh]">
           <div className="relative mx-auto flex max-w-xl items-center justify-between">
             <Button variant="outline" size="icon-lg" aria-label="Back" className={cn(step === 0 && 'invisible')} onClick={() => setStep(step - 1)}>
               <HugeiconsIcon icon={ArrowLeft01Icon} size={20} strokeWidth={1.8} />

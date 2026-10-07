@@ -13,3 +13,8 @@ export function brandLogoUrl(domain: string): string {
 export function brandSymbolUrl(domain: string): string {
   return `https://cdn.brandfetch.io/${domain}/w/96/h/96/symbol?c=${CLIENT_ID}`;
 }
+
+/** Square app-style icon for a domain, used as the logo of platforms and tools. */
+export function brandIconUrl(domain: string): string {
+  return `https://cdn.brandfetch.io/${domain}/w/96/h/96/icon?c=${CLIENT_ID}`;
+}
