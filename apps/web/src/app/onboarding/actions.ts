@@ -189,3 +189,17 @@ export async function completeOnboarding(): Promise<never> {
   await run('completing onboarding', (s) => candidate.markOnboarded(s));
   redirect('/');
 }
+
+/**
+ * Ends onboarding v2 and answers where to go next. Signed in: stamps
+ * `accounts.onboarded_at`, so the `(auth)` guard lets the user into Home. A
+ * failed stamp is an error here: Home would send the user back to /onboarding.
+ * Signed out (preview): nothing to stamp, and the proxy sends `/` to `/login`,
+ * so the user goes to the demo Offers page.
+ */
+export async function finishOnboardingV2(): Promise<ActionResult<{ next: string; signedIn: boolean }>> {
+  const result = await run('completing onboarding', (s) => candidate.markOnboarded(s));
+  if (result.ok) return { ok: true, data: { next: '/', signedIn: true } };
+  if (result.reason === 'signed-out') return { ok: true, data: { next: '/offers', signedIn: false } };
+  return result;
+}

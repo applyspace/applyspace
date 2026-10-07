@@ -1,7 +1,7 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useEffect, useState, useTransition } from 'react';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import posthog from 'posthog-js';
 import { HugeiconsIcon } from '@hugeicons/react';
 import {
@@ -13,6 +13,7 @@ import {
   IncognitoIcon,
   SearchList01Icon,
 } from '@hugeicons/core-free-icons';
+import { finishOnboardingV2 } from '@/app/onboarding/actions';
 import { ApplyLogo } from '@/components/brand/ApplyLogo';
 import { Button } from '@/components/ui/button';
 import { ImportDropzone } from '@/components/onboarding/v2/ImportDropzone';
@@ -53,14 +54,31 @@ function LevelBars({ level }: { level: number }) {
 }
 
 const STEPS = ['import', 'status', 'role', 'location', 'contract', 'company', 'platforms', 'plan'] as const;
+type Step = (typeof STEPS)[number];
+
+/** Why Next is disabled, shown above it. Steps that are always complete have no hint. */
+const NEXT_HINTS: Partial<Record<Step, string>> = {
+  import: 'Import a file to continue, or skip this step.',
+  status: 'Pick a status to continue, or skip this step.',
+  role: 'Add at least one job title to continue, or skip this step.',
+  location: 'Add at least one place to continue, or skip this step.',
+  contract: 'Pick at least one contract type to continue, or skip this step.',
+  platforms: 'Pick at least one platform to continue, or skip this step.',
+};
 
 /**
  * Onboarding v2 preview (dev only): built with the app's own shadcn components and Hugeicons.
  * Layout rule: content is anchored from the top and never moves when something appears.
+ * The current step is in the URL (`?step=role`), so browser Back and a reload keep the user's place.
  */
 export function OnboardingV2() {
   const router = useRouter();
-  const [step, setStep] = useState(0);
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const step = Math.max(0, STEPS.indexOf(searchParams.get('step') as Step));
+  const goTo = (next: number) => router.push(`${pathname}?step=${STEPS[next]}`);
+  const [finishing, startFinishing] = useTransition();
+  const [finishError, setFinishError] = useState<string | null>(null);
   const [file, setFile] = useState<File | null>(null);
   const [status, setStatus] = useState<Status | null>(null);
   const [titles, setTitles] = useState<string[]>([]);
@@ -86,7 +104,22 @@ export function OnboardingV2() {
 
   const advance = (method: 'next' | 'skip') => {
     posthog.capture('onboarding_step_completed', { step: current, step_index: step, method });
-    setStep(step + 1);
+    goTo(step + 1);
+  };
+
+  /** `onboarding_completed` fires only once the account is stamped (or, signed out, once there is nothing to stamp). */
+  const finish = (plan: string) => {
+    if (finishing) return;
+    setFinishError(null);
+    startFinishing(async () => {
+      const result = await finishOnboardingV2().catch(() => null);
+      if (!result?.ok) {
+        setFinishError('We could not finish your onboarding right now. Please try again.');
+        return;
+      }
+      posthog.capture('onboarding_completed', { completion_method: 'plan_selected', plan, signed_in: result.data.signedIn });
+      router.push(result.data.next);
+    });
   };
   const canNext = {
     import: file !== null,
@@ -163,12 +196,16 @@ export function OnboardingV2() {
         )}
         {current === 'company' && <CompanyStep sizes={sizes} onSizes={setSizes} sectors={sectors} onSectors={setSectors} showAll={moreSectors} onShowAll={setMoreSectors} />}
         {current === 'platforms' && <PlatformsStep places={places} values={platforms} onChange={setPlatforms} expanded={morePlatforms} onExpanded={setMorePlatforms} />}
-        {current === 'plan' && <PlanStep
-            onSelect={() => {
-              posthog.capture('onboarding_completed', { completion_method: 'plan_selected' });
-              router.push('/');
-            }}
-          />}
+        {current === 'plan' && (
+          <>
+            {finishError && (
+              <p role="alert" className="mb-6 text-center text-sm text-destructive">
+                {finishError}
+              </p>
+            )}
+            <PlanStep onSelect={finish} />
+          </>
+        )}
       </main>
 
       {last ? (
@@ -176,7 +213,10 @@ export function OnboardingV2() {
       ) : (
         <div className="fixed inset-x-0 bottom-0 z-20 bg-linear-to-t from-background from-70% to-transparent px-6 pt-10 pb-[10vh]">
           <div className="relative mx-auto flex max-w-xl items-center justify-between">
-            <Button variant="outline" size="icon-lg" aria-label="Back" className={cn(step === 0 && 'invisible')} onClick={() => setStep(step - 1)}>
+            <p aria-live="polite" className="absolute inset-x-0 -top-8 text-center text-sm text-muted-foreground">
+              {!canNext && NEXT_HINTS[current]}
+            </p>
+            <Button variant="outline" size="icon-lg" aria-label="Back" className={cn(step === 0 && 'invisible')} onClick={() => goTo(step - 1)}>
               <HugeiconsIcon icon={ArrowLeft01Icon} size={20} strokeWidth={1.8} />
             </Button>
             <div className="flex items-center gap-2">
