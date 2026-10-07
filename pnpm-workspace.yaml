@@ -8,6 +8,7 @@ packages:
 # and sharp fetch their platform binaries, unrs-resolver its native resolver.
 allowBuilds:
   better-sqlite3: true
+  core-js: false
   electron: true
   esbuild: true
   sharp: true
