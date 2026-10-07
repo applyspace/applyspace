@@ -6,7 +6,7 @@ import { HugeiconsIcon } from '@hugeicons/react';
 import {
   ArrowLeft01Icon,
   PinLocation03Icon,
-  WirelessIcon,
+  InternetAntenna02Icon,
   FlashIcon,
   ArrowReloadHorizontalIcon,
   IncognitoIcon,
@@ -36,7 +36,7 @@ const LEVELS = ['Entry level', 'Junior', 'Mid-level', 'Senior', 'Lead or above']
 const WORKPLACES = [
   { value: 'onsite', icon: PinLocation03Icon, label: 'On-site' },
   { value: 'hybrid', icon: ArrowReloadHorizontalIcon, label: 'Hybrid' },
-  { value: 'remote', icon: WirelessIcon, label: 'Remote' },
+  { value: 'remote', icon: InternetAntenna02Icon, label: 'Remote' },
 ] as const;
 const TITLE_SUGGESTIONS = ['Product Designer', 'Senior Product Designer', 'UX Designer', 'UI Designer', 'Design Lead', 'UX Researcher'];
 const PLACE_SUGGESTIONS = ['Paris, France', 'Lyon, France', 'Bordeaux, France', 'Nantes, France', 'Île-de-France', 'France', 'Berlin, Germany', 'London, United Kingdom'];
