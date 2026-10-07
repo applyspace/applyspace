@@ -140,7 +140,9 @@ const SECTORS: { label: string; icon: IconSvgElement; tone: Tone; top?: boolean 
 /** Rolling digit: the old one slides out and the new one slides in, up when the value rises and down when it falls. */
 function Digit({ d, dir }: { d: number; dir: 1 | -1 }) {
   return (
-    <span className="relative inline-block h-[1.1em] w-[1ch] overflow-hidden text-center leading-[1.1]">
+    <span className="relative inline-block h-[1.1em] w-[0.9ch] overflow-hidden text-center leading-[1.1]">
+      {/* In-flow digit so the baseline matches the surrounding text. */}
+      <span aria-hidden className="invisible">0</span>
       <AnimatePresence initial={false} custom={dir}>
         <motion.span
           key={d}
@@ -192,11 +194,11 @@ function SalaryMinimum({
 
   return (
     <div className="mx-auto w-full max-w-sm">
-      <div className="mb-5 flex justify-center">
-        <div className="relative flex items-start font-heading text-5xl leading-none font-medium tracking-tight tabular-nums">
-          <span className="absolute right-full flex items-start">
+      <div className="mb-9 flex justify-center">
+        <div className="relative flex items-baseline font-heading text-4xl leading-none font-medium tracking-tighter tabular-nums">
+          <span className="absolute right-full flex items-baseline pr-0.5">
             <DropdownMenu>
-              <DropdownMenuTrigger render={<button type="button" aria-label="Currency" className="mr-0.5 rounded-lg px-1 font-medium outline-none transition-colors hover:bg-muted focus-visible:ring-3 focus-visible:ring-ring/30" />}>
+              <DropdownMenuTrigger render={<button type="button" aria-label="Currency" className="mr-0.5 rounded-lg px-1 text-2xl font-medium outline-none transition-colors hover:bg-muted focus-visible:ring-3 focus-visible:ring-ring/30" />}>
                 {symbol}
               </DropdownMenuTrigger>
               <DropdownMenuContent align="center" className="w-max min-w-0">
@@ -209,7 +211,7 @@ function SalaryMinimum({
             </DropdownMenu>
             <AnimatePresence initial={false}>
               {hundreds > 0 && (
-                <motion.span key="hundreds" className="overflow-hidden leading-[1.1]" initial={{ width: 0, opacity: 0 }} animate={{ width: '1ch', opacity: 1 }} exit={{ width: 0, opacity: 0 }} transition={motionTheme.transitions.ui}>
+                <motion.span key="hundreds" className="overflow-hidden leading-[1.1]" initial={{ width: 0, opacity: 0 }} animate={{ width: '0.9ch', opacity: 1 }} exit={{ width: 0, opacity: 0 }} transition={motionTheme.transitions.ui}>
                   {hundreds}
                 </motion.span>
               )}
@@ -217,8 +219,9 @@ function SalaryMinimum({
           </span>
           <Digit d={tens} dir={dir} />
           <Digit d={ones} dir={dir} />
-          <span className="leading-[1.1]">K+</span>
-          <span className="mt-1 ml-1.5 text-base font-medium tracking-normal text-muted-foreground">/year</span>
+          <span className="leading-[1.1]">K</span>
+          <span className="self-start text-xl leading-none">+</span>
+          <span className="ml-1.5 text-sm font-medium tracking-normal text-muted-foreground">/year</span>
         </div>
       </div>
       <div className="flex h-16 items-end gap-px px-2" aria-hidden>

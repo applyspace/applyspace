@@ -48,8 +48,8 @@ export default function LoginPage() {
 
   return (
     <div className="grid min-h-screen bg-white text-stone-950 lg:grid-cols-2">
-      <main className="flex flex-col justify-center px-6 py-12 sm:px-12 lg:px-28">
-        <div className="mx-auto w-full max-w-[34rem]">
+      <main className="flex flex-col justify-center px-6 py-12 sm:px-12 lg:px-16">
+        <div className="mx-auto w-full max-w-[34rem] lg:mr-8">
           <ApplyLogo className="mb-12 h-7 w-auto text-stone-950" />
 
           <h1
@@ -143,7 +143,7 @@ export default function LoginPage() {
           </div>
 
           {/* Placeholder: desktop download is designed but not wired yet */}
-          <div className="mt-5 flex w-full max-w-[22rem] justify-center">
+          <div className="mt-5 flex w-full max-w-[22rem] justify-start">
             <button
               type="button"
               className="inline-flex h-9 items-center gap-2 rounded-lg border border-stone-200 bg-white px-3.5 text-sm font-medium transition-colors hover:bg-stone-50"
@@ -156,7 +156,7 @@ export default function LoginPage() {
       </main>
 
       {/* App preview: a small window on a list of offers, cropped on the right and bottom */}
-      <aside aria-hidden className="hidden items-center justify-end pl-8 pr-[9rem] lg:-ml-24 lg:flex">
+      <aside aria-hidden className="hidden items-center justify-start pl-0 pr-12 lg:flex">
         <div className="relative h-[min(41rem,80vh)] w-full max-w-[46rem] overflow-hidden rounded-[2rem] bg-stone-100">
           <div className="absolute left-14 top-16">
             <OffersPreview />

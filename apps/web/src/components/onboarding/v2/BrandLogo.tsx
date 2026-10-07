@@ -37,7 +37,7 @@ export function BrandLogo({
           alt={name}
           width={48}
           height={48}
-          className="size-full object-contain"
+          className="size-full rounded-[3px] object-contain"
           onError={() => setMissing(true)}
           ref={(img) => {
             if (img && img.complete && img.naturalWidth === 0) setMissing(true);

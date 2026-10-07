@@ -1,6 +1,8 @@
 'use client';
 
 import { useState } from 'react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { ArrowDown01Icon } from '@hugeicons/core-free-icons';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { BrandLogo } from '@/components/onboarding/v2/BrandLogo';
@@ -46,7 +48,7 @@ export function PlatformsStep({ places, values, onChange }: { places: string[]; 
         <div
           role="group"
           aria-label="Job platforms"
-          className="grid max-h-[max(10rem,calc(100dvh-31rem))] grid-cols-2 gap-4 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden p-1 pb-12 [mask-image:linear-gradient(to_bottom,black_calc(100%-3.5rem),transparent)]"
+          className="grid max-h-[max(10rem,calc(100dvh-36rem))] grid-cols-2 gap-4 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden p-1 pb-16 [mask-image:linear-gradient(to_bottom,black_calc(100%-4.5rem),transparent)]"
         >
           {list.map((p) => {
             const selected = values.includes(p.name);
@@ -72,9 +74,10 @@ export function PlatformsStep({ places, values, onChange }: { places: string[]; 
           })}
         </div>
         {!expanded && (
-          <div className="-mt-6 flex justify-center">
-            <Button variant="outline" size="lg" onClick={() => setExpanded(true)}>
+          <div className="-mt-4 mb-8 flex justify-center">
+            <Button variant="ghost" size="lg" onClick={() => setExpanded(true)}>
               See more
+              <HugeiconsIcon icon={ArrowDown01Icon} size={16} strokeWidth={2} />
             </Button>
           </div>
         )}

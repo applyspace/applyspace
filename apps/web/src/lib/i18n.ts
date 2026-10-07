@@ -29,7 +29,7 @@ export const translations = {
       title: 'Welcome to Apply',
       subtitle: 'Your personal job research dashboard.',
       headlineLine1: 'Your job search,',
-      headlineLine2: 'finally in one place',
+      headlineLine2: 'finally in one space',
       signInWith: 'Continue with LinkedIn',
       signInWithGoogle: 'Continue with Google',
       signInError: 'Sign-in failed. Please try again.',

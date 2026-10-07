@@ -8,7 +8,7 @@ import {
   ArrowUp01Icon,
   Building03Icon,
   Calendar03Icon,
-  FileValidationIcon,
+  FileCheckCornerIcon,
   JobSearchIcon,
   NotepadTextDashedIcon,
   CheckListIcon,
@@ -26,7 +26,6 @@ import {
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
-import { Avatar, AvatarFallback, AvatarGroup, AvatarImage } from '@/components/ui/avatar';
 import { brandAssetUrl, brandSymbolUrl } from '@/lib/brandfetch';
 import { StepHeader } from '@/components/onboarding/v2/StepHeader';
 import { SEGMENT_GROUP, SEGMENT_ITEM, SegmentPill } from '@/components/onboarding/v2/fields';
@@ -87,6 +86,8 @@ type Plan = {
   ring: string;
   muted: string;
   badge?: boolean;
+  shine?: boolean;
+  button?: string;
   price: number;
   limits: string[];
   intro: string | null;
@@ -112,10 +113,12 @@ const PLANS: Plan[] = [
     name: 'Plus',
     tagline: 'More room, sharper search.',
     accent: 'text-brand-950',
-    card: 'border border-brand-300 bg-brand-300/40',
+    card: 'border border-brand-300 bg-linear-to-br from-brand-200 via-brand-100 to-brand-300/70 shadow-[0_24px_60px_-24px] shadow-brand-500/50',
     ring: '#f3e3ff',
     muted: 'text-brand-950/70',
     badge: true,
+    shine: true,
+    button: 'border-0 bg-linear-to-b from-brand-500 to-brand-700 text-white shadow-md shadow-brand-600/30 hover:brightness-110',
     price: 0.99,
     limits: ['99 applications', '3 search profiles', '3 interview templates'],
     intro: 'Everything in Free, plus…',
@@ -126,9 +129,11 @@ const PLANS: Plan[] = [
     name: 'Max',
     tagline: 'No limits on anything.',
     accent: 'text-pink-700',
-    card: 'border border-pink-200 bg-pink-200/40',
+    card: 'border border-pink-200 bg-linear-to-br from-pink-200 via-amber-100 to-pink-300/70 shadow-[0_24px_60px_-24px] shadow-pink-500/50',
     ring: '#fdecf5',
     muted: 'text-pink-950/70',
+    shine: true,
+    button: 'border-0 bg-linear-to-b from-pink-500 to-pink-700 text-white shadow-md shadow-pink-600/30 hover:brightness-110',
     price: 3.99,
     limits: ['Unlimited applications', 'Unlimited search profiles', 'Unlimited interview templates'],
     intro: 'Everything in Plus',
@@ -136,7 +141,7 @@ const PLANS: Plan[] = [
   },
 ];
 
-const LIMIT_ICONS = [FileValidationIcon, JobSearchIcon, NotepadTextDashedIcon];
+const LIMIT_ICONS = [FileCheckCornerIcon, JobSearchIcon, NotepadTextDashedIcon];
 
 /** Rows of the full comparison table: true is a check, a string is shown as is, undefined is empty. */
 const COMPARISON: { label: string; values: [boolean | string | undefined, boolean | string | undefined, boolean | string | undefined] }[] = [
@@ -149,32 +154,31 @@ const COMPARISON: { label: string; values: [boolean | string | undefined, boolea
 
 const euro = (n: number) => (n === 0 ? '€0' : `€${n.toFixed(2)}`);
 
-/** Brand logos shown right next to a feature name: overlapping round avatars with a light border, the overlap ring matches the card fill. */
-function InlineLogos({ logos, ring }: { logos: Logo[]; ring: string }) {
+/** Brand logos right next to a feature name: small, overlapping, no background and no round crop so SVG marks (Gmail, Calendar) stay whole. */
+function InlineLogos({ logos }: { logos: Logo[] }) {
   return (
-    <AvatarGroup className="ml-2.5 -space-x-1.5 *:data-[slot=avatar]:ring-(--pc)!" style={{ '--pc': ring } as React.CSSProperties}>
+    <span className="ml-1.5 flex items-center -space-x-2">
       {logos.map((l) => (
-        <Avatar key={l.name} title={l.name} className="size-7 bg-white">
-          <AvatarImage src={l.src ?? brandSymbolUrl(l.domain)} alt={l.name} className="object-contain p-1.5" />
-          <AvatarFallback className="bg-white text-xs">{l.name[0]}</AvatarFallback>
-        </Avatar>
+        // eslint-disable-next-line @next/next/no-img-element
+        <img key={l.name} src={l.src ?? brandSymbolUrl(l.domain)} alt={l.name} title={l.name} width={20} height={20} className="size-5 object-contain" />
       ))}
-    </AvatarGroup>
+    </span>
   );
 }
 
-/** No header colour, no dividers, no shadows: each plan is a soft fill (stone, brand lilac, pink) and Plus carries the Popular badge. */
+/** Each plan is a soft fill (stone) or a gradient with a slow sheen (Plus, Max). Plus carries the Popular badge next to its name; the select button sits at the bottom. */
 function PlanCard({ plan, period, onSelect }: { plan: Plan; period: (typeof PERIODS)[number]; onSelect: (plan: string) => void }) {
   const perMonth = plan.price * (1 - period.discount);
   return (
-    <Card className={cn('gap-0 rounded-3xl py-0 ring-0', plan.card)}>
-      <div className="flex flex-1 flex-col gap-6 px-7 pt-7 pb-10">
+    <Card className={cn('relative gap-0 overflow-hidden rounded-3xl py-0 ring-0', plan.card, plan.shine && 'plan-sheen')}>
+      <div className="relative flex flex-1 flex-col gap-6 px-7 pt-7 pb-7">
         <div className="space-y-1">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2.5">
             <p className="font-sans text-2xl font-medium">{plan.name}</p>
             {plan.badge && <span className="rounded-full bg-white/70 px-3 py-1 text-xs font-medium text-brand-950">Popular</span>}
           </div>
           <p className={cn('text-sm', plan.muted)}>{plan.tagline}</p>
+          <div className="h-px w-12 bg-foreground/15 pt-0" aria-hidden />
         </div>
 
         <div>
@@ -185,10 +189,6 @@ function PlanCard({ plan, period, onSelect }: { plan: Plan; period: (typeof PERI
           <p className={cn('mt-1 text-sm', plan.muted)}>{plan.price === 0 ? 'No card needed' : period.note}</p>
         </div>
 
-        <Button variant={plan.key === 'free' ? 'outline' : 'default'} size="lg" className="w-full" onClick={() => onSelect(plan.key)}>
-          Select plan
-        </Button>
-
         <ul className="space-y-2 text-sm">
           {plan.limits.map((text, i) => (
             <li key={text} className="flex items-center gap-3 rounded-xl border border-foreground/10 bg-white/60 px-3.5 py-2.5">
@@ -198,7 +198,7 @@ function PlanCard({ plan, period, onSelect }: { plan: Plan; period: (typeof PERI
           ))}
         </ul>
 
-        <div>
+        <div className="flex-1">
           {plan.intro && <p className={cn('mb-3 text-sm italic', plan.muted)}>{plan.intro}</p>}
           <ul className="space-y-2.5 text-sm">
             {plan.features.map((f) => (
@@ -206,12 +206,16 @@ function PlanCard({ plan, period, onSelect }: { plan: Plan; period: (typeof PERI
                 <HugeiconsIcon icon={Tick02Icon} size={18} strokeWidth={2} className={cn('shrink-0', plan.accent)} />
                 <span className="flex items-center">
                   {f.text}
-                  {f.logos && <InlineLogos logos={f.logos} ring={plan.ring} />}
+                  {f.logos && <InlineLogos logos={f.logos} />}
                 </span>
               </li>
             ))}
           </ul>
         </div>
+
+        <Button variant={plan.key === 'free' ? 'outline' : 'default'} size="lg" className={cn('mt-4 w-full', plan.button)} onClick={() => onSelect(plan.key)}>
+          Select plan
+        </Button>
       </div>
     </Card>
   );
@@ -251,7 +255,7 @@ export function PlanStep({ onSelect }: { onSelect: (plan: string) => void }) {
 
   return (
     <>
-      <StepHeader title="Find the plan that fits your search" subtitle="Start free and upgrade whenever you need more." />
+      <StepHeader title="Choose the plan that fits your search" subtitle="Start free and upgrade whenever you need more." />
       <div className="mb-6 flex justify-center">
         <ToggleGroup spacing={1} className={SEGMENT_GROUP} value={[periodKey]} onValueChange={(v) => v[0] && setPeriodKey(v[0] as Period)} aria-label="Billing period">
           {PERIODS.map((p) => (
