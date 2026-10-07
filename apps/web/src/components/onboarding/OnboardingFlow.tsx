@@ -422,7 +422,7 @@ function ChoiceCard({
       className={cn(
         'flex flex-col items-start gap-3 rounded-2xl border p-4 text-left transition-colors',
         selected
-          ? 'border-stone-950 bg-white shadow-[0_4px_24px_rgba(0,0,0,0.06)]'
+          ? 'border-stone-950 bg-white'
           : 'border-stone-200 bg-white hover:bg-stone-50',
         disabled && 'cursor-not-allowed bg-stone-50 hover:bg-stone-50',
       )}
