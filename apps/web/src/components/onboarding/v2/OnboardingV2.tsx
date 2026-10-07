@@ -68,11 +68,14 @@ export function OnboardingV2() {
   const [places, setPlaces] = useState<string[]>([]);
   const [workplaces, setWorkplaces] = useState<Workplace[]>([]);
   const [contracts, setContracts] = useState<string[]>([]);
-  const [minSalary, setMinSalary] = useState(35);
+  const [minSalary, setMinSalary] = useState(0);
   const [currency, setCurrency] = useState('EUR');
   const [sizes, setSizes] = useState<string[]>([]);
   const [sectors, setSectors] = useState<string[]>([]);
   const [platforms, setPlatforms] = useState<string[]>([]);
+  // "See more" stays open when the user comes back to a step.
+  const [moreSectors, setMoreSectors] = useState(false);
+  const [morePlatforms, setMorePlatforms] = useState(false);
 
   const current = STEPS[step];
   const last = step === STEPS.length - 1;
@@ -106,7 +109,7 @@ export function OnboardingV2() {
         </div>
       )}
 
-      <main className={cn('mx-auto w-full flex-1 px-6', last ? 'max-w-6xl pt-12' : 'max-w-4xl min-h-0 pt-[2vh]')}>
+      <main className={cn('mx-auto w-full flex-1 px-6', last ? 'max-w-6xl pt-24' : 'max-w-4xl min-h-0 pt-[2vh]')}>
         {current === 'import' && (
           <>
             <StepHeader title="Start from what you already have" subtitle="Import your resume or LinkedIn profile to prefill your details." />
@@ -158,8 +161,8 @@ export function OnboardingV2() {
         {current === 'contract' && (
           <ContractStep contracts={contracts} onContracts={setContracts} minSalary={minSalary} onMinSalary={setMinSalary} currency={currency} onCurrency={setCurrency} />
         )}
-        {current === 'company' && <CompanyStep sizes={sizes} onSizes={setSizes} sectors={sectors} onSectors={setSectors} />}
-        {current === 'platforms' && <PlatformsStep places={places} values={platforms} onChange={setPlatforms} />}
+        {current === 'company' && <CompanyStep sizes={sizes} onSizes={setSizes} sectors={sectors} onSectors={setSectors} showAll={moreSectors} onShowAll={setMoreSectors} />}
+        {current === 'platforms' && <PlatformsStep places={places} values={platforms} onChange={setPlatforms} expanded={morePlatforms} onExpanded={setMorePlatforms} />}
         {current === 'plan' && <PlanStep
             onSelect={() => {
               posthog.capture('onboarding_completed', { completion_method: 'plan_selected' });

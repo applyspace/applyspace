@@ -19,7 +19,7 @@ type Provider = "google" | "linkedin_oidc";
 
 // Stone outline and stone text for the sign-in buttons.
 const CONTROL =
-  "h-9 w-full rounded-lg border border-stone-200 bg-white text-sm font-medium text-stone-950 hover:bg-stone-50";
+  "h-11 w-full rounded-full border border-stone-200 bg-white text-sm font-medium text-stone-950 hover:bg-stone-50";
 
 export default function LoginPage() {
   const { t } = useLocale();
@@ -112,11 +112,11 @@ export default function LoginPage() {
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder={t.auth.emailPlaceholder}
                 autoComplete="email"
-                className="h-9 w-full rounded-lg border border-stone-200 bg-white px-3 text-sm outline-none transition-shadow placeholder:text-stone-400 focus:border-stone-400 focus:ring-3 focus:ring-stone-200"
+                className="h-11 w-full rounded-full border border-stone-200 bg-white px-4 text-sm outline-none transition-shadow placeholder:text-stone-400 focus:border-stone-400 focus:ring-3 focus:ring-stone-200"
               />
               <Button
                 type="submit"
-                className="h-9 w-full rounded-lg bg-stone-950 text-sm font-medium text-white hover:bg-stone-800"
+                className="h-11 w-full rounded-full bg-stone-950 text-sm font-medium text-white hover:bg-stone-800"
               >
                 {t.auth.continueWithEmail}
               </Button>
@@ -143,7 +143,7 @@ export default function LoginPage() {
           </div>
 
           {/* Placeholder: desktop download is designed but not wired yet */}
-          <div className="mt-5 flex w-full max-w-[22rem] justify-start">
+          <div className="mt-5 flex w-full max-w-[22rem] justify-center">
             <button
               type="button"
               className="inline-flex h-9 items-center gap-2 rounded-lg border border-stone-200 bg-white px-3.5 text-sm font-medium transition-colors hover:bg-stone-50"

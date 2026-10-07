@@ -1,6 +1,8 @@
 'use client';
 
 import { useState } from 'react';
+import { AnimatePresence, motion } from 'motion/react';
+import { motionTheme } from '@/lib/motion-theme';
 import { HugeiconsIcon, type IconSvgElement } from '@hugeicons/react';
 import {
   AiMagicIcon,
@@ -86,8 +88,6 @@ type Plan = {
   ring: string;
   muted: string;
   badge?: boolean;
-  shine?: boolean;
-  button?: string;
   price: number;
   limits: string[];
   intro: string | null;
@@ -113,12 +113,10 @@ const PLANS: Plan[] = [
     name: 'Plus',
     tagline: 'More room, sharper search.',
     accent: 'text-brand-950',
-    card: 'border border-brand-300 bg-linear-to-br from-brand-200 via-brand-100 to-brand-300/70 shadow-[0_24px_60px_-24px] shadow-brand-500/50',
+    card: 'border border-stone-700 bg-transparent',
     ring: '#f3e3ff',
     muted: 'text-brand-950/70',
     badge: true,
-    shine: true,
-    button: 'border-0 bg-linear-to-b from-brand-500 to-brand-700 text-white shadow-md shadow-brand-600/30 hover:brightness-110',
     price: 0.99,
     limits: ['99 applications', '3 search profiles', '3 interview templates'],
     intro: 'Everything in Free, plus…',
@@ -129,11 +127,9 @@ const PLANS: Plan[] = [
     name: 'Max',
     tagline: 'No limits on anything.',
     accent: 'text-pink-700',
-    card: 'border border-pink-200 bg-linear-to-br from-pink-200 via-amber-100 to-pink-300/70 shadow-[0_24px_60px_-24px] shadow-pink-500/50',
+    card: 'border border-stone-700 bg-transparent',
     ring: '#fdecf5',
     muted: 'text-pink-950/70',
-    shine: true,
-    button: 'border-0 bg-linear-to-b from-pink-500 to-pink-700 text-white shadow-md shadow-pink-600/30 hover:brightness-110',
     price: 3.99,
     limits: ['Unlimited applications', 'Unlimited search profiles', 'Unlimited interview templates'],
     intro: 'Everything in Plus',
@@ -154,36 +150,63 @@ const COMPARISON: { label: string; values: [boolean | string | undefined, boolea
 
 const euro = (n: number) => (n === 0 ? '€0' : `€${n.toFixed(2)}`);
 
-/** Brand logos right next to a feature name: small, overlapping, no background and no round crop so SVG marks (Gmail, Calendar) stay whole. */
+const LOGO_SIZE = 18;
+const LOGO_OVERLAP = 6;
+
+/**
+ * Brand logos next to a feature name: small round chips with a light border, the logo contained inside (SVG marks are never cropped).
+ * The first logo is in front; each following one is masked where the previous one overlaps it, so nothing shows through.
+ */
 function InlineLogos({ logos }: { logos: Logo[] }) {
+  const mask = `radial-gradient(circle ${LOGO_SIZE / 2 + 1.5}px at ${LOGO_SIZE / 2 - (LOGO_SIZE - LOGO_OVERLAP)}px ${LOGO_SIZE / 2}px, transparent 98%, #000 100%)`;
   return (
-    <span className="ml-1.5 flex items-center -space-x-2">
-      {logos.map((l) => (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img key={l.name} src={l.src ?? brandSymbolUrl(l.domain)} alt={l.name} title={l.name} width={20} height={20} className="size-5 object-contain" />
+    <span className="ml-1.5 flex items-center">
+      {logos.map((l, i) => (
+        <span
+          key={l.name}
+          title={l.name}
+          className="relative flex shrink-0 items-center justify-center rounded-full border border-stone-300/80 p-[2.5px]"
+          style={{ width: LOGO_SIZE, height: LOGO_SIZE, marginLeft: i === 0 ? 0 : -LOGO_OVERLAP, zIndex: logos.length - i, ...(i === 0 ? {} : { maskImage: mask, WebkitMaskImage: mask }) }}
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={l.src ?? brandSymbolUrl(l.domain)} alt={l.name} className="size-full object-contain" />
+        </span>
       ))}
     </span>
   );
 }
 
-/** Each plan is a soft fill (stone) or a gradient with a slow sheen (Plus, Max). Plus carries the Popular badge next to its name; the select button sits at the bottom. */
+/** Free is a soft stone fill; Plus and Max are transparent with a dark stone border. Plus carries the Popular badge next to its name; the select button sits at the bottom. */
 function PlanCard({ plan, period, onSelect }: { plan: Plan; period: (typeof PERIODS)[number]; onSelect: (plan: string) => void }) {
   const perMonth = plan.price * (1 - period.discount);
   return (
-    <Card className={cn('relative gap-0 overflow-hidden rounded-3xl py-0 ring-0', plan.card, plan.shine && 'plan-sheen')}>
-      <div className="relative flex flex-1 flex-col gap-6 px-7 pt-7 pb-7">
+    <Card className={cn('gap-0 rounded-3xl py-0 ring-0', plan.card)}>
+      <div className="flex flex-1 flex-col gap-6 px-7 pt-7 pb-7">
         <div className="space-y-1">
           <div className="flex items-center gap-2.5">
             <p className="font-sans text-2xl font-medium">{plan.name}</p>
-            {plan.badge && <span className="rounded-full bg-white/70 px-3 py-1 text-xs font-medium text-brand-950">Popular</span>}
+            {plan.badge && <span className="rounded-full bg-foreground px-3 py-1 text-xs font-medium text-background">Popular</span>}
           </div>
           <p className={cn('text-sm', plan.muted)}>{plan.tagline}</p>
-          <div className="h-px w-12 bg-foreground/15 pt-0" aria-hidden />
         </div>
 
-        <div>
+        <div className="mt-1 h-px w-full bg-foreground/20" aria-hidden />
+
+        <div className="-mt-3">
           <p className="font-sans text-4xl font-medium tabular-nums">
-            {euro(perMonth)}
+            <span className="relative inline-flex">
+              <AnimatePresence mode="popLayout" initial={false}>
+                <motion.span
+                  key={period.value}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={motionTheme.transitions.ui}
+                >
+                  {euro(perMonth)}
+                </motion.span>
+              </AnimatePresence>
+            </span>
             <span className={cn('text-base font-normal', plan.muted)}>/mo</span>
           </p>
           <p className={cn('mt-1 text-sm', plan.muted)}>{plan.price === 0 ? 'No card needed' : period.note}</p>
@@ -200,7 +223,7 @@ function PlanCard({ plan, period, onSelect }: { plan: Plan; period: (typeof PERI
 
         <div className="flex-1">
           {plan.intro && <p className={cn('mb-3 text-sm italic', plan.muted)}>{plan.intro}</p>}
-          <ul className="space-y-2.5 text-sm">
+          <ul className="space-y-1 text-sm">
             {plan.features.map((f) => (
               <li key={f.text} className="flex items-center gap-3">
                 <HugeiconsIcon icon={Tick02Icon} size={18} strokeWidth={2} className={cn('shrink-0', plan.accent)} />
@@ -213,7 +236,7 @@ function PlanCard({ plan, period, onSelect }: { plan: Plan; period: (typeof PERI
           </ul>
         </div>
 
-        <Button variant={plan.key === 'free' ? 'outline' : 'default'} size="lg" className={cn('mt-4 w-full', plan.button)} onClick={() => onSelect(plan.key)}>
+        <Button variant={plan.key === 'free' ? 'outline' : 'default'} size="lg" className="mt-4 h-12 w-full" onClick={() => onSelect(plan.key)}>
           Select plan
         </Button>
       </div>
@@ -272,7 +295,7 @@ export function PlanStep({ onSelect }: { onSelect: (plan: string) => void }) {
           <PlanCard key={p.key} plan={p} period={period} onSelect={onSelect} />
         ))}
       </div>
-      <div className="mt-6 flex justify-center">
+      <div className="mt-12 flex justify-center pb-12">
         <Button variant="ghost" size="lg" onClick={() => setCompare(!compare)}>
           {compare ? 'Hide plan comparison' : 'See full plan comparison'}
           <HugeiconsIcon icon={compare ? ArrowUp01Icon : ArrowDown01Icon} size={16} strokeWidth={2} />

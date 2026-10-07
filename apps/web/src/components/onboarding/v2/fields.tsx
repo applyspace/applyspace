@@ -13,6 +13,9 @@ import { cn } from '@/lib/utils';
 export const SEGMENT_GROUP = 'rounded-full bg-muted p-1';
 export const SEGMENT_ITEM = 'relative isolate rounded-full border-0 bg-transparent px-5 text-muted-foreground hover:bg-background/60 hover:text-foreground aria-pressed:bg-transparent aria-pressed:text-foreground aria-pressed:hover:bg-transparent';
 
+/** First letter in capitals, the rest untouched (acronyms stay as they are). */
+export const capitalize = (s: string) => (s ? s[0].toUpperCase() + s.slice(1) : s);
+
 export const toggle = <T,>(list: T[], value: T) => (list.includes(value) ? list.filter((v) => v !== value) : [...list, value]);
 
 /** Small muted label above a group of fields. */
@@ -55,7 +58,7 @@ export function TagSearch({
       controller.abort();
     };
   }, [q, fetchSuggestions]);
-  const matches = (fetchSuggestions ? remote : q ? (suggestions ?? []).filter((s) => s.toLowerCase().includes(q)) : []).filter((s) => !values.includes(s)).slice(0, 5);
+  const matches = (fetchSuggestions ? remote : q ? (suggestions ?? []).filter((s) => s.toLowerCase().includes(q)) : []).map(capitalize).filter((s) => !values.includes(s)).slice(0, 5);
 
   return (
     <div className={cn('mx-auto w-full', !wide && 'max-w-xl')}>

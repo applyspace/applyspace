@@ -1,6 +1,5 @@
 'use client';
 
-import { useState } from 'react';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { ArrowDown01Icon } from '@hugeicons/core-free-icons';
 import { Button } from '@/components/ui/button';
@@ -36,9 +35,20 @@ const MORE_PLATFORMS: PlatformOption[] = [
 ];
 
 /** Which job platforms to search. Logos come from Brandfetch; the list scrolls in its own container with a fade at the bottom. */
-export function PlatformsStep({ places, values, onChange }: { places: string[]; values: string[]; onChange: (next: string[]) => void }) {
+export function PlatformsStep({
+  places,
+  values,
+  onChange,
+  expanded,
+  onExpanded,
+}: {
+  places: string[];
+  values: string[];
+  onChange: (next: string[]) => void;
+  expanded: boolean;
+  onExpanded: (next: boolean) => void;
+}) {
   const inFrance = places.length === 0 || places.some((p) => /france|paris|lyon|bordeaux|nantes|le-de-france/i.test(p));
-  const [expanded, setExpanded] = useState(false);
   const list = (expanded ? [...PLATFORMS, ...MORE_PLATFORMS] : PLATFORMS).filter((p) => !p.franceOnly || inFrance);
 
   return (
@@ -75,7 +85,7 @@ export function PlatformsStep({ places, values, onChange }: { places: string[]; 
         </div>
         {!expanded && (
           <div className="-mt-4 mb-8 flex justify-center">
-            <Button variant="ghost" size="lg" onClick={() => setExpanded(true)}>
+            <Button variant="ghost" size="lg" onClick={() => onExpanded(true)}>
               See more
               <HugeiconsIcon icon={ArrowDown01Icon} size={16} strokeWidth={2} />
             </Button>

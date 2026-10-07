@@ -1,8 +1,5 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
-import { AnimatePresence, motion } from 'motion/react';
-import { motionTheme } from '@/lib/motion-theme';
 import { HugeiconsIcon, type IconSvgElement } from '@hugeicons/react';
 import {
   Agreement03Icon,
@@ -137,37 +134,9 @@ const SECTORS: { label: string; icon: IconSvgElement; tone: Tone; top?: boolean 
   { label: 'Telecom', icon: SmartPhone01Icon, tone: 'slate' },
 ];
 
-/** Rolling digit: the old one slides out and the new one slides in, up when the value rises and down when it falls. */
-function Digit({ d, dir }: { d: number; dir: 1 | -1 }) {
-  return (
-    <span className="relative inline-block h-[1.1em] w-[0.9ch] overflow-hidden text-center leading-[1.1]">
-      {/* In-flow digit so the baseline matches the surrounding text. */}
-      <span aria-hidden className="invisible">0</span>
-      <AnimatePresence initial={false} custom={dir}>
-        <motion.span
-          key={d}
-          custom={dir}
-          className="absolute inset-0"
-          variants={{
-            enter: (c: number) => ({ y: c > 0 ? '70%' : '-70%', opacity: 0 }),
-            center: { y: 0, opacity: 1 },
-            exit: (c: number) => ({ y: c > 0 ? '-70%' : '70%', opacity: 0 }),
-          }}
-          initial="enter"
-          animate="center"
-          exit="exit"
-          transition={motionTheme.transitions.ui}
-        >
-          {d}
-        </motion.span>
-      </AnimatePresence>
-    </span>
-  );
-}
-
 /**
- * Minimum salary: the amount above a placeholder distribution and a single-handle slider (0 to 100K, 1K steps).
- * Tens, ones and K never move; the currency, the plus and a hundreds digit hang to their left, so reaching 100K shifts nothing.
+ * Minimum yearly salary, in thousands. The amount is an editable field (digits only, no prefilled value, "0K" placeholder)
+ * on a light zone, above a placeholder distribution and a single-handle slider (0 to 100K, 1K steps).
  */
 function SalaryMinimum({
   value,
@@ -183,45 +152,41 @@ function SalaryMinimum({
   const symbol = CURRENCIES.find((c) => c.code === currency)?.symbol ?? '€';
   const perBar = (SALARY_MAX - SALARY_MIN) / SALARY_BARS.length;
   const peak = Math.max(...SALARY_BARS);
-  const previous = useRef(value);
-  const dir: 1 | -1 = value >= previous.current ? 1 : -1;
-  useEffect(() => {
-    previous.current = value;
-  }, [value]);
-  const hundreds = Math.floor(value / 100);
-  const tens = Math.floor((value % 100) / 10);
-  const ones = value % 10;
+  const text = value > 0 ? String(value) : '';
 
   return (
     <div className="mx-auto w-full max-w-sm">
       <div className="mb-9 flex justify-center">
-        <div className="relative flex items-baseline font-heading text-4xl leading-none font-medium tracking-tighter tabular-nums">
-          <span className="absolute right-full flex items-baseline pr-0.5">
-            <DropdownMenu>
-              <DropdownMenuTrigger render={<button type="button" aria-label="Currency" className="mr-0.5 rounded-lg px-1 text-2xl font-medium outline-none transition-colors hover:bg-muted focus-visible:ring-3 focus-visible:ring-ring/30" />}>
-                {symbol}
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="center" className="w-max min-w-0">
-                {CURRENCIES.map((c) => (
-                  <DropdownMenuItem key={c.code} className="whitespace-nowrap" onClick={() => onCurrency(c.code)}>
-                    {c.symbol} {c.code}
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
-            <AnimatePresence initial={false}>
-              {hundreds > 0 && (
-                <motion.span key="hundreds" className="overflow-hidden leading-[1.1]" initial={{ width: 0, opacity: 0 }} animate={{ width: '0.9ch', opacity: 1 }} exit={{ width: 0, opacity: 0 }} transition={motionTheme.transitions.ui}>
-                  {hundreds}
-                </motion.span>
-              )}
-            </AnimatePresence>
-          </span>
-          <Digit d={tens} dir={dir} />
-          <Digit d={ones} dir={dir} />
-          <span className="leading-[1.1]">K</span>
-          <span className="self-start text-xl leading-none">+</span>
-          <span className="ml-1.5 text-sm font-medium tracking-normal text-muted-foreground">/year</span>
+        <div className="inline-flex items-center gap-1 rounded-2xl bg-muted/70 px-5 py-3 font-heading text-4xl leading-none font-medium tracking-tight tabular-nums focus-within:ring-3 focus-within:ring-ring/30">
+          <DropdownMenu>
+            <DropdownMenuTrigger render={<button type="button" aria-label="Currency" className="mr-1 rounded-lg px-1.5 py-0.5 text-5xl font-medium outline-none transition-colors hover:bg-background/60 focus-visible:ring-3 focus-visible:ring-ring/30" />}>
+              {symbol}
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="center" className="w-max min-w-0">
+              {CURRENCIES.map((c) => (
+                <DropdownMenuItem key={c.code} className="whitespace-nowrap" onClick={() => onCurrency(c.code)}>
+                  {c.symbol} {c.code}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+          <input
+            type="text"
+            inputMode="numeric"
+            pattern="[0-9]*"
+            value={text}
+            placeholder="0"
+            aria-label="Minimum yearly salary, in thousands"
+            onChange={(e) => {
+              const digits = e.target.value.replace(/\D/g, '').slice(0, 3);
+              onValue(digits === '' ? 0 : Number(digits));
+            }}
+            className="bg-transparent text-center outline-none placeholder:text-muted-foreground/50"
+            style={{ width: `${Math.max(text.length, 1)}ch` }}
+          />
+          <span className={cn(value === 0 && 'text-muted-foreground/50')}>K</span>
+          <span className={cn(value === 0 && 'text-muted-foreground/50')}>+</span>
+          <span className="ml-1 self-end pb-0.5 text-sm font-medium tracking-normal text-muted-foreground">/year</span>
         </div>
       </div>
       <div className="flex h-16 items-end gap-px px-2" aria-hidden>
@@ -232,7 +197,7 @@ function SalaryMinimum({
         })}
       </div>
       <Slider
-        value={[value]}
+        value={[Math.min(value, SALARY_MAX)]}
         min={SALARY_MIN}
         max={SALARY_MAX}
         step={1}
@@ -284,13 +249,16 @@ export function CompanyStep({
   onSizes,
   sectors,
   onSectors,
+  showAll,
+  onShowAll,
 }: {
   sizes: string[];
   onSizes: (next: string[]) => void;
   sectors: string[];
   onSectors: (next: string[]) => void;
+  showAll: boolean;
+  onShowAll: (next: boolean) => void;
 }) {
-  const [showAll, setShowAll] = useState(false);
   // Same order and same top in both states: collapsed clips to three full rows, expanded grows to the viewport height and scrolls inside, so the page never scrolls.
   const ordered = [...SECTORS.filter((s) => s.top), ...SECTORS.filter((s) => !s.top)];
   return (
@@ -314,7 +282,7 @@ export function CompanyStep({
             </button>
           ))}
         </div>
-        <div className={cn('flex w-full flex-wrap content-start justify-center gap-3 border-t p-1 pt-6', showAll ? 'h-[max(10rem,calc(100dvh-31rem))] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden overflow-y-auto [mask-image:linear-gradient(to_bottom,black_calc(100%-2rem),transparent)] pb-8' : 'h-40 overflow-hidden')}>
+        <div className={cn('flex w-full flex-wrap content-start justify-center gap-3 border-t p-1 pt-6', showAll ? 'h-[max(10rem,calc(100dvh-36rem))] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden overflow-y-auto [mask-image:linear-gradient(to_bottom,black_calc(100%-4.5rem),transparent)] pb-16' : 'h-40 overflow-hidden')}>
           {ordered.map((s) => {
             const selected = sectors.includes(s.label);
             return (
@@ -336,7 +304,7 @@ export function CompanyStep({
             );
           })}
         </div>
-        <Button variant="ghost" size="lg" onClick={() => setShowAll(!showAll)}>
+        <Button variant="ghost" size="lg" onClick={() => onShowAll(!showAll)}>
           {showAll ? 'See fewer sectors' : 'See more sectors'}
           <HugeiconsIcon icon={showAll ? ArrowUp01Icon : ArrowDown01Icon} size={16} strokeWidth={2} />
         </Button>
