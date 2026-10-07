@@ -9,18 +9,15 @@ import {
   Briefcase01Icon,
   Building03Icon,
   CheckListIcon,
-  Crown03Icon,
   CursorMagicSelection01Icon,
   File01Icon,
   FilterIcon,
-  Layers01Icon,
   Mail01Icon,
   Message01Icon,
   Mic01Icon,
   Mic02Icon,
   Notification01Icon,
   Presentation01Icon,
-  Rocket01Icon,
   Search01Icon,
   Tick02Icon,
   UserMultiple02Icon,
@@ -76,9 +73,7 @@ type Plan = {
   name: string;
   tagline: string;
   headerClass: string;
-  tileClass: string;
   accent: string;
-  icon: IconSvgElement;
   price: number;
   limits: string[];
   intro: string | null;
@@ -91,10 +86,8 @@ const PLANS: Plan[] = [
     key: 'free',
     name: 'Free',
     tagline: 'Everything you need to start your search.',
-    headerClass: 'bg-blue-600',
-    tileClass: 'bg-blue-200 text-blue-700',
-    accent: 'text-blue-600',
-    icon: Rocket01Icon,
+    headerClass: 'bg-linear-to-br from-stone-400 via-stone-500 to-stone-700',
+    accent: 'text-stone-600',
     price: 0,
     limits: ['15 applications', '1 search profile', '1 interview template'],
     intro: null,
@@ -105,10 +98,8 @@ const PLANS: Plan[] = [
     key: 'plus',
     name: 'Plus',
     tagline: 'More room, sharper search.',
-    headerClass: 'bg-emerald-600',
-    tileClass: 'bg-emerald-200 text-emerald-700',
-    accent: 'text-emerald-600',
-    icon: Layers01Icon,
+    headerClass: 'bg-linear-to-br from-sky-400 via-blue-500 to-blue-700',
+    accent: 'text-blue-600',
     price: 0.99,
     limits: ['99 applications', '3 search profiles', '3 interview templates'],
     intro: 'Everything in Free, plus…',
@@ -119,10 +110,8 @@ const PLANS: Plan[] = [
     key: 'max',
     name: 'Max',
     tagline: 'No limits on anything.',
-    headerClass: 'bg-fuchsia-600',
-    tileClass: 'bg-fuchsia-200 text-fuchsia-700',
-    accent: 'text-fuchsia-600',
-    icon: Crown03Icon,
+    headerClass: 'bg-linear-to-br from-pink-400 via-pink-500 to-rose-600',
+    accent: 'text-pink-600',
     price: 3.99,
     limits: ['Unlimited applications', 'Unlimited search profiles', 'Unlimited interview templates'],
     intro: 'Everything in Plus',
@@ -188,10 +177,7 @@ function PlanCard({ plan, period, onSelect }: { plan: Plan; period: (typeof PERI
   const perMonth = plan.price * (1 - period.discount);
   return (
     <Card className="gap-0 overflow-hidden rounded-3xl bg-muted/40 py-0">
-      <div className={cn('flex min-h-48 flex-col justify-end gap-1 rounded-3xl px-6 py-6 text-white', plan.headerClass)}>
-        <span className={cn('mb-auto flex size-12 items-center justify-center rounded-2xl', plan.tileClass)}>
-          <HugeiconsIcon icon={plan.icon} size={24} strokeWidth={1.8} />
-        </span>
+      <div className={cn('flex min-h-40 flex-col justify-end gap-1 rounded-3xl px-6 py-6 text-white', plan.headerClass)}>
         <p className="font-sans text-2xl font-medium">{plan.name}</p>
         <p className="text-sm text-white/85">{plan.tagline}</p>
       </div>
