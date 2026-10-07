@@ -1,7 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import posthog from 'posthog-js';
 import { HugeiconsIcon } from '@hugeicons/react';
 import {
   ArrowLeft01Icon,
@@ -75,6 +76,15 @@ export function OnboardingV2() {
 
   const current = STEPS[step];
   const last = step === STEPS.length - 1;
+
+  useEffect(() => {
+    posthog.capture('onboarding_step_viewed', { step: STEPS[step], step_index: step });
+  }, [step]);
+
+  const advance = (method: 'next' | 'skip') => {
+    posthog.capture('onboarding_step_completed', { step: current, step_index: step, method });
+    setStep(step + 1);
+  };
   const canNext = {
     import: file !== null,
     status: status !== null,
@@ -150,7 +160,12 @@ export function OnboardingV2() {
         )}
         {current === 'company' && <CompanyStep sizes={sizes} onSizes={setSizes} sectors={sectors} onSectors={setSectors} />}
         {current === 'platforms' && <PlatformsStep places={places} values={platforms} onChange={setPlatforms} />}
-        {current === 'plan' && <PlanStep onSelect={() => router.push('/')} />}
+        {current === 'plan' && <PlanStep
+            onSelect={() => {
+              posthog.capture('onboarding_completed', { completion_method: 'plan_selected' });
+              router.push('/');
+            }}
+          />}
       </main>
 
       {last ? (
@@ -162,10 +177,10 @@ export function OnboardingV2() {
               <HugeiconsIcon icon={ArrowLeft01Icon} size={20} strokeWidth={1.8} />
             </Button>
             <div className="flex items-center gap-2">
-              <Button variant="ghost" size="lg" onClick={() => setStep(step + 1)}>
+              <Button variant="ghost" size="lg" onClick={() => advance('skip')}>
                 Skip this step
               </Button>
-              <Button size="lg" disabled={!canNext} onClick={() => setStep(step + 1)}>
+              <Button size="lg" disabled={!canNext} onClick={() => advance('next')}>
                 Next
               </Button>
             </div>

@@ -4,6 +4,7 @@ import { useSearchParams } from "next/navigation";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { Loading02Icon } from "@hugeicons/core-free-icons";
 import { useState } from "react";
+import posthog from "posthog-js";
 import { OffersPreview } from "@/components/auth/OffersPreview";
 import { ApplyLogo } from "@/components/brand/ApplyLogo";
 import { Button } from "@/components/ui/button";
@@ -31,6 +32,7 @@ export default function LoginPage() {
   async function handleSignIn(provider: Provider) {
     setPending(provider);
     setFailed(false);
+    posthog.capture('sign_in_started', { provider });
     const { error } = await createClient().auth.signInWithOAuth({
       provider,
       options: { redirectTo: `${window.location.origin}/auth/callback` },

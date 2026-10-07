@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useTransition } from 'react';
+import posthog from 'posthog-js';
 import { HugeiconsIcon, type IconSvgElement } from '@hugeicons/react';
 import {
   ArrowLeft01Icon,
@@ -87,10 +88,13 @@ export function OnboardingFlow({
   }
 
   /** Ends onboarding (finished or skipped): the server stamps the account and redirects to Home. */
-  const finish = () =>
-    startTransition(async () => {
-      await completeOnboarding();
-    });
+  const complete = async (completionMethod: 'completed' | 'skipped') => {
+    posthog.capture('onboarding_completed', { completion_method: completionMethod });
+    await completeOnboarding();
+  };
+
+  const finish = (completionMethod: 'completed' | 'skipped') =>
+    startTransition(() => complete(completionMethod));
 
   /** Runs a save, then `next()`. Without an account (demo) there is nothing to save: move on. */
   function saveThen(save: () => Promise<ActionResult>, next: () => void | Promise<void>) {
@@ -132,7 +136,7 @@ export function OnboardingFlow({
     }
     return saveThen(
       () => saveFirstSearch({ titles: allTitles, contractTypes, experienceLevels, location }),
-      () => completeOnboarding(),
+      () => complete('completed'),
     );
   }
 
@@ -140,7 +144,7 @@ export function OnboardingFlow({
     <div className="min-h-screen bg-white text-stone-950">
       <header className="mx-auto flex h-20 w-full max-w-[64rem] items-center justify-between px-6 sm:px-12">
         <ApplyLogo className="h-7 w-auto text-stone-950" />
-        <button type="button" onClick={finish} disabled={pending} className={GHOST_BUTTON_CLASS}>
+        <button type="button" onClick={() => finish('skipped')} disabled={pending} className={GHOST_BUTTON_CLASS}>
           Skip for now
         </button>
       </header>
@@ -346,7 +350,7 @@ export function OnboardingFlow({
             <span className="flex-1" />
             <button
               type="button"
-              onClick={() => (isLast ? finish() : goTo(step + 1))}
+              onClick={() => (isLast ? finish('skipped') : goTo(step + 1))}
               disabled={pending}
               className={GHOST_BUTTON_CLASS}
             >
