@@ -71,7 +71,7 @@ export function GeneralSection() {
               className={cn(
                 'h-7 rounded-md px-3 text-sm font-medium transition-colors',
                 locale === l.value
-                  ? 'bg-white text-stone-950 shadow-[0_1px_2px_rgba(0,0,0,0.08)]'
+                  ? 'bg-white text-stone-950'
                   : 'text-stone-500 hover:text-stone-950',
               )}
             >
@@ -93,7 +93,7 @@ export function GeneralSection() {
                 className={cn(
                   'h-7 cursor-not-allowed rounded-md px-3 text-sm font-medium',
                   a === 'Light'
-                    ? 'bg-white text-stone-950 shadow-[0_1px_2px_rgba(0,0,0,0.08)]'
+                    ? 'bg-white text-stone-950'
                     : 'text-stone-400',
                 )}
               >
