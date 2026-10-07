@@ -2,10 +2,11 @@ packages:
   - 'apps/*'
   - 'packages/*'
 
-# pnpm 10 skips dependency install scripts by default. better-sqlite3 needs
-# its install script to fetch/build the native binding.
-onlyBuiltDependencies:
-  - better-sqlite3
+# pnpm 11+ replaced onlyBuiltDependencies with allowBuilds. Dependency install scripts
+# are skipped unless approved here (`pnpm approve-builds`). better-sqlite3 needs its
+# install script to fetch/build the native binding.
+allowBuilds:
+  better-sqlite3: true
 
 # pnpm 11 blocks dependencies resolved from git inside sub-dependencies by default.
 # electron-builder -> @electron/rebuild@3.x pulls @electron/node-gyp from a GitHub tarball,
