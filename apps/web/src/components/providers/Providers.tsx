@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useCallback, useContext, useEffect, useState } from 'react';
+import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { useLocalStorageItem } from '@/lib/useLocalStorage';
 import type { Locale, T } from '@/lib/i18n';
 import { translations } from '@/lib/i18n';
@@ -75,13 +75,23 @@ function AuthProvider({
   children: React.ReactNode;
 }) {
   const [user, setUser] = useState<AuthUser | null>(initialUser);
+  const userIdRef = useRef(initialUser?.id ?? null);
+  const didResetForSignOutRef = useRef(false);
 
   useEffect(() => {
     if (!isSupabaseConfigured) return;
     const { data } = createClient().auth.onAuthStateChange((event, session) => {
-      if (event === 'SIGNED_OUT') posthog.reset();
-
       const nextUser = session?.user ? toAuthUser(session.user) : null;
+
+      if (event === 'SIGNED_OUT') {
+        if (didResetForSignOutRef.current) didResetForSignOutRef.current = false;
+        else posthog.reset();
+      } else if (nextUser && userIdRef.current && userIdRef.current !== nextUser.id) {
+        // A direct account switch must not merge the previous account's activity.
+        posthog.reset();
+      }
+
+      userIdRef.current = nextUser?.id ?? null;
       setUser((currentUser) => (currentUser?.id === nextUser?.id ? currentUser : nextUser));
     });
     return () => data.subscription.unsubscribe();
@@ -96,6 +106,8 @@ function AuthProvider({
   }, [user]);
 
   const signOut = useCallback(async () => {
+    posthog.capture('sign_out_completed');
+    didResetForSignOutRef.current = true;
     posthog.reset();
     if (isSupabaseConfigured) await createClient().auth.signOut();
     window.location.assign('/login');
