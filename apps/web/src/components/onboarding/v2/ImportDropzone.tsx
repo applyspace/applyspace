@@ -6,6 +6,7 @@ import { BulbIcon, CloudUploadIcon, File01Icon } from '@hugeicons/core-free-icon
 import { LinkedInIcon } from '@/components/icons/LinkedInIcon';
 import { Button } from '@/components/ui/button';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
+import { SEGMENT_GROUP, SEGMENT_ITEM } from '@/components/onboarding/v2/fields';
 import { cn } from '@/lib/utils';
 
 type Source = 'cv' | 'linkedin';
@@ -33,12 +34,12 @@ export function ImportDropzone({
 
   return (
     <div className="mx-auto flex w-full max-w-xl flex-col items-center gap-4">
-      <ToggleGroup variant="outline" spacing={2} value={[source]} onValueChange={(v) => v[0] && setSource(v[0] as Source)} aria-label="Import source">
-        <ToggleGroupItem value="cv" className="h-14 gap-2.5 px-7 text-base">
+      <ToggleGroup spacing={1} className={SEGMENT_GROUP} value={[source]} onValueChange={(v) => v[0] && setSource(v[0] as Source)} aria-label="Import source">
+        <ToggleGroupItem value="cv" className={cn(SEGMENT_ITEM, 'h-12 gap-2.5 px-6 text-base')}>
           <HugeiconsIcon icon={File01Icon} size={20} strokeWidth={1.8} />
           Resume
         </ToggleGroupItem>
-        <ToggleGroupItem value="linkedin" className="h-14 gap-2.5 px-7 text-base">
+        <ToggleGroupItem value="linkedin" className={cn(SEGMENT_ITEM, 'h-12 gap-2.5 px-6 text-base')}>
           <LinkedInIcon className="size-5 text-[#0A66C2]" />
           LinkedIn Profile
         </ToggleGroupItem>

@@ -4,6 +4,14 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* Design system rule: no drop-shadows. Removing the theme tokens makes every shadow-* and drop-shadow-* utility
+   (including the ones inside shadcn components) a no-op; elevation comes from rings and fills instead. */
+@theme {
+  --shadow-*: initial;
+  --inset-shadow-*: initial;
+  --drop-shadow-*: initial;
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);

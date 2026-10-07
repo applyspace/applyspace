@@ -27,6 +27,7 @@ import { Card } from '@/components/ui/card';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { BrandLogo } from '@/components/onboarding/v2/BrandLogo';
 import { StepHeader } from '@/components/onboarding/v2/StepHeader';
+import { SEGMENT_GROUP, SEGMENT_ITEM } from '@/components/onboarding/v2/fields';
 import { cn } from '@/lib/utils';
 
 type Logo = { name: string; domain: string };
@@ -43,8 +44,8 @@ const MAIL_TOOLS: Logo[] = [{ name: 'Gmail', domain: 'gmail.com' }];
  * because the payment fee is a fixed part of every charge, so fewer, larger charges leave more margin.
  */
 const PERIODS = [
-  { value: 'month', label: 'Monthly', months: 1, discount: 0, billed: 'every month' },
-  { value: 'quarter', label: 'Quarterly', months: 3, discount: 0.1, billed: 'every 3 months' },
+  { value: 'month', label: 'Monthly', discount: 0, note: 'Billed monthly' },
+  { value: 'quarter', label: 'Quarterly', discount: 0.1, note: 'Billed quarterly' },
 ] as const;
 type Period = (typeof PERIODS)[number]['value'];
 
@@ -74,7 +75,9 @@ type Plan = {
   name: string;
   tagline: string;
   accent: string;
-  featured?: boolean;
+  card: string;
+  muted: string;
+  badge?: boolean;
   price: number;
   limits: string[];
   intro: string | null;
@@ -87,6 +90,8 @@ const PLANS: Plan[] = [
     name: 'Free',
     tagline: 'Everything you need to start your search.',
     accent: 'text-stone-700',
+    card: 'bg-stone-100',
+    muted: 'text-stone-600',
     price: 0,
     limits: ['15 applications', '1 search profile', '1 interview template'],
     intro: null,
@@ -96,8 +101,10 @@ const PLANS: Plan[] = [
     key: 'plus',
     name: 'Plus',
     tagline: 'More room, sharper search.',
-    accent: 'text-blue-600',
-    featured: true,
+    accent: 'text-[#1F0D2C]',
+    card: 'bg-[#E2B8FF]',
+    muted: 'text-[#1F0D2C]/70',
+    badge: true,
     price: 0.99,
     limits: ['99 applications', '3 search profiles', '3 interview templates'],
     intro: 'Everything in Free, plus…',
@@ -107,7 +114,9 @@ const PLANS: Plan[] = [
     key: 'max',
     name: 'Max',
     tagline: 'No limits on anything.',
-    accent: 'text-pink-600',
+    accent: 'text-pink-700',
+    card: 'bg-pink-200',
+    muted: 'text-pink-950/70',
     price: 3.99,
     limits: ['Unlimited applications', 'Unlimited search profiles', 'Unlimited interview templates'],
     intro: 'Everything in Plus',
@@ -131,55 +140,55 @@ const euro = (n: number) => (n === 0 ? '€0' : `€${n.toFixed(2)}`);
 /** Brand logos shown right next to a feature name. */
 function InlineLogos({ logos }: { logos: Logo[] }) {
   return (
-    <span className="ml-1 inline-flex items-center gap-1.5">
+    <span className="ml-1.5 inline-flex items-center gap-2">
       {logos.map((l) => (
-        <BrandLogo key={l.name} name={l.name} domain={l.domain} kind="symbol" className="size-4 rounded-sm bg-transparent" />
+        <BrandLogo key={l.name} name={l.name} domain={l.domain} kind="symbol" className="size-5" />
       ))}
     </span>
   );
 }
 
-/** No header colour and no visible dividers: the featured plan stands out with a solid colour and a Popular badge. */
+/** No header colour, no dividers, no shadows: each plan is a soft fill (stone, brand lilac, pink) and Plus carries the Popular badge. */
 function PlanCard({ plan, period, onSelect }: { plan: Plan; period: (typeof PERIODS)[number]; onSelect: (plan: string) => void }) {
   const perMonth = plan.price * (1 - period.discount);
-  const featured = plan.featured;
-  const muted = featured ? 'text-white/75' : 'text-muted-foreground';
   return (
-    <Card className={cn('gap-0 rounded-3xl py-0 ring-0', featured ? 'bg-blue-600 text-white' : 'bg-muted/40')}>
+    <Card className={cn('gap-0 rounded-3xl py-0 ring-0', plan.card)}>
       <div className="flex flex-1 flex-col gap-6 p-7">
         <div className="space-y-1">
           <div className="flex items-center justify-between">
             <p className="font-sans text-2xl font-medium">{plan.name}</p>
-            {featured && <span className="rounded-full bg-white px-3 py-1 text-xs font-medium text-blue-700">Popular</span>}
+            {plan.badge && <span className="rounded-full bg-white/70 px-3 py-1 text-xs font-medium text-[#1F0D2C]">Popular</span>}
           </div>
-          <p className={cn('text-sm', muted)}>{plan.tagline}</p>
+          <p className={cn('text-sm', plan.muted)}>{plan.tagline}</p>
         </div>
 
-        <div className="min-h-16">
+        <div>
           <p className="font-sans text-4xl font-medium tabular-nums">
             {euro(perMonth)}
-            <span className={cn('text-base font-normal', muted)}>/mo</span>
+            <span className={cn('text-base font-normal', plan.muted)}>/mo</span>
           </p>
-          <p className={cn('mt-1 text-sm', muted)}>
-            {plan.price === 0 ? 'No card needed' : period.months === 1 ? 'Billed every month' : `${euro(perMonth * period.months)} billed ${period.billed}`}
-          </p>
+          <p className={cn('mt-1 text-sm', plan.muted)}>{plan.price === 0 ? 'No card needed' : period.note}</p>
         </div>
+
+        <Button variant={plan.key === 'free' ? 'outline' : 'default'} size="lg" className="w-full" onClick={() => onSelect(plan.key)}>
+          Select plan
+        </Button>
 
         <ul className="space-y-3 text-sm">
           {plan.limits.map((text, i) => (
             <li key={text} className="flex items-center gap-3">
-              <HugeiconsIcon icon={LIMIT_ICONS[i]} size={18} strokeWidth={1.8} className={cn('shrink-0', featured ? 'text-white' : plan.accent)} />
+              <HugeiconsIcon icon={LIMIT_ICONS[i]} size={18} strokeWidth={1.8} className={cn('shrink-0', plan.accent)} />
               {text}
             </li>
           ))}
         </ul>
 
         <div>
-          {plan.intro && <p className={cn('mb-3 text-sm italic', muted)}>{plan.intro}</p>}
+          {plan.intro && <p className={cn('mb-3 text-sm italic', plan.muted)}>{plan.intro}</p>}
           <ul className="space-y-2.5 text-sm">
             {plan.features.map((f) => (
               <li key={f.text} className="flex items-center gap-3">
-                <HugeiconsIcon icon={Tick02Icon} size={18} strokeWidth={2} className={cn('shrink-0', featured ? 'text-white' : plan.accent)} />
+                <HugeiconsIcon icon={Tick02Icon} size={18} strokeWidth={2} className={cn('shrink-0', plan.accent)} />
                 <span className="flex items-center">
                   {f.text}
                   {f.logos && <InlineLogos logos={f.logos} />}
@@ -188,15 +197,6 @@ function PlanCard({ plan, period, onSelect }: { plan: Plan; period: (typeof PERI
             ))}
           </ul>
         </div>
-
-        <Button
-          variant={plan.key === 'free' ? 'outline' : 'default'}
-          size="lg"
-          className={cn('mt-auto w-full', featured && 'bg-white text-blue-700 hover:bg-white/90')}
-          onClick={() => onSelect(plan.key)}
-        >
-          Select plan
-        </Button>
       </div>
     </Card>
   );
@@ -238,9 +238,9 @@ export function PlanStep({ onSelect }: { onSelect: (plan: string) => void }) {
     <>
       <StepHeader title="Choose your plan" subtitle="Start free and upgrade whenever you need more." />
       <div className="mb-6 flex justify-center">
-        <ToggleGroup variant="outline" size="lg" spacing={2} value={[periodKey]} onValueChange={(v) => v[0] && setPeriodKey(v[0] as Period)} aria-label="Billing period">
+        <ToggleGroup spacing={1} className={SEGMENT_GROUP} value={[periodKey]} onValueChange={(v) => v[0] && setPeriodKey(v[0] as Period)} aria-label="Billing period">
           {PERIODS.map((p) => (
-            <ToggleGroupItem key={p.value} value={p.value}>
+            <ToggleGroupItem key={p.value} value={p.value} className={cn(SEGMENT_ITEM, 'h-10 gap-2 px-5 text-sm')}>
               {p.label}
               {p.discount > 0 && <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-700">-{p.discount * 100}%</span>}
             </ToggleGroupItem>

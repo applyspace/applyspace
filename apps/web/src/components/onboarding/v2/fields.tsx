@@ -7,6 +7,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 
+/** Segmented look for the official ToggleGroup: a muted pill track with a white pill on the selected item, no shadow. */
+export const SEGMENT_GROUP = 'rounded-full bg-muted p-1';
+export const SEGMENT_ITEM = 'rounded-full border-0 bg-transparent px-5 text-muted-foreground hover:bg-background/60 hover:text-foreground aria-pressed:bg-background aria-pressed:text-foreground';
+
 export const toggle = <T,>(list: T[], value: T) => (list.includes(value) ? list.filter((v) => v !== value) : [...list, value]);
 
 /** Small muted label above a group of fields. */
