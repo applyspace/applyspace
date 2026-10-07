@@ -28,15 +28,14 @@ import { AvatarGroup } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
-import { brandLogoUrl } from '@/lib/brandfetch';
+import { brandSymbolUrl } from '@/lib/brandfetch';
 import { StepHeader } from '@/components/onboarding/v2/StepHeader';
 import { cn } from '@/lib/utils';
 
-/** AI tools the user can connect their own account to. Logos come from Brandfetch; initials stand in if they fail to load. */
+/** AI tools the user can connect their own account to. Symbols come from Brandfetch; initials stand in if they fail to load. */
 const AI_TOOLS = [
   { name: 'Claude', domain: 'claude.ai' },
-  { name: 'ChatGPT', domain: 'chatgpt.com' },
-  { name: 'Gemini', domain: 'gemini.google.com' },
+  { name: 'OpenAI', domain: 'openai.com' },
 ];
 
 /**
@@ -52,13 +51,14 @@ type Period = (typeof PERIODS)[number]['value'];
 
 type Feature = { text: string; icon: IconSvgElement; aiTools?: boolean };
 
+/** Ordered like a job search: find, prepare, apply, track, interview, then the AI accounts that power it. */
 const CORE_FEATURES: Feature[] = [
-  { text: 'Application tracking', icon: CheckListIcon },
-  { text: 'Interview preparation', icon: Mic01Icon },
+  { text: 'Job alerts', icon: Notification01Icon },
   { text: 'Resume rewrite', icon: File01Icon },
   { text: 'Fit message generation', icon: Message01Icon },
-  { text: 'Job alerts', icon: Notification01Icon },
   { text: 'Application autofill', icon: CursorMagicSelection01Icon },
+  { text: 'Application tracking', icon: CheckListIcon },
+  { text: 'Interview preparation', icon: Mic01Icon },
   { text: 'AI Integrations', icon: AiMagicIcon, aiTools: true },
 ];
 
@@ -156,7 +156,7 @@ function ToolLogo({ name, domain }: { name: string; domain: string }) {
       ) : (
         // eslint-disable-next-line @next/next/no-img-element
         <img
-          src={brandLogoUrl(domain)}
+          src={brandSymbolUrl(domain)}
           alt={name}
           width={48}
           height={48}
@@ -171,7 +171,7 @@ function ToolLogo({ name, domain }: { name: string; domain: string }) {
   );
 }
 
-/** Round, overlapping logos of the supported AI tools. */
+/** Round, overlapping symbols of the supported AI tools. */
 function AiToolsStack() {
   return (
     <AvatarGroup>
@@ -218,9 +218,16 @@ function PlanCard({ plan, period, onSelect }: { plan: Plan; period: (typeof PERI
           {plan.intro && <p className="mb-3 text-sm text-muted-foreground italic">{plan.intro}</p>}
           <ul className="space-y-2.5 text-sm">
             {plan.features.map((f) => (
-              <li key={f.text} className="flex items-center gap-3">
-                {f.aiTools ? <AiToolsStack /> : <HugeiconsIcon icon={f.icon} size={18} strokeWidth={1.8} className={cn('shrink-0', plan.accent)} />}
-                {f.text}
+              <li key={f.text}>
+                <span className="flex items-center gap-3">
+                  <HugeiconsIcon icon={f.icon} size={18} strokeWidth={1.8} className={cn('shrink-0', plan.accent)} />
+                  {f.text}
+                </span>
+                {f.aiTools && (
+                  <span className="mt-2 flex pl-[30px]">
+                    <AiToolsStack />
+                  </span>
+                )}
               </li>
             ))}
           </ul>

@@ -89,11 +89,13 @@ export function OnboardingV2() {
 
   return (
     <div className="flex min-h-dvh flex-col bg-background text-foreground">
-      <div className="flex justify-center pt-12 pb-[12vh]">
-        <ApplyLogo className="h-8 w-auto text-foreground" />
-      </div>
+      {!last && (
+        <div className="flex justify-center pt-12 pb-[12vh]">
+          <ApplyLogo className="h-8 w-auto text-foreground" />
+        </div>
+      )}
 
-      <main className={cn('mx-auto w-full flex-1 px-6 pt-[2vh]', last ? 'max-w-5xl' : 'max-w-4xl')}>
+      <main className={cn('mx-auto w-full flex-1 px-6', last ? 'max-w-5xl pt-12' : 'max-w-4xl pt-[2vh]')}>
         {current === 'import' && (
           <>
             <StepHeader title="Start from what you already have" subtitle="Import your resume or LinkedIn profile to prefill your details." />
