@@ -18,3 +18,8 @@ export function brandSymbolUrl(domain: string): string {
 export function brandIconUrl(domain: string): string {
   return `https://cdn.brandfetch.io/${domain}/w/96/h/96/icon?c=${CLIENT_ID}`;
 }
+
+/** A specific library asset (SVG) of a brand, addressed by brand id + asset id. */
+export function brandAssetUrl(brandId: string, assetId: string): string {
+  return `https://cdn.brandfetch.io/${brandId}/theme/dark/${assetId}.svg?c=${CLIENT_ID}`;
+}

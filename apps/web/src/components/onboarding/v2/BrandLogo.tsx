@@ -11,11 +11,14 @@ import { cn } from '@/lib/utils';
 export function BrandLogo({
   name,
   domain,
+  src,
   kind = 'icon',
   className,
 }: {
   name: string;
   domain: string;
+  /** Explicit Brandfetch asset URL, for products that live under a parent brand (e.g. Gmail under google.com). */
+  src?: string;
   kind?: 'icon' | 'symbol';
   className?: string;
 }) {
@@ -30,7 +33,7 @@ export function BrandLogo({
       ) : (
         // eslint-disable-next-line @next/next/no-img-element
         <img
-          src={kind === 'icon' ? brandIconUrl(domain) : brandSymbolUrl(domain)}
+          src={src ?? (kind === 'icon' ? brandIconUrl(domain) : brandSymbolUrl(domain))}
           alt={name}
           width={48}
           height={48}

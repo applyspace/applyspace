@@ -26,20 +26,25 @@ import {
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
-import { ClaudeLogo, GmailLogo, GoogleCalendarLogo, OpenAILogo } from '@/components/onboarding/v2/BrandIcons';
+import { brandAssetUrl } from '@/lib/brandfetch';
+import { BrandLogo } from '@/components/onboarding/v2/BrandLogo';
 import { StepHeader } from '@/components/onboarding/v2/StepHeader';
 import { SEGMENT_GROUP, SEGMENT_ITEM } from '@/components/onboarding/v2/fields';
 import { cn } from '@/lib/utils';
 
-type Logo = { name: string; Icon: (props: { className?: string }) => React.ReactNode };
+type Logo = { name: string; domain: string; src?: string };
 
-/** Accounts a feature connects to, shown as official inline SVG marks next to its name. */
+// Google products are assets of the google.com brand in Brandfetch.
+const google = (assetId: string) => brandAssetUrl('id6O2oGzv-', assetId);
+
+/** Accounts a feature connects to. Every brand mark comes from Brandfetch, by domain. */
 const AI_TOOLS: Logo[] = [
-  { name: 'Claude', Icon: ClaudeLogo },
-  { name: 'OpenAI', Icon: OpenAILogo },
+  { name: 'Claude', domain: 'claude.ai' },
+  { name: 'OpenAI', domain: 'openai.com' },
+  { name: 'Gemini', domain: 'google.com', src: google('idYgLxDNTi') },
 ];
-const MAIL_TOOLS: Logo[] = [{ name: 'Gmail', Icon: GmailLogo }];
-const CALENDAR_TOOLS: Logo[] = [{ name: 'Google Calendar', Icon: GoogleCalendarLogo }];
+const MAIL_TOOLS: Logo[] = [{ name: 'Gmail', domain: 'google.com', src: google('idBP5ltu-a') }];
+const CALENDAR_TOOLS: Logo[] = [{ name: 'Google Calendar', domain: 'google.com', src: google('idMX2_OMSc') }];
 
 /**
  * Billing periods. The discount is hypothetical: -10% for 3 months keeps Apply profitable
@@ -145,7 +150,7 @@ function InlineLogos({ logos }: { logos: Logo[] }) {
   return (
     <span className="ml-1.5 inline-flex items-center gap-2">
       {logos.map((l) => (
-        <l.Icon key={l.name} className="size-5 shrink-0" />
+        <BrandLogo key={l.name} name={l.name} domain={l.domain} src={l.src} kind="symbol" className="size-5" />
       ))}
     </span>
   );
