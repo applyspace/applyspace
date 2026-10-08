@@ -769,7 +769,20 @@ const slugify = (name: string) => PLATFORM_SLUGS[name] ?? name.toLowerCase().rep
  * legacy ones while the v2 migration is not applied. The picked plan goes to `accounts.selected_plan`, an intent only: `accounts.plan` is not user-writable.
  */
 export async function saveOnboardingAnswers(s: SupabaseScope, a: OnboardingAnswers): Promise<void> {
-  const { plan } = await getAccount(s);
+  const account = await getAccount(s);
+  const { plan } = account;
+  // The onboarding does not ask for a name: keep the one from the sign-in provider in the dedicated columns
+  // (`getAccount` already falls back to `full_name`), without overwriting a name the user set.
+  if (account.firstName && account.hasOnboardingState) {
+    const { data } = await s.supabase.from('accounts').select('first_name, last_name').eq('id', s.userId).maybeSingle();
+    if (data && data.first_name === null && data.last_name === null) {
+      const res = await s.supabase
+        .from('accounts')
+        .update({ first_name: account.firstName, last_name: account.lastName || null })
+        .eq('id', s.userId);
+      if (res.error) console.error('[profile] saving the provider name failed:', res.error.message);
+    }
+  }
   const cap = plan === 'plus' ? PLAN_CAP.plus : PLAN_CAP.free;
   const titles = uniqueClean(a.titles, cap.titles);
   const places = uniqueClean(a.places, cap.places);
