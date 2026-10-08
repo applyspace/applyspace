@@ -12,7 +12,7 @@ import {
   IncognitoIcon,
   SearchList01Icon,
 } from '@hugeicons/core-free-icons';
-import { completeOnboarding } from '@/app/onboarding/actions';
+import { completeOnboarding, saveOnboardingAnswers } from '@/app/onboarding/actions';
 import { ApplyLogo } from '@/components/brand/ApplyLogo';
 import { Button } from '@/components/ui/button';
 import { ImportDropzone } from '@/components/onboarding/v2/ImportDropzone';
@@ -183,6 +183,9 @@ export function OnboardingV2() {
               posthog.capture('onboarding_completed', { completion_method: 'plan_selected', plan });
               // Stamps `accounts.onboarded_at` and redirects to Home.
               startFinishing(async () => {
+                // Every answer goes to the first search profile before onboarding is stamped as done.
+                const saved = await saveOnboardingAnswers({ status, titles, levels, places, workplaces, contracts, minSalaryK: minSalary, currency, sizes, sectors, platforms });
+                if (!saved.ok) posthog.capture('onboarding_save_failed', { reason: saved.reason });
                 await completeOnboarding();
               });
             }}

@@ -21,6 +21,7 @@ import {
   type ExperienceInput,
   type FirstSearchInput,
   type FitMessageInput,
+  type OnboardingAnswers,
   type ProfileData,
   type SkillEntry,
   type SkillInput,
@@ -178,6 +179,11 @@ export async function saveFirstSearch(input: FirstSearchInput): Promise<ActionRe
       ),
     });
   });
+}
+
+/** Saves every onboarding v2 answer in the first search profile (and the availability on the account). */
+export async function saveOnboardingAnswers(input: OnboardingAnswers): Promise<ActionResult> {
+  return run('saving the onboarding answers', (s) => candidate.saveOnboardingAnswers(s, input));
 }
 
 /**
