@@ -68,7 +68,7 @@ export function OnboardingV2() {
   const [places, setPlaces] = useState<string[]>([]);
   const [workplaces, setWorkplaces] = useState<Workplace[]>([]);
   const [contracts, setContracts] = useState<string[]>([]);
-  const [minSalary, setMinSalary] = useState(0);
+  const [minSalary, setMinSalary] = useState(35);
   const [currency, setCurrency] = useState('EUR');
   const [sizes, setSizes] = useState<string[]>([]);
   const [sectors, setSectors] = useState<string[]>([]);

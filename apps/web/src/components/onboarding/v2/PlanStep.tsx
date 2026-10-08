@@ -81,7 +81,7 @@ const PLUS_FEATURES: Feature[] = [
 
 const MAX_FEATURES: Feature[] = [
   { text: 'AI Interview simulation', icon: Mic02Icon },
-  { text: 'Public share link for your applications', icon: Link01Icon },
+  { text: 'Shareable progress page', icon: Link01Icon },
 ];
 
 type Plan = {
@@ -118,7 +118,7 @@ const PLANS: Plan[] = [
     name: 'Plus',
     tagline: 'More room, sharper search.',
     accent: 'text-foreground',
-    card: 'border border-stone-700 bg-transparent',
+    card: 'border-[1.6px] border-stone-700 bg-transparent',
     ring: '#f3e3ff',
     muted: 'text-foreground/70',
     badge: true,
@@ -132,7 +132,7 @@ const PLANS: Plan[] = [
     name: 'Max',
     tagline: 'No limits on anything.',
     accent: 'text-foreground',
-    card: 'border border-stone-700 bg-transparent',
+    card: 'border-[1.6px] border-stone-700 bg-transparent',
     ring: '#fdecf5',
     muted: 'text-foreground/70',
     price: 3.99,
@@ -186,7 +186,7 @@ function InlineLogos({ logos }: { logos: Logo[] }) {
  * One character of an animated value. When it changes, the old character leaves and the new one enters,
  * upwards if the new digit is larger and downwards if it is smaller.
  */
-function RollingChar({ char }: { char: string }) {
+function RollingChar({ char, index }: { char: string; index: number }) {
   const [state, setState] = useState({ char, dir: 1 });
   if (state.char !== char) {
     const next = Number(char);
@@ -207,7 +207,7 @@ function RollingChar({ char }: { char: string }) {
           initial="enter"
           animate="center"
           exit="exit"
-          transition={motionTheme.transitions.ui}
+          transition={{ ...motionTheme.transitions.ui, delay: index * 0.06 }}
         >
           {char}
         </motion.span>
@@ -221,7 +221,7 @@ function RollingText({ value }: { value: string }) {
   return (
     <span className="inline-flex" aria-label={value}>
       {value.split('').map((c, i) => (
-        <RollingChar key={i} char={c} />
+        <RollingChar key={i} char={c} index={i} />
       ))}
     </span>
   );

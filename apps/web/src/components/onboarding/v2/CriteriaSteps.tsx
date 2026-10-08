@@ -6,7 +6,6 @@ import {
   AiBrain01Icon,
   Airplane01Icon,
   ArrowDown01Icon,
-  ArrowUp01Icon,
   BankIcon,
   Briefcase01Icon,
   Building02Icon,
@@ -157,9 +156,9 @@ function SalaryMinimum({
   return (
     <div className="mx-auto w-full max-w-sm">
       <div className="mb-9 flex justify-center">
-        <div className="inline-flex items-center gap-1 rounded-2xl bg-muted/70 px-5 py-3 font-heading text-4xl leading-none font-medium tracking-tight tabular-nums focus-within:ring-3 focus-within:ring-ring/30">
+        <div className="inline-flex items-center gap-1 font-heading text-4xl leading-none font-medium tracking-tight tabular-nums">
           <DropdownMenu>
-            <DropdownMenuTrigger render={<button type="button" aria-label="Currency" className="mr-1 rounded-lg px-1.5 py-0.5 text-5xl font-medium outline-none transition-colors hover:bg-background/60 focus-visible:ring-3 focus-visible:ring-ring/30" />}>
+            <DropdownMenuTrigger render={<button type="button" aria-label="Currency" className="mr-1 rounded-lg px-1.5 py-1 outline-none transition-colors hover:bg-muted focus-visible:ring-3 focus-visible:ring-ring/30" />}>
               {symbol}
             </DropdownMenuTrigger>
             <DropdownMenuContent align="center" className="w-max min-w-0">
@@ -181,12 +180,11 @@ function SalaryMinimum({
               const digits = e.target.value.replace(/\D/g, '').slice(0, 3);
               onValue(digits === '' ? 0 : Number(digits));
             }}
-            className="bg-transparent text-center outline-none placeholder:text-muted-foreground/50"
-            style={{ width: `${Math.max(text.length, 1)}ch` }}
+            className="rounded-xl bg-muted/70 px-3 py-1.5 text-center font-[inherit] tracking-[inherit] outline-none placeholder:text-muted-foreground/50 focus-visible:ring-3 focus-visible:ring-ring/30"
+            style={{ width: `calc(${Math.max(text.length, 1)}ch + 1.5rem)` }}
           />
-          <span className={cn(value === 0 && 'text-muted-foreground/50')}>K</span>
-          <span className={cn(value === 0 && 'text-muted-foreground/50')}>+</span>
-          <span className="ml-1 self-end pb-0.5 text-sm font-medium tracking-normal text-muted-foreground">/year</span>
+          <span className={cn(value === 0 && 'text-muted-foreground/50')}>K+</span>
+          <span className="text-muted-foreground">/year</span>
         </div>
       </div>
       <div className="flex h-16 items-end gap-px px-2" aria-hidden>
@@ -259,8 +257,9 @@ export function CompanyStep({
   showAll: boolean;
   onShowAll: (next: boolean) => void;
 }) {
-  // Same order and same top in both states: collapsed clips to three full rows, expanded grows to the viewport height and scrolls inside, so the page never scrolls.
+  // Same pattern as the platforms step: the list scrolls inside its own section (the page never scrolls), fades out above the bottom nav, and "See more" reveals the other sectors.
   const ordered = [...SECTORS.filter((s) => s.top), ...SECTORS.filter((s) => !s.top)];
+  const list = showAll ? ordered : ordered.filter((s) => s.top);
   return (
     <>
       <StepHeader title="What kind of company suits you?" subtitle="Leave anything empty to keep every option open." />
@@ -282,8 +281,8 @@ export function CompanyStep({
             </button>
           ))}
         </div>
-        <div className={cn('flex w-full flex-wrap content-start justify-center gap-3 border-t p-1 pt-6', showAll ? 'h-[max(10rem,calc(100dvh-36rem))] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden overflow-y-auto [mask-image:linear-gradient(to_bottom,black_calc(100%-4.5rem),transparent)] pb-16' : 'h-40 overflow-hidden')}>
-          {ordered.map((s) => {
+        <div className="flex max-h-[max(10rem,calc(100dvh-36rem))] w-full flex-wrap content-start justify-center gap-3 overflow-y-auto border-t p-1 pt-6 pb-16 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden [mask-image:linear-gradient(to_bottom,black_calc(100%-4.5rem),transparent)]">
+          {list.map((s) => {
             const selected = sectors.includes(s.label);
             return (
               <button
@@ -304,10 +303,14 @@ export function CompanyStep({
             );
           })}
         </div>
-        <Button variant="ghost" size="lg" onClick={() => onShowAll(!showAll)}>
-          {showAll ? 'See fewer sectors' : 'See more sectors'}
-          <HugeiconsIcon icon={showAll ? ArrowUp01Icon : ArrowDown01Icon} size={16} strokeWidth={2} />
-        </Button>
+        {!showAll && (
+          <div className="-mt-10 mb-8 flex justify-center">
+            <Button variant="ghost" size="lg" onClick={() => onShowAll(true)}>
+              See more
+              <HugeiconsIcon icon={ArrowDown01Icon} size={16} strokeWidth={2} />
+            </Button>
+          </div>
+        )}
       </div>
     </>
   );
