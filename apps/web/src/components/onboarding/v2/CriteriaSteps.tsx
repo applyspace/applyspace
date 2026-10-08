@@ -183,15 +183,15 @@ function SalaryMinimum({
                 const digits = e.target.value.replace(/\D/g, '').slice(0, 3);
                 onValue(digits === '' ? 0 : Number(digits));
               }}
-              className="rounded-xl bg-muted/70 px-2.5 py-1.5 text-center font-[inherit] tracking-[inherit] text-transparent caret-foreground outline-none placeholder:text-muted-foreground/50 focus-visible:ring-3 focus-visible:ring-ring/30"
-              style={{ width: `calc(${Math.max(text.length, 1)}ch + 1.25rem)` }}
+              className="rounded-lg bg-muted/70 px-1 py-0.5 text-center font-[inherit] tracking-[inherit] text-transparent caret-foreground outline-none placeholder:text-muted-foreground/50 focus-visible:ring-3 focus-visible:ring-ring/30"
+              style={{ width: `calc(${Math.max(text.length, 1)}ch + 0.5rem)` }}
             />
             <span className="pointer-events-none absolute inset-0 flex items-center justify-center" aria-hidden>
-              <RollingText value={text} />
+              <RollingText value={text} fast />
             </span>
           </span>
           <span className={cn(value === 0 && 'text-muted-foreground/50')}>K+</span>
-          <span className="ml-1.5 text-lg font-normal text-muted-foreground">/year</span>
+          <span className="ml-2 text-2xl font-semibold text-muted-foreground">/year</span>
         </div>
       </div>
       <div className="flex h-16 items-end gap-px px-2" aria-hidden>
@@ -264,9 +264,9 @@ export function CompanyStep({
   showAll: boolean;
   onShowAll: (next: boolean) => void;
 }) {
-  // Same pattern as the platforms step: the list scrolls inside its own section (the page never scrolls), fades out above the bottom nav, and "See more" reveals the other sectors.
+  // Collapsed: exactly three full rows of tags (the top sectors first, then the rest fills the third row). "See more" opens the inner scroll, same pattern as the platforms step.
   const ordered = [...SECTORS.filter((s) => s.top), ...SECTORS.filter((s) => !s.top)];
-  const list = showAll ? ordered : ordered.filter((s) => s.top);
+  const list = ordered;
   const { ref: listRef, scrollable } = useOverflow<HTMLDivElement>([showAll]);
   return (
     <>
@@ -293,8 +293,11 @@ export function CompanyStep({
           ref={listRef}
           data-scrollable={scrollable}
           className={cn(
-            'flex max-h-[max(10rem,calc(100dvh-36rem))] w-full flex-wrap content-start justify-center gap-3 overflow-y-auto border-t p-1 pt-6 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden',
-            scrollable && 'pb-16 [mask-image:linear-gradient(to_bottom,black_calc(100%-4.5rem),transparent)]',
+            'flex w-full flex-wrap content-start justify-center gap-3 border-t p-1 pt-6',
+            showAll
+              ? 'max-h-[max(10rem,calc(100dvh-36rem))] overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden'
+              : 'max-h-[10.25rem] overflow-hidden',
+            showAll && scrollable && 'pb-16 [mask-image:linear-gradient(to_bottom,black_calc(100%-4.5rem),transparent)]',
           )}
         >
           {list.map((s) => {
@@ -319,7 +322,7 @@ export function CompanyStep({
           })}
         </div>
         {!showAll && (
-          <div className="-mt-10 mb-8 flex justify-center">
+          <div className="mb-8 flex justify-center">
             <Button variant="ghost" size="lg" onClick={() => onShowAll(true)}>
               See more
               <HugeiconsIcon icon={ArrowDown01Icon} size={16} strokeWidth={2} />

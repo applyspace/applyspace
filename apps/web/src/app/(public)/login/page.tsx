@@ -2,7 +2,7 @@
 
 import { useSearchParams } from "next/navigation";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { Loading02Icon } from "@hugeicons/core-free-icons";
+import { LoaderIcon } from "@hugeicons/core-free-icons";
 import { useState } from "react";
 import posthog from "posthog-js";
 import { OffersPreview } from "@/components/auth/OffersPreview";
@@ -71,7 +71,7 @@ export default function LoginPage() {
               className={CONTROL}
             >
               {pending === "google" ? (
-                <HugeiconsIcon icon={Loading02Icon} size={16} className="animate-spin" />
+                <HugeiconsIcon icon={LoaderIcon} size={16} className="animate-spin" />
               ) : (
                 <GoogleIcon className="size-4 shrink-0" />
               )}
@@ -85,7 +85,7 @@ export default function LoginPage() {
               className={CONTROL}
             >
               {pending === "linkedin_oidc" ? (
-                <HugeiconsIcon icon={Loading02Icon} size={16} className="animate-spin" />
+                <HugeiconsIcon icon={LoaderIcon} size={16} className="animate-spin" />
               ) : (
                 <LinkedInIcon className="size-4 shrink-0 text-[#0A66C2]" />
               )}

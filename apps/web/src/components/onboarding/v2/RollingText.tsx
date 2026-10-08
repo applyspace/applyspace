@@ -8,7 +8,7 @@ import { motionTheme } from '@/lib/motion-theme';
  * One character of an animated value. When it changes, the old character leaves and the new one enters,
  * upwards if the new digit is larger and downwards if it is smaller.
  */
-function RollingChar({ char, index }: { char: string; index: number }) {
+function RollingChar({ char, index, fast }: { char: string; index: number; fast?: boolean }) {
   const [state, setState] = useState({ char, dir: 1 });
   if (state.char !== char) {
     const next = Number(char);
@@ -29,7 +29,7 @@ function RollingChar({ char, index }: { char: string; index: number }) {
           initial="enter"
           animate="center"
           exit="exit"
-          transition={{ ...motionTheme.transitions.ui, delay: index * 0.06 }}
+          transition={fast ? { type: 'spring', stiffness: 600, damping: 40, delay: index * 0.015 } : { ...motionTheme.transitions.ui, delay: index * 0.06 }}
         >
           {char}
         </motion.span>
@@ -38,12 +38,12 @@ function RollingChar({ char, index }: { char: string; index: number }) {
   );
 }
 
-/** A value whose digits roll one by one when it changes. */
-export function RollingText({ value }: { value: string }) {
+/** A value whose digits roll one by one when it changes. `fast` is for typed values: a stiffer spring and almost no stagger. */
+export function RollingText({ value, fast }: { value: string; fast?: boolean }) {
   return (
     <span className="inline-flex" aria-label={value}>
       {value.split('').map((c, i) => (
-        <RollingChar key={i} char={c} index={i} />
+        <RollingChar key={i} char={c} index={i} fast={fast} />
       ))}
     </span>
   );

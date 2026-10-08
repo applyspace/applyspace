@@ -186,7 +186,7 @@ export function OnboardingV2() {
       </main>
 
       {last ? (
-        <div className="pb-[10vh]" />
+        <div className="pb-10" />
       ) : (
         <div className="fixed inset-x-0 bottom-0 z-20 bg-linear-to-t from-background from-70% to-transparent px-6 pt-10 pb-[10vh]">
           <div className="relative mx-auto flex max-w-xl items-center justify-between">
