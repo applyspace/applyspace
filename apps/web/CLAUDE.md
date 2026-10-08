@@ -17,7 +17,7 @@
 - Components: PascalCase (`JobCard.tsx`, `AppShell.tsx`)
 - Utilities and lib files: camelCase (`formatDate.ts`, `jobs.ts`)
 - Named exports only — no default exports
-- Types in dedicated files: `src/types/[domain].ts`
+- Shared app types live in `packages/core` (`@apply/core/[domain]`), not in the web app
 - Server Components by default — use `'use client'` only when necessary (interactivity, hooks)
 
 ## Project structure
@@ -42,6 +42,4 @@ src/
 │   ├── sources.ts      # Platform metadata (labels, colors, cookie keys)
 │   ├── i18n.ts         # EN / FR translations
 │   └── utils.ts        # Shared helpers
-└── types/
-    └── jobs.ts         # Job, Source, ScrapedOutput
 ```

@@ -7,8 +7,8 @@ import type {
   Profile,
   Search,
 } from '@apply/db';
-import type { ApplicationWithRelations, InterviewWithRelations } from '@/types/applications';
-import type { OfferWithRelations } from '@/types/offers';
+import type { ApplicationWithRelations, InterviewWithRelations } from '@apply/core/applications';
+import type { OfferWithRelations } from '@apply/core/offers';
 import { selectAll, selectById, selectIn } from './rows';
 import type { SupabaseScope } from './scope';
 

@@ -28,7 +28,7 @@ import {
   DOCUMENTS_BUCKET,
   type DocumentEntry,
   type DocumentsData,
-} from '@/types/candidate-profile';
+} from '@apply/core/candidate-profile';
 import {
   IconButton,
   Notice,

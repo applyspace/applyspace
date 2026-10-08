@@ -25,7 +25,7 @@ import {
   type ProfileData,
   type SkillEntry,
   type SkillInput,
-} from '@/types/candidate-profile';
+} from '@apply/core/candidate-profile';
 
 /**
  * Server actions for the candidate profile, shared by onboarding and the

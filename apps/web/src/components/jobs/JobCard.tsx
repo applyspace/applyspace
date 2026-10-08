@@ -17,7 +17,7 @@ import { LevelIndicator } from "@/components/jobs/LevelIndicator";
 import { cn, parseWorkMode, parseLocation } from "@/lib/utils";
 import { SECTORS, SECTOR_MAP } from "@/lib/sectors";
 import { formatSalaryLabel } from "@/lib/utils";
-import type { OfferWithRelations } from "@/types/offers";
+import type { OfferWithRelations } from "@apply/core/offers";
 import type { JobStatus } from "@/components/jobs/JobTable";
 
 interface JobCardProps {

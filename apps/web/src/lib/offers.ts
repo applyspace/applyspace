@@ -1,7 +1,7 @@
 import { desc, eq } from 'drizzle-orm';
 import { offers } from '@apply/db';
 import { getDb } from '@/lib/db';
-import type { OfferWithRelations } from '@/types/offers';
+import type { OfferWithRelations } from '@apply/core/offers';
 import { getSupabaseScope } from '@/lib/supabase/scope';
 import * as supabaseData from '@/lib/supabase/queries';
 

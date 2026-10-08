@@ -7,9 +7,9 @@ import { useLocalStorageItem } from '@/lib/useLocalStorage';
 import type {
   ApplicationWithRelations,
   InterviewWithRelations,
-} from '@/types/applications';
-import type { SearchWithCount } from '@/types/searches';
-import type { AccountPlan } from '@/types/candidate-profile';
+} from '@apply/core/applications';
+import type { SearchWithCount } from '@apply/core/searches';
+import type { AccountPlan } from '@apply/core/candidate-profile';
 
 const DEFAULT_WIDTH = 240;
 const MIN_WIDTH = 180;

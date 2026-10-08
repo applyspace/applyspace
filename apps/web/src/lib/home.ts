@@ -1,6 +1,6 @@
 import { readApplications, readInterviews } from '@/lib/applications';
 import { readSettings } from '@/lib/settings';
-import type { ApplicationStatus, InterviewStage } from '@/types/applications';
+import type { ApplicationStatus, InterviewStage } from '@apply/core/applications';
 
 export interface HomeNextInterview {
   companyName: string;

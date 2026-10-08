@@ -7,7 +7,7 @@ import { readApplications, readInterviews } from '@/lib/applications';
 import { readSearches } from '@/lib/searches';
 import { checkSourceConnected, readSettings } from '@/lib/settings';
 import { ALL_SOURCES } from '@/lib/sources';
-import type { SearchWithCount } from '@/types/searches';
+import type { SearchWithCount } from '@apply/core/searches';
 
 // Every authenticated route is rendered on demand from the local SQLite DB —
 // there is nothing to pre-render at build time. Forcing dynamic here also

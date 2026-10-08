@@ -24,7 +24,7 @@ import {
 } from '@/lib/settings-mapping';
 import * as supabaseSettings from '@/lib/settings-supabase';
 import { getSupabaseScope } from '@/lib/supabase/scope';
-import type { Source } from '@/types/platforms';
+import type { Source } from '@apply/core/platforms';
 
 /**
  * The "settings" surface the UI knows about.

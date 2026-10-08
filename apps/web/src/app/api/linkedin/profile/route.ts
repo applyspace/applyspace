@@ -2,7 +2,7 @@ import { spawn } from 'child_process';
 import fs from 'fs/promises';
 import path from 'path';
 import { writeSettings } from '@/lib/settings';
-import type { LinkedInProfile } from '@/types/linkedin';
+import type { LinkedInProfile } from '@apply/core/linkedin';
 
 const OUTPUT_DIR = process.env.DATA_DIR ?? path.resolve(process.cwd(), '..', '.local', 'output');
 const PROFILE_PATH = path.join(OUTPUT_DIR, 'linkedin-profile.json');
