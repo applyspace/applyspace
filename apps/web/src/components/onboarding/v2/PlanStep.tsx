@@ -126,7 +126,7 @@ const PLANS: Plan[] = [
     accent: 'text-foreground',
     tag: 'bg-brand-300 text-brand-950',
     tint: 'bg-brand-50',
-    card: 'border border-stone-700 bg-transparent',
+    card: 'border border-stone-200 bg-transparent',
     ring: '#f3e3ff',
     muted: 'text-foreground/70',
     price: 0.99,
@@ -141,7 +141,7 @@ const PLANS: Plan[] = [
     accent: 'text-foreground',
     tag: 'bg-red-200 text-red-950',
     tint: 'bg-red-50',
-    card: 'border border-stone-700 bg-transparent',
+    card: 'border border-stone-200 bg-transparent',
     ring: '#fdecf5',
     muted: 'text-foreground/70',
     price: 3.99,
@@ -200,11 +200,11 @@ function PlanTag({ plan, size = 'lg' }: { plan: Plan; size?: 'md' | 'lg' }) {
   );
 }
 
-/** Free is a soft stone fill; Plus and Max are transparent with a dark stone border. the select button sits at the bottom. */
+/** Free is a soft stone fill with the black button; Plus and Max are transparent with a light stone border and a transparent button. The select button sits at the bottom. */
 function PlanCard({ plan, period, onSelect }: { plan: Plan; period: (typeof PERIODS)[number]; onSelect: (plan: string) => void }) {
   const perMonth = plan.price * (1 - period.discount);
   return (
-    <Card className={cn('gap-0 rounded-3xl py-0 ring-0', plan.card)}>
+    <Card className={cn('gap-0 rounded-4xl py-0 ring-0', plan.card)}>
       <div className="flex flex-1 flex-col gap-6 px-7 pt-7 pb-7">
         <div className="space-y-3">
           <div className="flex items-center gap-2.5">
@@ -247,7 +247,7 @@ function PlanCard({ plan, period, onSelect }: { plan: Plan; period: (typeof PERI
           </ul>
         </div>
 
-        <Button variant={plan.key === 'free' ? 'outline' : 'default'} size="lg" className="mt-4 h-12 w-full" onClick={() => onSelect(plan.key)}>
+        <Button variant={plan.key === 'free' ? 'default' : 'outline'} size="lg" className={cn('mt-4 h-12 w-full', plan.key !== 'free' && 'bg-transparent')} onClick={() => onSelect(plan.key)}>
           Select plan
         </Button>
       </div>
@@ -330,7 +330,7 @@ export function PlanStep({ onSelect }: { onSelect: (plan: string) => void }) {
           <PlanCard key={p.key} plan={p} period={period} onSelect={onSelect} />
         ))}
       </div>
-      <div className="mt-12 flex justify-center pb-12">
+      <div className="mt-8 flex justify-center pb-12">
         <Button
           variant="ghost"
           size="lg"

@@ -199,7 +199,7 @@ function SalaryMinimum({
 
   return (
     <div className="mx-auto w-full max-w-sm">
-      <div className="mb-9 grid grid-cols-2 font-heading text-3xl leading-none font-medium tracking-tight tabular-nums">
+      <div className="mb-6 grid grid-cols-2 font-heading text-3xl leading-none font-medium tracking-tight tabular-nums">
         {/* Currency and amount: right-aligned against the fixed suffix, so they grow to the left only. */}
         <div className="flex items-center justify-end">
           <DropdownMenu>
@@ -336,10 +336,10 @@ export function CompanyStep({
           ref={listRef}
           data-scrollable={scrollable}
           className={cn(
-            'flex w-full flex-wrap content-start justify-center gap-3 border-t p-1 pt-6',
+            'mt-4 flex w-full flex-wrap content-start justify-center gap-3 border-t p-1 pt-10',
             showAll
-              ? 'max-h-[max(10rem,calc(100dvh-36rem))] overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden'
-              : 'max-h-[10.25rem] overflow-hidden',
+              ? 'max-h-[max(10rem,calc(100dvh-38rem))] overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden'
+              : 'max-h-[11.25rem] overflow-hidden',
             showAll && scrollable && 'pb-16 [mask-image:linear-gradient(to_bottom,black_calc(100%-4.5rem),transparent)]',
           )}
         >
