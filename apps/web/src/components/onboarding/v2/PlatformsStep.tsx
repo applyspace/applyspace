@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { BrandLogo } from '@/components/onboarding/v2/BrandLogo';
 import { StepHeader } from '@/components/onboarding/v2/StepHeader';
-import { useOverflow } from '@/components/onboarding/v2/useOverflow';
+import { FADE_BOTH, FADE_BOTTOM, useOverflow } from '@/components/onboarding/v2/useOverflow';
 import { cn } from '@/lib/utils';
 import { toggle } from '@/components/onboarding/v2/fields';
 
@@ -51,7 +51,7 @@ export function PlatformsStep({
 }) {
   const inFrance = places.length === 0 || places.some((p) => /france|paris|lyon|bordeaux|nantes|le-de-france/i.test(p));
   const list = (expanded ? [...PLATFORMS, ...MORE_PLATFORMS] : PLATFORMS).filter((p) => !p.franceOnly || inFrance);
-  const { ref: listRef, scrollable } = useOverflow<HTMLDivElement>([expanded, inFrance]);
+  const { ref: listRef, scrollable, scrolled } = useOverflow<HTMLDivElement>([expanded, inFrance], 60);
 
   return (
     <>
@@ -64,7 +64,7 @@ export function PlatformsStep({
           aria-label="Job platforms"
           className={cn(
             'grid max-h-[max(10rem,calc(100dvh-36rem))] grid-cols-2 gap-4 overflow-y-auto p-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden',
-            scrollable && 'pb-16 [mask-image:linear-gradient(to_bottom,black_calc(100%-4.5rem),transparent)]',
+            scrollable && cn('pb-16', scrolled ? FADE_BOTH : FADE_BOTTOM),
           )}
         >
           {list.map((p) => {
@@ -85,7 +85,7 @@ export function PlatformsStep({
                   <span className="block text-sm font-medium">{p.name}</span>
                   <span className="mt-0.5 line-clamp-2 block text-xs leading-snug text-muted-foreground">{p.description}</span>
                 </span>
-                <Checkbox checked={selected} tabIndex={-1} aria-hidden className="pointer-events-none mt-0.5 size-5" />
+                <Checkbox checked={selected} tabIndex={-1} aria-hidden className="pointer-events-none mt-0.5 size-5 rounded-full" />
               </button>
             );
           })}

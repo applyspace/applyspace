@@ -21,6 +21,7 @@ import { ChoiceCard, TagSearch, toggle } from '@/components/onboarding/v2/fields
 import { CompanyStep, ContractStep } from '@/components/onboarding/v2/CriteriaSteps';
 import { PlanStep } from '@/components/onboarding/v2/PlanStep';
 import { PlatformsStep } from '@/components/onboarding/v2/PlatformsStep';
+import { saveImportedFile } from '@/components/onboarding/v2/saveImportedFile';
 import { StepHeader } from '@/components/onboarding/v2/StepHeader';
 import { suggestJobTitles, suggestPlaces } from '@/lib/suggest';
 import { cn } from '@/lib/utils';
@@ -76,6 +77,7 @@ export function OnboardingV2() {
   // "See more" stays open when the user comes back to a step.
   const [moreSectors, setMoreSectors] = useState(false);
   const [morePlatforms, setMorePlatforms] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   const current = STEPS[step];
   const last = step === STEPS.length - 1;
@@ -177,24 +179,40 @@ export function OnboardingV2() {
         )}
         {current === 'company' && <CompanyStep sizes={sizes} onSizes={setSizes} sectors={sectors} onSectors={setSectors} showAll={moreSectors} onShowAll={setMoreSectors} />}
         {current === 'platforms' && <PlatformsStep places={places} values={platforms} onChange={setPlatforms} expanded={morePlatforms} onExpanded={setMorePlatforms} />}
+        {current === 'plan' && saveError && (
+          <p role="alert" className="mx-auto mb-4 max-w-xl text-center text-sm text-destructive">
+            {saveError} Your answers are kept: pick a plan again to retry.
+          </p>
+        )}
         {current === 'plan' && <PlanStep
             onSelect={(plan) => {
               if (finishing) return;
               posthog.capture('onboarding_completed', { completion_method: 'plan_selected', plan });
               // Stamps `accounts.onboarded_at` and redirects to Home.
               startFinishing(async () => {
+                setSaveError(null);
                 // Every answer goes to the first search profile before onboarding is stamped as done.
-                const saved = await saveOnboardingAnswers({ status, titles, levels, places, workplaces, contracts, minSalaryK: minSalary, currency, sizes, sectors, platforms });
-                if (!saved.ok) posthog.capture('onboarding_save_failed', { reason: saved.reason });
+                const saved = await saveOnboardingAnswers({ status, titles, levels, places, workplaces, contracts, minSalaryK: minSalary, currency, sizes, sectors, platforms, selectedPlan: plan });
+                if (!saved.ok) {
+                  posthog.capture('onboarding_save_failed', { reason: saved.reason });
+                  // Signed out (demo, desktop): nothing to attach to, carry on. Any other failure stays here so the answers are not lost.
+                  if (saved.reason !== 'signed-out') {
+                    setSaveError(saved.message);
+                    return;
+                  }
+                }
+                // The imported resume is attached to the account. A failed upload never blocks onboarding: it can be added from Profile.
+                if (file && saved.ok) {
+                  const stored = await saveImportedFile(file);
+                  if (!stored.ok) posthog.capture('onboarding_import_save_failed', { reason: stored.reason });
+                }
                 await completeOnboarding();
               });
             }}
           />}
       </main>
 
-      {last ? (
-        <div className="pb-10" />
-      ) : (
+      {last ? null : (
         <div className="fixed inset-x-0 bottom-0 z-20 bg-linear-to-t from-background from-70% to-transparent px-6 pt-10 pb-[10vh]">
           <div className="relative mx-auto flex max-w-xl items-center justify-between">
             <Button variant="outline" size="icon-lg" aria-label="Back" className={cn(step === 0 && 'invisible')} onClick={() => setStep(step - 1)}>

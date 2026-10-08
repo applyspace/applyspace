@@ -46,7 +46,7 @@ export function OptionRow({
         <span className="block text-xl font-medium">{title}</span>
         <span className="block text-base text-muted-foreground">{description}</span>
       </span>
-      <Checkbox checked={selected} tabIndex={-1} aria-hidden className={cn('pointer-events-none size-6', TONES[tone].check)} />
+      <Checkbox checked={selected} tabIndex={-1} aria-hidden className={cn('pointer-events-none size-6 rounded-full', TONES[tone].check)} />
     </button>
   );
 }
