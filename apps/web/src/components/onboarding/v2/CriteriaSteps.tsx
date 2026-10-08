@@ -340,7 +340,7 @@ export function CompanyStep({
             showAll
               ? 'max-h-[max(10rem,calc(100dvh-38rem))] overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden'
               : 'max-h-[11.25rem] overflow-hidden',
-            showAll && scrollable && 'pb-16 [mask-image:linear-gradient(to_bottom,black_calc(100%-4.5rem),transparent)]',
+            showAll && scrollable && 'pb-28 [mask-image:linear-gradient(to_bottom,black_calc(100%-4.5rem),transparent)]',
           )}
         >
           {list.map((s) => {
