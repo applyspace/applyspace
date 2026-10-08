@@ -104,6 +104,22 @@ export interface FitMessageInput {
 export const CONTRACT_TOKENS = ['CDI', 'CDD', 'Stage', 'Freelance', 'Apprentissage', 'Bénévolat'] as const;
 export type ContractToken = (typeof CONTRACT_TOKENS)[number];
 
+/** Everything the onboarding v2 collects, as the UI holds it (labels, not database tokens). */
+export interface OnboardingAnswers {
+  status: 'active' | 'passive' | 'incognito' | null;
+  titles: string[];
+  levels: string[];
+  places: string[];
+  workplaces: string[];
+  contracts: string[];
+  /** Minimum yearly salary in thousands (0 when unset). */
+  minSalaryK: number;
+  currency: string;
+  sizes: string[];
+  sectors: string[];
+  platforms: string[];
+}
+
 export interface FirstSearchInput {
   titles: string[];
   contractTypes: ContractToken[];

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useTransition } from 'react';
+import posthog from 'posthog-js';
 import { useRouter } from 'next/navigation';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { Alert02Icon, Loading03Icon, Search01Icon, Tick02Icon } from '@hugeicons/core-free-icons';
@@ -32,6 +33,11 @@ export function SearchNowButton({ searchId }: { searchId: string }) {
         setStatus({ kind: 'error', message: result.message });
         return;
       }
+      posthog.capture('search_run_completed', {
+        offers_found: result.found,
+        offers_inserted: result.inserted,
+        offers_updated: result.updated,
+      });
       if (result.found === 0) {
         setStatus({ kind: 'empty', message: 'No offers found for this search.' });
       } else if (result.inserted === 0) {

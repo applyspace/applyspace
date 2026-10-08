@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import posthog from 'posthog-js';
 import { HugeiconsIcon } from '@hugeicons/react';
 import {
   Delete02Icon,
@@ -151,6 +152,10 @@ export function DocumentsPanel({ showFitMessages = true }: { showFitMessages?: b
         return;
       }
       setDocuments((current) => [result.data, ...current]);
+      posthog.capture('cv_uploaded', {
+        file_format: mimeType === CV_MIME_TYPES.pdf ? 'pdf' : 'docx',
+        size_bucket: file.size < 1024 * 1024 ? 'under_1mb' : '1mb_to_10mb',
+      });
     });
   }
 
@@ -171,6 +176,7 @@ export function DocumentsPanel({ showFitMessages = true }: { showFitMessages?: b
       setDocuments((current) =>
         current.map((d) => (d.kind === target.kind ? { ...d, isPrimary: d.id === target.id } : d)),
       );
+      posthog.capture('primary_cv_selected');
     });
 
   const addFitMessage = () =>
@@ -179,6 +185,7 @@ export function DocumentsPanel({ showFitMessages = true }: { showFitMessages?: b
       if (!result.ok) return setError(result.message);
       setDocuments((current) => [result.data, ...current]);
       setDraft('');
+      posthog.capture('fit_message_saved');
     });
 
   return (

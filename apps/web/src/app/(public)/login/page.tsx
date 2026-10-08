@@ -2,8 +2,9 @@
 
 import { useSearchParams } from "next/navigation";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { Loading02Icon } from "@hugeicons/core-free-icons";
+import { LoaderIcon } from "@hugeicons/core-free-icons";
 import { useState } from "react";
+import posthog from "posthog-js";
 import { OffersPreview } from "@/components/auth/OffersPreview";
 import { ApplyLogo } from "@/components/brand/ApplyLogo";
 import { Button } from "@/components/ui/button";
@@ -16,9 +17,9 @@ import { isSupabaseConfigured } from "@/lib/supabase/env";
 
 type Provider = "google" | "linkedin_oidc";
 
-// Stone outline, stone text and a barely-there shadow for the sign-in buttons.
+// Stone outline and stone text for the sign-in buttons.
 const CONTROL =
-  "h-9 w-full rounded-lg border border-stone-200 bg-white text-sm font-medium text-stone-950 shadow-[0_1px_1px_rgba(0,0,0,0.04)] hover:bg-stone-50";
+  "h-11 w-full rounded-full border border-stone-200 bg-white text-sm font-medium text-stone-950 hover:bg-stone-50";
 
 export default function LoginPage() {
   const { t } = useLocale();
@@ -31,6 +32,7 @@ export default function LoginPage() {
   async function handleSignIn(provider: Provider) {
     setPending(provider);
     setFailed(false);
+    posthog.capture('sign_in_started', { provider });
     const { error } = await createClient().auth.signInWithOAuth({
       provider,
       options: { redirectTo: `${window.location.origin}/auth/callback` },
@@ -46,8 +48,8 @@ export default function LoginPage() {
 
   return (
     <div className="grid min-h-screen bg-white text-stone-950 lg:grid-cols-2">
-      <main className="flex flex-col justify-center px-6 py-12 sm:px-12 lg:px-28">
-        <div className="mx-auto w-full max-w-[34rem]">
+      <main className="flex flex-col justify-center px-6 py-12 sm:px-12 lg:px-16">
+        <div className="mx-auto w-full max-w-[34rem] lg:mr-8">
           <ApplyLogo className="mb-12 h-7 w-auto text-stone-950" />
 
           <h1
@@ -61,7 +63,7 @@ export default function LoginPage() {
 
           <p className="mt-4 text-sm text-stone-700 xl:whitespace-nowrap">{t.auth.tagline}</p>
 
-          <div className="mt-8 flex w-full max-w-[22rem] flex-col gap-2.5 rounded-3xl border border-stone-200 bg-white p-4 shadow-[0_4px_24px_rgba(0,0,0,0.06)]">
+          <div className="mt-8 flex w-full max-w-[22rem] flex-col gap-2.5 rounded-3xl border border-stone-200 bg-white p-4">
             <Button
               onClick={() => handleSignIn("google")}
               disabled={disabled}
@@ -69,7 +71,7 @@ export default function LoginPage() {
               className={CONTROL}
             >
               {pending === "google" ? (
-                <HugeiconsIcon icon={Loading02Icon} size={16} className="animate-spin" />
+                <HugeiconsIcon icon={LoaderIcon} size={16} className="animate-spin" />
               ) : (
                 <GoogleIcon className="size-4 shrink-0" />
               )}
@@ -83,7 +85,7 @@ export default function LoginPage() {
               className={CONTROL}
             >
               {pending === "linkedin_oidc" ? (
-                <HugeiconsIcon icon={Loading02Icon} size={16} className="animate-spin" />
+                <HugeiconsIcon icon={LoaderIcon} size={16} className="animate-spin" />
               ) : (
                 <LinkedInIcon className="size-4 shrink-0 text-[#0A66C2]" />
               )}
@@ -110,11 +112,11 @@ export default function LoginPage() {
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder={t.auth.emailPlaceholder}
                 autoComplete="email"
-                className="h-9 w-full rounded-lg border border-stone-200 bg-white px-3 text-sm outline-none transition-shadow placeholder:text-stone-400 focus:border-stone-400 focus:ring-3 focus:ring-stone-200"
+                className="h-11 w-full rounded-full border border-stone-200 bg-white px-4 text-sm outline-none transition-shadow placeholder:text-stone-400 focus:border-stone-400 focus:ring-3 focus:ring-stone-200"
               />
               <Button
                 type="submit"
-                className="h-9 w-full rounded-lg bg-stone-950 text-sm font-medium text-white hover:bg-stone-800"
+                className="h-11 w-full rounded-full bg-stone-950 text-sm font-medium text-white hover:bg-stone-800"
               >
                 {t.auth.continueWithEmail}
               </Button>
@@ -144,7 +146,7 @@ export default function LoginPage() {
           <div className="mt-5 flex w-full max-w-[22rem] justify-center">
             <button
               type="button"
-              className="inline-flex h-9 items-center gap-2 rounded-lg border border-stone-200 bg-white px-3.5 text-sm font-medium shadow-[0_1px_2px_rgba(0,0,0,0.05),0_4px_8px_-4px_rgba(0,0,0,0.06)] transition-colors hover:bg-stone-50"
+              className="inline-flex h-9 items-center gap-2 rounded-lg border border-stone-200 bg-white px-3.5 text-sm font-medium transition-colors hover:bg-stone-50"
             >
               <AppleIcon className="size-5" />
               {t.auth.downloadDesktop}
@@ -154,8 +156,8 @@ export default function LoginPage() {
       </main>
 
       {/* App preview: a small window on a list of offers, cropped on the right and bottom */}
-      <aside aria-hidden className="hidden items-center justify-end pl-8 pr-[9rem] lg:-ml-24 lg:flex">
-        <div className="relative h-[min(41rem,80vh)] w-full max-w-[46rem] overflow-hidden rounded-[2rem] bg-stone-100 shadow-[0_4px_24px_rgba(0,0,0,0.06)]">
+      <aside aria-hidden className="hidden items-center justify-start pl-0 pr-12 lg:flex">
+        <div className="relative h-[min(41rem,80vh)] w-full max-w-[46rem] overflow-hidden rounded-[2rem] bg-stone-100">
           <div className="absolute left-14 top-16">
             <OffersPreview />
           </div>

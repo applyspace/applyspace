@@ -18,6 +18,7 @@ import {
   type ExperienceInput,
   type FirstSearchInput,
   type FitMessageInput,
+  type OnboardingAnswers,
   type SkillEntry,
   type SkillInput,
 } from '@/types/candidate-profile';
@@ -726,4 +727,99 @@ export class InvalidInputError extends Error {}
 function requireId(id: string): string {
   if (!UUID_RE.test(id)) throw new InvalidInputError('Unknown item.');
   return id;
+}
+
+// --- onboarding v2: every answer goes to the first search profile -----------------
+
+const LEVEL_MAP: Record<string, ExperienceLevel> = {
+  'Entry level': 'entry',
+  Junior: 'entry',
+  'Mid-level': 'mid',
+  Senior: 'senior',
+  'Lead or above': 'lead',
+};
+// "Part time" and "Other" have no database token yet: they are not stored.
+const CONTRACT_MAP: Record<string, ContractToken> = {
+  Permanent: 'CDI',
+  'Freelance / Contract': 'Freelance',
+  Temporary: 'CDD',
+  Internship: 'Stage',
+  Apprenticeship: 'Apprentissage',
+  Volunteer: 'Bénévolat',
+};
+const AVAILABILITY_MAP = { active: 'active', passive: 'open', incognito: 'paused' } as const;
+const PLATFORM_SLUGS: Record<string, string> = {
+  'Welcome to the Jungle': 'wttj',
+  'Collective.work': 'collectivework',
+  'France Travail': 'francetravail',
+};
+const COMPANY_SIZES = ['1-10', '11-50', '51-200', '201-1,000', '1,000+'];
+const PLAN_CAP = { free: { titles: 3, places: 3, contracts: 3 }, plus: { titles: 6, places: 100, contracts: 100 } } as const;
+
+const uniqueClean = (values: unknown, max = 100) =>
+  Array.from(
+    new Set((Array.isArray(values) ? values : []).filter((v): v is string => typeof v === 'string').map((v) => clean(v).slice(0, 120)).filter(Boolean)),
+  ).slice(0, max);
+const slugify = (name: string) => PLATFORM_SLUGS[name] ?? name.toLowerCase().replace(/[^a-z0-9]/g, '');
+
+/**
+ * Saves every onboarding v2 answer: availability on the account, everything else on the first search
+ * profile (one search holding all job titles). Writes the new columns first and falls back to the
+ * legacy ones while the v2 migration is not applied. The plan is not stored: it is not user-writable.
+ */
+export async function saveOnboardingAnswers(s: SupabaseScope, a: OnboardingAnswers): Promise<void> {
+  const { plan } = await getAccount(s);
+  const cap = plan === 'plus' ? PLAN_CAP.plus : PLAN_CAP.free;
+  const titles = uniqueClean(a.titles, cap.titles);
+  const places = uniqueClean(a.places, cap.places);
+  const workplaces = uniqueClean(a.workplaces, 3).filter((w) => ['onsite', 'hybrid', 'remote'].includes(w));
+  const contracts = Array.from(new Set(uniqueClean(a.contracts).map((c) => CONTRACT_MAP[c]).filter(Boolean))).slice(0, cap.contracts);
+  const levels = Array.from(new Set(uniqueClean(a.levels).map((l) => LEVEL_MAP[l]).filter(Boolean)));
+  const sizes = uniqueClean(a.sizes).filter((x) => COMPANY_SIZES.includes(x));
+  const sectors = uniqueClean(a.sectors, 50);
+  const platforms = uniqueClean(a.platforms).map(slugify);
+  const currency = /^[A-Z]{3}$/.test(a.currency) ? a.currency : 'EUR';
+  const salaryMin = Number.isFinite(a.minSalaryK) && a.minSalaryK > 0 ? Math.round(a.minSalaryK) * 1000 : null;
+
+  if (a.status) {
+    const res = await s.supabase.from('accounts').update({ availability: AVAILABILITY_MAP[a.status] }).eq('id', s.userId);
+    if (res.error) console.error('[profile] saving availability failed:', res.error.message);
+  }
+
+  const [firstTitle] = titles;
+  if (!firstTitle) return;
+
+  const profile = await getOrCreateDefaultProfile(s, firstTitle);
+  if (profile.job_title === PLACEHOLDER_JOB_TITLE) {
+    must(await s.supabase.from('profiles').update({ job_title: firstTitle }).eq('id', profile.id), 'profiles');
+  }
+
+  const base = { search_title: firstTitle, location: places[0] ?? null, contract_types: contracts, experience_levels: levels, enabled_platforms: platforms };
+  const full = {
+    ...base,
+    job_titles: titles,
+    locations: places.map((label) => ({ label })),
+    remote_modes: workplaces,
+    salary_min: salaryMin,
+    salary_currency: currency,
+    sectors,
+    company_sizes: sizes,
+  };
+  const legacy = { ...base, remote_mode: workplaces[0] ?? null, salary_min_eur: currency === 'EUR' ? salaryMin : null };
+
+  const existing = must(
+    await s.supabase.from('searches').select('id').eq('profile_id', profile.id).order('created_at', { ascending: true }).limit(1),
+    'searches',
+  ) as { id: string }[] | null;
+  const targetId = existing?.[0]?.id;
+
+  const write = (values: Record<string, unknown>) =>
+    targetId
+      ? s.supabase.from('searches').update(values).eq('id', targetId)
+      : s.supabase.from('searches').insert({ user_id: s.userId, profile_id: profile.id, ...values });
+
+  const first = await write(full);
+  if (!first.error) return;
+  console.error('[profile] full onboarding save failed, retrying with legacy columns:', first.error.message);
+  must(await write(legacy), 'searches');
 }

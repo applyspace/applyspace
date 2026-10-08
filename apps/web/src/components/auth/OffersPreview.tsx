@@ -55,7 +55,7 @@ export function OffersPreview() {
   return (
     <ul
       aria-hidden
-      className="w-[60rem] select-none divide-y divide-stone-200 overflow-hidden rounded-[2rem] bg-white shadow-[0_8px_30px_rgba(0,0,0,0.08)]"
+      className="w-[60rem] select-none divide-y divide-stone-200 overflow-hidden rounded-[2rem] bg-white"
     >
       {OFFERS.map((o) => (
         <li key={o.company + o.title} className="flex items-center gap-5 px-7 py-6">

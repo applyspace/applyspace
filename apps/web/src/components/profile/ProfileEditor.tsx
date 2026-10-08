@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import posthog from 'posthog-js';
 import { HugeiconsIcon, type IconSvgElement } from '@hugeicons/react';
 import {
   Add01Icon,
@@ -110,6 +111,7 @@ export function ProfileEditor() {
 
 /** List state for one section: which row is being edited, saving and deleting. */
 function useCollection<T extends { id: string }, I extends { id?: string }>(
+  section: 'experience' | 'education' | 'skill',
   initial: T[] | null,
   save: (input: I) => Promise<ActionResult<T>>,
   remove: (id: string) => Promise<ActionResult>,
@@ -153,14 +155,17 @@ function useCollection<T extends { id: string }, I extends { id?: string }>(
           : [saved, ...current],
       );
       setEditing(null);
+      posthog.capture('profile_section_saved', { section });
     },
     async destroy(id: string) {
       setBusy(true);
       setError(null);
       try {
         const result = await remove(id);
-        if (result.ok) setItems((current) => current.filter((item) => item.id !== id));
-        else setError(result.message);
+        if (result.ok) {
+          setItems((current) => current.filter((item) => item.id !== id));
+          posthog.capture('profile_section_removed', { section });
+        } else setError(result.message);
       } catch {
         setError('Something went wrong. Please try again.');
       } finally {
@@ -320,7 +325,7 @@ const EMPTY_EXPERIENCE: ExperienceInput = {
 };
 
 function ExperienceSection({ initial }: { initial: ExperienceEntry[] | null }) {
-  const list = useCollection<ExperienceEntry, ExperienceInput>(initial, saveExperience, removeExperience);
+  const list = useCollection<ExperienceEntry, ExperienceInput>('experience', initial, saveExperience, removeExperience);
 
   return (
     <Section
@@ -462,7 +467,7 @@ const EMPTY_EDUCATION: EducationInput = {
 };
 
 function EducationSection({ initial }: { initial: EducationEntry[] | null }) {
-  const list = useCollection<EducationEntry, EducationInput>(initial, saveEducation, removeEducation);
+  const list = useCollection<EducationEntry, EducationInput>('education', initial, saveEducation, removeEducation);
 
   return (
     <Section
@@ -584,7 +589,7 @@ function EducationForm({
 const EMPTY_SKILL: SkillInput = { name: '', level: null };
 
 function SkillsSection({ initial }: { initial: SkillEntry[] | null }) {
-  const list = useCollection<SkillEntry, SkillInput>(initial, saveSkill, removeSkill);
+  const list = useCollection<SkillEntry, SkillInput>('skill', initial, saveSkill, removeSkill);
   const editingSkill = list.items.find((item) => item.id === list.editing);
 
   return (
