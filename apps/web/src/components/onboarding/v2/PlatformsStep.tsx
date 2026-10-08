@@ -85,7 +85,7 @@ export function PlatformsStep({
                   <span className="block text-sm font-medium">{p.name}</span>
                   <span className="mt-0.5 line-clamp-2 block text-xs leading-snug text-muted-foreground">{p.description}</span>
                 </span>
-                <Checkbox checked={selected} tabIndex={-1} aria-hidden className="pointer-events-none mt-0.5 size-5" />
+                <Checkbox checked={selected} tabIndex={-1} aria-hidden className="pointer-events-none mt-0.5 size-5 rounded-full" />
               </button>
             );
           })}
