@@ -310,7 +310,7 @@ export function CompanyStep({
   // Collapsed: exactly three full rows of tags (the top sectors first, then the rest fills the third row). "See more" opens the inner scroll, same pattern as the platforms step.
   const ordered = [...SECTORS.filter((s) => s.top), ...SECTORS.filter((s) => !s.top)];
   const list = ordered;
-  const { ref: listRef, scrollable } = useOverflow<HTMLDivElement>([showAll]);
+  const { ref: listRef, scrollable } = useOverflow<HTMLDivElement>([showAll], 108);
   return (
     <>
       <StepHeader title="What kind of company suits you?" subtitle="Leave anything empty to keep every option open." />
@@ -338,7 +338,7 @@ export function CompanyStep({
           className={cn(
             'mt-4 flex w-full flex-wrap content-start justify-center gap-3 border-t p-1 pt-10',
             showAll
-              ? 'max-h-[max(10rem,calc(100dvh-38rem))] overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden'
+              ? 'max-h-[max(10rem,calc(72dvh-28rem))] overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden'
               : 'max-h-[11.25rem] overflow-hidden',
             showAll && scrollable && 'pb-28 [mask-image:linear-gradient(to_bottom,black_calc(100%-4.5rem),transparent)]',
           )}

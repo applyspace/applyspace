@@ -265,7 +265,7 @@ function ComparisonTable() {
   const corner = (i: number, edge: 'top' | 'bottom') =>
     i === 0 ? (edge === 'top' ? 'rounded-tl-3xl' : 'rounded-bl-3xl') : i === PLANS.length - 1 ? (edge === 'top' ? 'rounded-tr-3xl' : 'rounded-br-3xl') : '';
   return (
-    <div ref={ref} className="mx-auto mt-6 max-w-4xl scroll-mt-8">
+    <div ref={ref} className="mx-auto mt-6 max-w-4xl scroll-mt-8 pb-20">
       <div className="relative">
         {/* One continuous tinted layer per plan, behind the rows: no seam can show between two cells. */}
         <div aria-hidden className="pointer-events-none absolute inset-0 grid grid-cols-[1.6fr_1fr_1fr_1fr]">
@@ -330,7 +330,7 @@ export function PlanStep({ onSelect }: { onSelect: (plan: string) => void }) {
           <PlanCard key={p.key} plan={p} period={period} onSelect={onSelect} />
         ))}
       </div>
-      <div className="mt-8 flex justify-center pb-12">
+      <div className="mt-8 flex justify-center pb-6">
         <Button
           variant="ghost"
           size="lg"
