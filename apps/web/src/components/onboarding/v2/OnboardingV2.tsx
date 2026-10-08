@@ -84,6 +84,20 @@ export function OnboardingV2() {
     posthog.capture('onboarding_step_viewed', { step: STEPS[step], step_index: step });
   }, [step]);
 
+  // Steps before the plan page never scroll: lock the document itself so no hidden scrollbar or focus jump can move the page. The plan page scrolls normally.
+  useEffect(() => {
+    if (last) return;
+    const html = document.documentElement;
+    const prevHtml = html.style.overflow;
+    const prevBody = document.body.style.overflow;
+    html.style.overflow = 'hidden';
+    document.body.style.overflow = 'hidden';
+    return () => {
+      html.style.overflow = prevHtml;
+      document.body.style.overflow = prevBody;
+    };
+  }, [last]);
+
   const advance = (method: 'next' | 'skip') => {
     posthog.capture('onboarding_step_completed', { step: current, step_index: step, method });
     setStep(step + 1);
@@ -100,7 +114,7 @@ export function OnboardingV2() {
   }[current];
 
   return (
-    <div className={cn('flex flex-col bg-background text-foreground', last ? 'min-h-dvh' : 'h-dvh overflow-hidden')}>
+    <div className={cn('flex flex-col bg-background text-foreground', last ? 'min-h-dvh' : 'h-dvh overflow-clip')}>
       {/* The plan page scrolls normally, without a visible scrollbar. */}
       <style>{'html{scrollbar-width:none}html::-webkit-scrollbar{display:none}'}</style>
       {!last && (
