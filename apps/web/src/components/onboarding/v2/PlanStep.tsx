@@ -89,6 +89,9 @@ type Plan = {
   name: string;
   tagline: string;
   accent: string;
+  /** Colors of the name tag (Free sky, Plus brand, Max red), the column tint and the check chips. */
+  tag: string;
+  tint: string;
   card: string;
   ring: string;
   muted: string;
@@ -105,6 +108,8 @@ const PLANS: Plan[] = [
     name: 'Free',
     tagline: 'Everything you need to start your search.',
     accent: 'text-foreground',
+    tag: 'bg-sky-200 text-sky-950',
+    tint: 'bg-sky-50',
     card: 'bg-stone-100',
     ring: '#f5f5f4',
     muted: 'text-foreground/70',
@@ -118,7 +123,9 @@ const PLANS: Plan[] = [
     name: 'Plus',
     tagline: 'More room, sharper search.',
     accent: 'text-foreground',
-    card: 'border-[1.6px] border-stone-700 bg-transparent',
+    tag: 'bg-brand-300 text-brand-950',
+    tint: 'bg-brand-50',
+    card: 'border border-stone-700 bg-transparent',
     ring: '#f3e3ff',
     muted: 'text-foreground/70',
     badge: true,
@@ -132,7 +139,9 @@ const PLANS: Plan[] = [
     name: 'Max',
     tagline: 'No limits on anything.',
     accent: 'text-foreground',
-    card: 'border-[1.6px] border-stone-700 bg-transparent',
+    tag: 'bg-red-200 text-red-950',
+    tint: 'bg-red-50',
+    card: 'border border-stone-700 bg-transparent',
     ring: '#fdecf5',
     muted: 'text-foreground/70',
     price: 3.99,
@@ -227,6 +236,15 @@ function RollingText({ value }: { value: string }) {
   );
 }
 
+/** Plan name as a colored tag, same family as the Popular badge. */
+function PlanTag({ plan, size = 'lg' }: { plan: Plan; size?: 'md' | 'lg' }) {
+  return (
+    <span className={cn('inline-flex items-center rounded-full font-semibold tracking-tight', plan.tag, size === 'lg' ? 'px-5 py-1.5 text-2xl' : 'px-4 py-1 text-lg')}>
+      {plan.name}
+    </span>
+  );
+}
+
 /** Free is a soft stone fill; Plus and Max are transparent with a dark stone border. Plus carries the Popular badge next to its name; the select button sits at the bottom. */
 function PlanCard({ plan, period, onSelect }: { plan: Plan; period: (typeof PERIODS)[number]; onSelect: (plan: string) => void }) {
   const perMonth = plan.price * (1 - period.discount);
@@ -235,8 +253,8 @@ function PlanCard({ plan, period, onSelect }: { plan: Plan; period: (typeof PERI
       <div className="flex flex-1 flex-col gap-6 px-7 pt-7 pb-7">
         <div className="space-y-1">
           <div className="flex items-center gap-2.5">
-            <p className="font-sans text-2xl font-medium">{plan.name}</p>
-            {plan.badge && <span className="rounded-full bg-brand-300 px-3 py-1 text-xs font-medium text-brand-950">Popular</span>}
+            <PlanTag plan={plan} />
+            {plan.badge && <span className="rounded-full bg-brand-950 px-3 py-1 text-xs font-medium text-brand-100">Popular</span>}
           </div>
           <p className={cn('text-sm', plan.muted)}>{plan.tagline}</p>
         </div>
@@ -283,27 +301,34 @@ function PlanCard({ plan, period, onSelect }: { plan: Plan; period: (typeof PERI
   );
 }
 
-/** Full comparison: feature names on the left, a value or a check per plan on the right, no row lines. */
+/** Full comparison: one tinted column per plan under its colored name tag, a check chip in the plan color or a value per row. */
 function ComparisonTable() {
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
     ref.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }, []);
+  const last = COMPARISON.length - 1;
   return (
     <div ref={ref} className="mx-auto mt-6 max-w-4xl scroll-mt-8">
-      <div className="grid grid-cols-[1.6fr_1fr_1fr_1fr] items-center gap-y-3 text-sm">
+      <div className="grid grid-cols-[1.6fr_1fr_1fr_1fr] items-center text-sm">
         <span />
         {PLANS.map((p) => (
-          <span key={p.key} className={cn('text-center font-sans text-lg font-medium', p.accent)}>
-            {p.name}
+          <span key={p.key} className={cn('flex justify-center rounded-t-3xl pt-5 pb-4', p.tint)}>
+            <PlanTag plan={p} size="md" />
           </span>
         ))}
-        {COMPARISON.map((row) => (
+        {COMPARISON.map((row, r) => (
           <div key={row.label} className="contents">
-            <span className="py-1">{row.label}</span>
+            <span className="py-2.5 pr-4">{row.label}</span>
             {row.values.map((v, i) => (
-              <span key={i} className="flex justify-center">
-                {v === true ? <HugeiconsIcon icon={Tick02Icon} size={18} strokeWidth={2} className={PLANS[i].accent} /> : v}
+              <span key={i} className={cn('flex justify-center py-2.5', PLANS[i].tint, r === last && 'rounded-b-3xl pb-4')}>
+                {v === true ? (
+                  <span className={cn('flex size-6 items-center justify-center rounded-full', PLANS[i].tag)}>
+                    <HugeiconsIcon icon={Tick02Icon} size={14} strokeWidth={2.5} />
+                  </span>
+                ) : (
+                  <span className="font-medium">{v}</span>
+                )}
               </span>
             ))}
           </div>

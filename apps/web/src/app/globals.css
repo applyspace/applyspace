@@ -113,6 +113,12 @@
   --foreground: oklch(0.147 0.004 49.25);
 }
 
+/* Default border width for the whole app: 1.6px instead of Tailwind's 1px.
+   Tailwind v4 cannot theme it, so this unlayered rule wins over the utilities layer. Side borders (border-t, border-b...) and explicit widths (border-0, border-2) are untouched. */
+.border:not([class~="border-0"]):not([class*=":border-0"]) {
+  border-width: 1.6px;
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
