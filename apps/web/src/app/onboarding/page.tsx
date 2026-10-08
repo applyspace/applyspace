@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
-import { OnboardingFlow } from '@/components/onboarding/OnboardingFlow';
+import { OnboardingV2 } from '@/components/onboarding/v2/OnboardingV2';
 import { getAccount } from '@/lib/candidate-profile';
 import { isSupabaseConfigured } from '@/lib/supabase/env';
 import { getSupabaseScope } from '@/lib/supabase/scope';
@@ -14,6 +14,9 @@ export const metadata: Metadata = { title: 'Welcome to Apply' };
  * `(auth)` route group on purpose: no sidebar shell, and the onboarding guard
  * in `(auth)/layout.tsx` does not run here, so this page can never redirect to
  * itself.
+ *
+ * Access: signed out goes to `/login`; an account that is already onboarded goes
+ * to Home. The demo and the desktop app (no account) get the flow as a preview.
  */
 export default async function OnboardingPage({
   searchParams,
@@ -23,26 +26,21 @@ export default async function OnboardingPage({
   const scope = await getSupabaseScope();
 
   if (!scope) {
-    // Signed out on the real app: sign in first. The demo and the desktop app
-    // (no account) get a read-only preview of the flow.
     if (isSupabaseConfigured && process.env.APPLY_DEMO !== '1') redirect('/login');
-    return <OnboardingFlow initialFirstName="" initialLastName="" />;
+    return <OnboardingV2 />;
   }
 
-  let firstName = '';
-  let lastName = '';
   let alreadyOnboarded = false;
   try {
-    const account = await getAccount(scope);
-    ({ firstName, lastName } = account);
-    alreadyOnboarded = account.onboardedAt !== null;
+    alreadyOnboarded = (await getAccount(scope)).onboardedAt !== null;
   } catch {
-    // Account unreadable: show the flow with empty fields rather than failing.
+    // Account unreadable: show the flow rather than failing.
   }
 
-  // Onboarding happens once. `/onboarding?restart=1` opens it again on purpose.
+  // Onboarding happens once. `?restart=1` reopens it for review, never in production.
   const { restart } = await searchParams;
-  if (alreadyOnboarded && restart !== '1') redirect('/');
+  const canRestart = restart === '1' && process.env.VERCEL_ENV !== 'production';
+  if (alreadyOnboarded && !canRestart) redirect('/');
 
-  return <OnboardingFlow initialFirstName={firstName} initialLastName={lastName} />;
+  return <OnboardingV2 />;
 }

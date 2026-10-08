@@ -91,7 +91,7 @@ export function PlatformsStep({
           })}
         </div>
         {!expanded && (
-          <div className="-mt-4 mb-8 flex justify-center">
+          <div className={cn('mb-8 flex justify-center', scrollable ? '-mt-4' : 'mt-4')}>
             <Button variant="ghost" size="lg" onClick={() => onExpanded(true)}>
               See more
               <HugeiconsIcon icon={ArrowDown01Icon} size={16} strokeWidth={2} />

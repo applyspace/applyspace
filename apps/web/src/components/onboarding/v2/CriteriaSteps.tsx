@@ -160,7 +160,7 @@ function SalaryMinimum({
       <div className="mb-9 flex justify-center">
         <div className="inline-flex items-center font-heading text-4xl leading-none font-medium tracking-tight tabular-nums">
           <DropdownMenu>
-            <DropdownMenuTrigger render={<button type="button" aria-label="Currency" className="-mr-0.5 rounded-lg px-1 py-1 outline-none transition-colors hover:bg-muted focus-visible:ring-3 focus-visible:ring-ring/30" />}>
+            <DropdownMenuTrigger render={<button type="button" aria-label="Currency" className="mr-1.5 rounded-lg px-1 py-1 outline-none transition-colors hover:bg-muted focus-visible:ring-3 focus-visible:ring-ring/30" />}>
               {symbol}
             </DropdownMenuTrigger>
             <DropdownMenuContent align="center" className="w-max min-w-0">

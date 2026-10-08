@@ -1,7 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useEffect, useState, useTransition } from 'react';
 import posthog from 'posthog-js';
 import { HugeiconsIcon } from '@hugeicons/react';
 import {
@@ -13,6 +12,7 @@ import {
   IncognitoIcon,
   SearchList01Icon,
 } from '@hugeicons/core-free-icons';
+import { completeOnboarding } from '@/app/onboarding/actions';
 import { ApplyLogo } from '@/components/brand/ApplyLogo';
 import { Button } from '@/components/ui/button';
 import { ImportDropzone } from '@/components/onboarding/v2/ImportDropzone';
@@ -55,11 +55,11 @@ function LevelBars({ level }: { level: number }) {
 const STEPS = ['import', 'status', 'role', 'location', 'contract', 'company', 'platforms', 'plan'] as const;
 
 /**
- * Onboarding v2 preview (dev only): built with the app's own shadcn components and Hugeicons.
+ * Onboarding (v2 screens): built with the app's own shadcn components and Hugeicons.
  * Layout rule: content is anchored from the top and never moves when something appears.
  */
 export function OnboardingV2() {
-  const router = useRouter();
+  const [finishing, startFinishing] = useTransition();
   const [step, setStep] = useState(0);
   const [file, setFile] = useState<File | null>(null);
   const [status, setStatus] = useState<Status | null>(null);
@@ -178,9 +178,13 @@ export function OnboardingV2() {
         {current === 'company' && <CompanyStep sizes={sizes} onSizes={setSizes} sectors={sectors} onSectors={setSectors} showAll={moreSectors} onShowAll={setMoreSectors} />}
         {current === 'platforms' && <PlatformsStep places={places} values={platforms} onChange={setPlatforms} expanded={morePlatforms} onExpanded={setMorePlatforms} />}
         {current === 'plan' && <PlanStep
-            onSelect={() => {
-              posthog.capture('onboarding_completed', { completion_method: 'plan_selected' });
-              router.push('/');
+            onSelect={(plan) => {
+              if (finishing) return;
+              posthog.capture('onboarding_completed', { completion_method: 'plan_selected', plan });
+              // Stamps `accounts.onboarded_at` and redirects to Home.
+              startFinishing(async () => {
+                await completeOnboarding();
+              });
             }}
           />}
       </main>

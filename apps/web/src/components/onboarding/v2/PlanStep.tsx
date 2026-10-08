@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { AnimatePresence, motion } from 'motion/react';
 import { RollingText } from '@/components/onboarding/v2/RollingText';
 import { HugeiconsIcon, type IconSvgElement } from '@hugeicons/react';
 import {
@@ -210,7 +211,7 @@ function PlanCard({ plan, period, onSelect }: { plan: Plan; period: (typeof PERI
           <p className={cn('text-sm', plan.muted)}>{plan.tagline}</p>
         </div>
 
-        <div className="h-px w-full bg-foreground/20" aria-hidden />
+        <div className="-mt-2 -mb-1 h-px w-full bg-foreground/20" aria-hidden />
 
         <div>
           <p className="font-sans text-4xl font-medium tabular-nums">
@@ -263,31 +264,40 @@ function ComparisonTable() {
     i === 0 ? (edge === 'top' ? 'rounded-tl-3xl' : 'rounded-bl-3xl') : i === PLANS.length - 1 ? (edge === 'top' ? 'rounded-tr-3xl' : 'rounded-br-3xl') : '';
   return (
     <div ref={ref} className="mx-auto mt-6 max-w-4xl scroll-mt-8">
-      <div className="grid grid-cols-[1.6fr_1fr_1fr_1fr] items-center text-sm">
-        <span />
-        {PLANS.map((p, i) => (
-          <span key={p.key} className={cn('flex justify-center pt-5 pb-4', p.tint, corner(i, 'top'))}>
-            <PlanTag plan={p} size="md" />
-          </span>
-        ))}
-        {COMPARISON.map((row, r) => (
-          <div key={row.label} className="contents">
-            <span className="py-2.5 pr-4">{row.label}</span>
-            {row.values.map((v, i) => (
-              <span key={i} className={cn('flex justify-center py-2.5', PLANS[i].tint, r === last && cn('pb-4', corner(i, 'bottom')))}>
-                {v === true ? (
-                  <span className={cn('flex size-6 items-center justify-center rounded-full', PLANS[i].tag)}>
-                    <HugeiconsIcon icon={Tick02Icon} size={14} strokeWidth={2.5} />
-                  </span>
-                ) : v === undefined ? (
-                  <span className="my-2.5 h-0.5 w-4 rounded-full bg-foreground" aria-label="Not included" />
-                ) : (
-                  <span className="font-medium">{v}</span>
-                )}
-              </span>
-            ))}
-          </div>
-        ))}
+      <div className="relative">
+        {/* One continuous tinted layer per plan, behind the rows: no seam can show between two cells. */}
+        <div aria-hidden className="pointer-events-none absolute inset-0 grid grid-cols-[1.6fr_1fr_1fr_1fr]">
+          <span />
+          {PLANS.map((p, i) => (
+            <span key={p.key} className={cn(p.tint, corner(i, 'top'), corner(i, 'bottom'))} />
+          ))}
+        </div>
+        <div className="relative grid grid-cols-[1.6fr_1fr_1fr_1fr] items-center text-sm">
+          <span />
+          {PLANS.map((p) => (
+            <span key={p.key} className="flex justify-center pt-5 pb-4">
+              <PlanTag plan={p} size="md" />
+            </span>
+          ))}
+          {COMPARISON.map((row, r) => (
+            <div key={row.label} className="contents">
+              <span className="py-2.5 pr-4">{row.label}</span>
+              {row.values.map((v, i) => (
+                <span key={i} className={cn('flex justify-center py-2.5', r === last && 'pb-4')}>
+                  {v === true ? (
+                    <span className={cn('flex size-6 items-center justify-center rounded-full', PLANS[i].tag)}>
+                      <HugeiconsIcon icon={Tick02Icon} size={14} strokeWidth={2.5} />
+                    </span>
+                  ) : v === undefined ? (
+                    <span className="my-2.5 h-0.5 w-4 rounded-full bg-foreground" aria-label="Not included" />
+                  ) : (
+                    <span className="font-medium">{v}</span>
+                  )}
+                </span>
+              ))}
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
@@ -331,7 +341,19 @@ export function PlanStep({ onSelect }: { onSelect: (plan: string) => void }) {
           <HugeiconsIcon icon={compare ? ArrowUp01Icon : ArrowDown01Icon} size={16} strokeWidth={2} />
         </Button>
       </div>
-      {compare && <ComparisonTable />}
+      <AnimatePresence initial={false}>
+        {compare && (
+          <motion.div
+            key="comparison"
+            initial={false}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.45, ease: [0.32, 0.72, 0, 1] }}
+            className="overflow-hidden"
+          >
+            <ComparisonTable />
+          </motion.div>
+        )}
+      </AnimatePresence>
     </>
   );
 }
