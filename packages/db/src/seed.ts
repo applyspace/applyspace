@@ -1,5 +1,5 @@
-import type { DrizzleDB } from './client.js';
-import { noGos, platforms } from './schema.js';
+import type { DrizzleDB } from './client.ts';
+import { noGos, platforms } from './schema.ts';
 
 /**
  * Idempotent reference-data seed.

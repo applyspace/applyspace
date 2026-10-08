@@ -7,7 +7,7 @@
  * into the renderer bundle).
  */
 
-export * from './schema.js';
-export * from './client.js';
-export * from './migrate.js';
-export * from './seed.js';
+export * from './schema.ts';
+export * from './client.ts';
+export * from './migrate.ts';
+export * from './seed.ts';

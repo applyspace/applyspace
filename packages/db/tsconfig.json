@@ -6,7 +6,8 @@
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "rewriteRelativeImportExtensions": true
   },
   "include": ["src"],
   "exclude": ["src/scripts"]

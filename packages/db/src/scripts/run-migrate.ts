@@ -2,8 +2,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { openDatabase } from '../client.js';
-import { runMigrations } from '../migrate.js';
+import { openDatabase } from '../client.ts';
+import { runMigrations } from '../migrate.ts';
 
 /**
  * Dev-only entry point used by `pnpm --filter @apply/db migrate`.
