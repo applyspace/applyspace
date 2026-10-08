@@ -1,0 +1,10 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "types": ["node"],
+    "lib": ["ES2022", "DOM"],
+    "noUncheckedIndexedAccess": true
+  },
+  "include": ["src", "test", "vitest.config.ts", "eslint.config.mjs"]
+}
