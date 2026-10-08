@@ -291,7 +291,7 @@ function ComparisonTable() {
                       <HugeiconsIcon icon={Tick02Icon} size={14} strokeWidth={2.5} />
                     </span>
                   ) : v === undefined ? (
-                    <span className="my-2.5 h-px w-3 rounded-full bg-foreground/25" aria-label="Not included" />
+                    <span className="my-2.5 h-[1.5px] w-3.5 rounded-full bg-foreground/45" aria-label="Not included" />
                   ) : (
                     <span className="font-medium">{v}</span>
                   )}
