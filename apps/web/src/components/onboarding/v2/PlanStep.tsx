@@ -1,8 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { AnimatePresence, motion } from 'motion/react';
-import { motionTheme } from '@/lib/motion-theme';
+import { RollingText } from '@/components/onboarding/v2/RollingText';
 import { HugeiconsIcon, type IconSvgElement } from '@hugeicons/react';
 import {
   AiMagicIcon,
@@ -95,7 +94,6 @@ type Plan = {
   card: string;
   ring: string;
   muted: string;
-  badge?: boolean;
   price: number;
   limits: string[];
   intro: string | null;
@@ -128,7 +126,6 @@ const PLANS: Plan[] = [
     card: 'border border-stone-700 bg-transparent',
     ring: '#f3e3ff',
     muted: 'text-foreground/70',
-    badge: true,
     price: 0.99,
     limits: ['99 applications', '3 search profiles', '3 interview templates'],
     intro: 'Everything in Free, plus…',
@@ -191,51 +188,6 @@ function InlineLogos({ logos }: { logos: Logo[] }) {
   );
 }
 
-/**
- * One character of an animated value. When it changes, the old character leaves and the new one enters,
- * upwards if the new digit is larger and downwards if it is smaller.
- */
-function RollingChar({ char, index }: { char: string; index: number }) {
-  const [state, setState] = useState({ char, dir: 1 });
-  if (state.char !== char) {
-    const next = Number(char);
-    const prev = Number(state.char);
-    setState({ char, dir: Number.isNaN(next) || Number.isNaN(prev) || next > prev ? 1 : -1 });
-  }
-  return (
-    <span className="relative inline-flex overflow-hidden">
-      <AnimatePresence mode="popLayout" initial={false} custom={state.dir}>
-        <motion.span
-          key={char}
-          custom={state.dir}
-          variants={{
-            enter: (d: number) => ({ y: `${d * 100}%`, opacity: 0 }),
-            center: { y: 0, opacity: 1 },
-            exit: (d: number) => ({ y: `${d * -100}%`, opacity: 0 }),
-          }}
-          initial="enter"
-          animate="center"
-          exit="exit"
-          transition={{ ...motionTheme.transitions.ui, delay: index * 0.06 }}
-        >
-          {char}
-        </motion.span>
-      </AnimatePresence>
-    </span>
-  );
-}
-
-/** A value whose digits roll one by one when it changes. */
-function RollingText({ value }: { value: string }) {
-  return (
-    <span className="inline-flex" aria-label={value}>
-      {value.split('').map((c, i) => (
-        <RollingChar key={i} char={c} index={i} />
-      ))}
-    </span>
-  );
-}
-
 /** Plan name as a colored tag, same family as the Popular badge. */
 function PlanTag({ plan, size = 'lg' }: { plan: Plan; size?: 'md' | 'lg' }) {
   return (
@@ -245,16 +197,15 @@ function PlanTag({ plan, size = 'lg' }: { plan: Plan; size?: 'md' | 'lg' }) {
   );
 }
 
-/** Free is a soft stone fill; Plus and Max are transparent with a dark stone border. Plus carries the Popular badge next to its name; the select button sits at the bottom. */
+/** Free is a soft stone fill; Plus and Max are transparent with a dark stone border. the select button sits at the bottom. */
 function PlanCard({ plan, period, onSelect }: { plan: Plan; period: (typeof PERIODS)[number]; onSelect: (plan: string) => void }) {
   const perMonth = plan.price * (1 - period.discount);
   return (
     <Card className={cn('gap-0 rounded-3xl py-0 ring-0', plan.card)}>
       <div className="flex flex-1 flex-col gap-6 px-7 pt-7 pb-7">
-        <div className="space-y-1">
+        <div className="space-y-3">
           <div className="flex items-center gap-2.5">
             <PlanTag plan={plan} />
-            {plan.badge && <span className="rounded-full bg-brand-950 px-3 py-1 text-xs font-medium text-brand-100">Popular</span>}
           </div>
           <p className={cn('text-sm', plan.muted)}>{plan.tagline}</p>
         </div>
@@ -301,19 +252,21 @@ function PlanCard({ plan, period, onSelect }: { plan: Plan; period: (typeof PERI
   );
 }
 
-/** Full comparison: one tinted column per plan under its colored name tag, a check chip in the plan color or a value per row. */
+/** Full comparison: one tinted column per plan, continuous from the tag down to the last row, rounded only on the outer corners of the whole block. A black dash marks a feature the plan does not have. */
 function ComparisonTable() {
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
     ref.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }, []);
   const last = COMPARISON.length - 1;
+  const corner = (i: number, edge: 'top' | 'bottom') =>
+    i === 0 ? (edge === 'top' ? 'rounded-tl-3xl' : 'rounded-bl-3xl') : i === PLANS.length - 1 ? (edge === 'top' ? 'rounded-tr-3xl' : 'rounded-br-3xl') : '';
   return (
     <div ref={ref} className="mx-auto mt-6 max-w-4xl scroll-mt-8">
       <div className="grid grid-cols-[1.6fr_1fr_1fr_1fr] items-center text-sm">
         <span />
-        {PLANS.map((p) => (
-          <span key={p.key} className={cn('flex justify-center rounded-t-3xl pt-5 pb-4', p.tint)}>
+        {PLANS.map((p, i) => (
+          <span key={p.key} className={cn('flex justify-center pt-5 pb-4', p.tint, corner(i, 'top'))}>
             <PlanTag plan={p} size="md" />
           </span>
         ))}
@@ -321,11 +274,13 @@ function ComparisonTable() {
           <div key={row.label} className="contents">
             <span className="py-2.5 pr-4">{row.label}</span>
             {row.values.map((v, i) => (
-              <span key={i} className={cn('flex justify-center py-2.5', PLANS[i].tint, r === last && 'rounded-b-3xl pb-4')}>
+              <span key={i} className={cn('flex justify-center py-2.5', PLANS[i].tint, r === last && cn('pb-4', corner(i, 'bottom')))}>
                 {v === true ? (
                   <span className={cn('flex size-6 items-center justify-center rounded-full', PLANS[i].tag)}>
                     <HugeiconsIcon icon={Tick02Icon} size={14} strokeWidth={2.5} />
                   </span>
+                ) : v === undefined ? (
+                  <span className="my-2.5 h-0.5 w-4 rounded-full bg-foreground" aria-label="Not included" />
                 ) : (
                   <span className="font-medium">{v}</span>
                 )}
@@ -364,7 +319,14 @@ export function PlanStep({ onSelect }: { onSelect: (plan: string) => void }) {
         ))}
       </div>
       <div className="mt-12 flex justify-center pb-12">
-        <Button variant="ghost" size="lg" onClick={() => setCompare(!compare)}>
+        <Button
+          variant="ghost"
+          size="lg"
+          onClick={() => {
+            if (compare) window.scrollTo({ top: 0, behavior: 'smooth' });
+            setCompare(!compare);
+          }}
+        >
           {compare ? 'Hide plan comparison' : 'See full plan comparison'}
           <HugeiconsIcon icon={compare ? ArrowUp01Icon : ArrowDown01Icon} size={16} strokeWidth={2} />
         </Button>

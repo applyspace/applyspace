@@ -44,6 +44,7 @@ import {
   Wrench01Icon,
 } from '@hugeicons/core-free-icons';
 import { Button } from '@/components/ui/button';
+import { RollingText } from '@/components/onboarding/v2/RollingText';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Slider } from '@/components/ui/slider';
 import { ChoiceCard, toggle } from '@/components/onboarding/v2/fields';
@@ -156,9 +157,9 @@ function SalaryMinimum({
   return (
     <div className="mx-auto w-full max-w-sm">
       <div className="mb-9 flex justify-center">
-        <div className="inline-flex items-center gap-1 font-heading text-4xl leading-none font-medium tracking-tight tabular-nums">
+        <div className="inline-flex items-center font-heading text-4xl leading-none font-medium tracking-tight tabular-nums">
           <DropdownMenu>
-            <DropdownMenuTrigger render={<button type="button" aria-label="Currency" className="mr-1 rounded-lg px-1.5 py-1 outline-none transition-colors hover:bg-muted focus-visible:ring-3 focus-visible:ring-ring/30" />}>
+            <DropdownMenuTrigger render={<button type="button" aria-label="Currency" className="-mr-0.5 rounded-lg px-1 py-1 outline-none transition-colors hover:bg-muted focus-visible:ring-3 focus-visible:ring-ring/30" />}>
               {symbol}
             </DropdownMenuTrigger>
             <DropdownMenuContent align="center" className="w-max min-w-0">
@@ -169,22 +170,27 @@ function SalaryMinimum({
               ))}
             </DropdownMenuContent>
           </DropdownMenu>
-          <input
-            type="text"
-            inputMode="numeric"
-            pattern="[0-9]*"
-            value={text}
-            placeholder="0"
-            aria-label="Minimum yearly salary, in thousands"
-            onChange={(e) => {
-              const digits = e.target.value.replace(/\D/g, '').slice(0, 3);
-              onValue(digits === '' ? 0 : Number(digits));
-            }}
-            className="rounded-xl bg-muted/70 px-3 py-1.5 text-center font-[inherit] tracking-[inherit] outline-none placeholder:text-muted-foreground/50 focus-visible:ring-3 focus-visible:ring-ring/30"
-            style={{ width: `calc(${Math.max(text.length, 1)}ch + 1.5rem)` }}
-          />
+          <span className="relative inline-flex">
+            <input
+              type="text"
+              inputMode="numeric"
+              pattern="[0-9]*"
+              value={text}
+              placeholder="0"
+              aria-label="Minimum yearly salary, in thousands"
+              onChange={(e) => {
+                const digits = e.target.value.replace(/\D/g, '').slice(0, 3);
+                onValue(digits === '' ? 0 : Number(digits));
+              }}
+              className="rounded-xl bg-muted/70 px-2.5 py-1.5 text-center font-[inherit] tracking-[inherit] text-transparent caret-foreground outline-none placeholder:text-muted-foreground/50 focus-visible:ring-3 focus-visible:ring-ring/30"
+              style={{ width: `calc(${Math.max(text.length, 1)}ch + 1.25rem)` }}
+            />
+            <span className="pointer-events-none absolute inset-0 flex items-center justify-center" aria-hidden>
+              <RollingText value={text} />
+            </span>
+          </span>
           <span className={cn(value === 0 && 'text-muted-foreground/50')}>K+</span>
-          <span className="text-muted-foreground">/year</span>
+          <span className="ml-1.5 text-lg font-normal text-muted-foreground">/year</span>
         </div>
       </div>
       <div className="flex h-16 items-end gap-px px-2" aria-hidden>
