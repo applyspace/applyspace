@@ -1,6 +1,7 @@
 'use client';
 
 import { HugeiconsIcon, type IconSvgElement } from '@hugeicons/react';
+import { useId } from 'react';
 import {
   Agreement03Icon,
   AiBrain01Icon,
@@ -135,6 +136,49 @@ const SECTORS: { label: string; icon: IconSvgElement; tone: Tone; top?: boolean 
   { label: 'Telecom', icon: SmartPhone01Icon, tone: 'slate' },
 ];
 
+/** Smooth path through the points (midpoint cubic curves), used for both the area and its outline. */
+function smoothPath(points: [number, number][]) {
+  return points.reduce((d, [x, y], i) => {
+    if (i === 0) return `M${x},${y}`;
+    const [px, py] = points[i - 1];
+    const mx = (px + x) / 2;
+    return `${d} C${mx},${py} ${mx},${y} ${x},${y}`;
+  }, '');
+}
+
+/**
+ * Area chart with a gradient fill (placeholder distribution). The part at or above the chosen minimum is
+ * drawn stronger, the part below it fainter.
+ */
+function SalaryArea({ value }: { value: number }) {
+  const id = useId();
+  const peak = Math.max(...SALARY_BARS);
+  const W = 100;
+  const H = 48;
+  const points: [number, number][] = SALARY_BARS.map((v, i) => [((i + 0.5) / SALARY_BARS.length) * W, H - 2 - (v / peak) * (H - 6)]);
+  const line = smoothPath([[0, points[0][1]], ...points, [W, points[points.length - 1][1]]]);
+  const area = `${line} L${W},${H} L0,${H} Z`;
+  const from = Math.min(Math.max(((value - SALARY_MIN) / (SALARY_MAX - SALARY_MIN)) * W, 0), W);
+  return (
+    <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" className="h-12 w-full text-brand-400" aria-hidden>
+      <defs>
+        <linearGradient id={`${id}-fill`} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="5%" stopColor="currentColor" stopOpacity="0.8" />
+          <stop offset="95%" stopColor="currentColor" stopOpacity="0.1" />
+        </linearGradient>
+        <clipPath id={`${id}-selected`}>
+          <rect x={from} y="0" width={W - from} height={H} />
+        </clipPath>
+      </defs>
+      <path d={area} fill={`url(#${id}-fill)`} opacity="0.35" />
+      <g clipPath={`url(#${id}-selected)`}>
+        <path d={area} fill={`url(#${id}-fill)`} />
+        <path d={line} fill="none" stroke="currentColor" strokeWidth="1.5" vectorEffect="non-scaling-stroke" />
+      </g>
+    </svg>
+  );
+}
+
 /**
  * Minimum yearly salary, in thousands. The amount is an editable field (digits only, no prefilled value, "0K" placeholder)
  * on a light zone, above a placeholder distribution and a single-handle slider (0 to 100K, 1K steps).
@@ -151,16 +195,15 @@ function SalaryMinimum({
   onCurrency: (next: string) => void;
 }) {
   const symbol = CURRENCIES.find((c) => c.code === currency)?.symbol ?? '€';
-  const perBar = (SALARY_MAX - SALARY_MIN) / SALARY_BARS.length;
-  const peak = Math.max(...SALARY_BARS);
   const text = value > 0 ? String(value) : '';
 
   return (
     <div className="mx-auto w-full max-w-sm">
-      <div className="mb-9 flex justify-center">
-        <div className="inline-flex items-center font-heading text-3xl leading-none font-medium tracking-tight tabular-nums">
+      <div className="mb-9 grid grid-cols-2 font-heading text-3xl leading-none font-medium tracking-tight tabular-nums">
+        {/* Currency and amount: right-aligned against the fixed suffix, so they grow to the left only. */}
+        <div className="flex items-center justify-end">
           <DropdownMenu>
-            <DropdownMenuTrigger render={<button type="button" aria-label="Currency" className="mr-1.5 rounded-lg px-1 py-1 outline-none transition-colors hover:bg-muted focus-visible:ring-3 focus-visible:ring-ring/30" />}>
+            <DropdownMenuTrigger render={<button type="button" aria-label="Currency" className="rounded-lg py-1 pl-1 outline-none transition-colors hover:bg-muted focus-visible:ring-3 focus-visible:ring-ring/30" />}>
               {symbol}
             </DropdownMenuTrigger>
             <DropdownMenuContent align="center" className="w-max min-w-0">
@@ -190,16 +233,16 @@ function SalaryMinimum({
               <RollingText value={text} fast />
             </span>
           </span>
-          <span className={cn('ml-1', value === 0 && 'text-muted-foreground/50')}>K+</span>
+        </div>
+        {/* Fixed suffix: "K", a raised "+" in its own span, then "/year". Never moves with the amount. */}
+        <div className="flex items-center justify-start">
+          <span className={cn(value === 0 && 'text-muted-foreground/50')}>K</span>
+          <span className={cn('-translate-y-1 text-2xl', value === 0 && 'text-muted-foreground/50')}>+</span>
           <span className="ml-2 text-xl font-semibold text-muted-foreground">/year</span>
         </div>
       </div>
-      <div className="flex h-24 items-end gap-0.5 px-2" aria-hidden>
-        {SALARY_BARS.map((v, i) => {
-          const from = SALARY_MIN + i * perBar;
-          const inside = from + perBar > value;
-          return <div key={i} className={cn('flex-1 rounded-t-[3px] transition-colors', inside ? 'bg-brand-400' : 'bg-brand-200')} style={{ height: `${(v / peak) * 100}%` }} />;
-        })}
+      <div className="px-2">
+        <SalaryArea value={value} />
       </div>
       <Slider
         value={[Math.min(value, SALARY_MAX)]}
@@ -241,7 +284,7 @@ export function ContractStep({
           </ChoiceCard>
         ))}
       </div>
-      <div className="mt-6 border-t pt-8">
+      <div className="mt-10 border-t pt-10">
         <SalaryMinimum value={minSalary} onValue={onMinSalary} currency={currency} onCurrency={onCurrency} />
       </div>
     </>

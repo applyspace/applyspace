@@ -43,15 +43,14 @@ export function TagSearch({
 }) {
   const [query, setQuery] = useState('');
   const q = query.trim().toLowerCase();
-  const [remote, setRemote] = useState<string[]>([]);
+  // Remote results are kept with the query they answer, so stale ones are ignored without a synchronous setState in the effect.
+  const [remoteResult, setRemoteResult] = useState<{ q: string; list: string[] }>({ q: '', list: [] });
+  const remote = remoteResult.q === q ? remoteResult.list : [];
   useEffect(() => {
-    if (!fetchSuggestions || q.length < 2) {
-      setRemote([]);
-      return;
-    }
+    if (!fetchSuggestions || q.length < 2) return;
     const controller = new AbortController();
     const timer = setTimeout(() => {
-      fetchSuggestions(q, controller.signal).then((list) => !controller.signal.aborted && setRemote(list));
+      fetchSuggestions(q, controller.signal).then((list) => !controller.signal.aborted && setRemoteResult({ q, list }));
     }, 250);
     return () => {
       clearTimeout(timer);

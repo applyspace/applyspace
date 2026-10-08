@@ -118,6 +118,8 @@ export interface OnboardingAnswers {
   sizes: string[];
   sectors: string[];
   platforms: string[];
+  /** Plan picked on the last page (an intent: it grants nothing). */
+  selectedPlan?: string | null;
 }
 
 export interface FirstSearchInput {

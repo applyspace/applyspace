@@ -753,6 +753,7 @@ const PLATFORM_SLUGS: Record<string, string> = {
   'Collective.work': 'collectivework',
   'France Travail': 'francetravail',
 };
+const SELECTED_PLANS: string[] = ['free', 'plus', 'max'];
 const COMPANY_SIZES = ['1-10', '11-50', '51-200', '201-1,000', '1,000+'];
 const PLAN_CAP = { free: { titles: 3, places: 3, contracts: 3 }, plus: { titles: 6, places: 100, contracts: 100 } } as const;
 
@@ -765,7 +766,7 @@ const slugify = (name: string) => PLATFORM_SLUGS[name] ?? name.toLowerCase().rep
 /**
  * Saves every onboarding v2 answer: availability on the account, everything else on the first search
  * profile (one search holding all job titles). Writes the new columns first and falls back to the
- * legacy ones while the v2 migration is not applied. The plan is not stored: it is not user-writable.
+ * legacy ones while the v2 migration is not applied. The picked plan goes to `accounts.selected_plan`, an intent only: `accounts.plan` is not user-writable.
  */
 export async function saveOnboardingAnswers(s: SupabaseScope, a: OnboardingAnswers): Promise<void> {
   const { plan } = await getAccount(s);
@@ -784,6 +785,12 @@ export async function saveOnboardingAnswers(s: SupabaseScope, a: OnboardingAnswe
   if (a.status) {
     const res = await s.supabase.from('accounts').update({ availability: AVAILABILITY_MAP[a.status] }).eq('id', s.userId);
     if (res.error) console.error('[profile] saving availability failed:', res.error.message);
+  }
+
+  // Separate write so a missing `selected_plan` column (migration not applied yet) never costs the availability above.
+  if (a.selectedPlan && SELECTED_PLANS.includes(a.selectedPlan)) {
+    const res = await s.supabase.from('accounts').update({ selected_plan: a.selectedPlan }).eq('id', s.userId);
+    if (res.error) console.error('[profile] saving the selected plan failed:', res.error.message);
   }
 
   const [firstTitle] = titles;

@@ -192,7 +192,7 @@ export function OnboardingV2() {
               startFinishing(async () => {
                 setSaveError(null);
                 // Every answer goes to the first search profile before onboarding is stamped as done.
-                const saved = await saveOnboardingAnswers({ status, titles, levels, places, workplaces, contracts, minSalaryK: minSalary, currency, sizes, sectors, platforms });
+                const saved = await saveOnboardingAnswers({ status, titles, levels, places, workplaces, contracts, minSalaryK: minSalary, currency, sizes, sectors, platforms, selectedPlan: plan });
                 if (!saved.ok) {
                   posthog.capture('onboarding_save_failed', { reason: saved.reason });
                   // Signed out (demo, desktop): nothing to attach to, carry on. Any other failure stays here so the answers are not lost.
