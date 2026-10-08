@@ -165,9 +165,13 @@ export function buildSalary(input: {
   return salary;
 }
 
+/** No-break and narrow no-break spaces, which French sites use as thousands separators. */
+const SPACES = String.fromCharCode(0xa0, 0x202f);
+const SPACE_RE = new RegExp(`[${SPACES}]`, 'g');
+
 function parseAmount(raw: string): number | null {
   // "45 000", "45.000", "45,000", "3 200,50", "45k"
-  let s = raw.replace(/[\s  ]/g, '');
+  let s = raw.replace(SPACE_RE, '').replace(/\s/g, '');
   const k = /k$/i.test(s);
   s = s.replace(/k$/i, '');
   if (/^\d{1,3}([.,]\d{3})+$/.test(s)) s = s.replace(/[.,]/g, '');
@@ -183,7 +187,7 @@ function parseAmount(raw: string): number | null {
  */
 export function parseSalaryText(raw: unknown): Salary | null {
   if (typeof raw !== 'string') return null;
-  const text = raw.replace(/ | /g, ' ');
+  const text = raw.replace(SPACE_RE, ' ');
   if (!/[\d]/.test(text) || !/(€|£|\$|eur|usd|gbp|chf|k\b)/i.test(text)) return null;
   const amounts = [...text.matchAll(/\d[\d\s.,]*\d(?:\s?k)?|\d+(?:\s?k)?/gi)]
     .map((m) => parseAmount(m[0]))
