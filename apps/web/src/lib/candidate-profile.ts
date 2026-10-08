@@ -41,6 +41,10 @@ function must<T>(result: { data: T; error: { message: string } | null }, what: s
   return result.data;
 }
 
+/** Postgres `undefined_column` (42703) or PostgREST "column not found in the schema cache" (PGRST204). */
+const isMissingColumn = (error: { code?: string; message: string }) =>
+  error.code === '42703' || error.code === 'PGRST204' || /column .* (does not exist|schema cache)/i.test(error.message);
+
 const clean = (value: string | null | undefined) => (value ?? '').trim();
 const orNull = (value: string | null | undefined) => clean(value) || null;
 
@@ -766,7 +770,7 @@ const slugify = (name: string) => PLATFORM_SLUGS[name] ?? name.toLowerCase().rep
 /**
  * Saves every onboarding v2 answer: availability on the account, everything else on the first search
  * profile (one search holding all job titles). Writes the new columns first and falls back to the
- * legacy ones while the v2 migration is not applied. The picked plan goes to `accounts.selected_plan`, an intent only: `accounts.plan` is not user-writable.
+ * legacy ones only when the v2 migration is missing a column; any other database error fails the save. The picked plan goes to `accounts.selected_plan`, an intent only: `accounts.plan` is not user-writable.
  */
 export async function saveOnboardingAnswers(s: SupabaseScope, a: OnboardingAnswers): Promise<void> {
   const account = await getAccount(s);
@@ -810,7 +814,17 @@ export async function saveOnboardingAnswers(s: SupabaseScope, a: OnboardingAnswe
   if (!firstTitle) return;
 
   const profile = await getOrCreateDefaultProfile(s, firstTitle);
-  if (profile.job_title === PLACEHOLDER_JOB_TITLE) {
+
+  const existing = must(
+    await s.supabase.from('searches').select('id, search_title').eq('profile_id', profile.id).order('created_at', { ascending: true }).limit(1),
+    'searches',
+  ) as { id: string; search_title: string | null }[] | null;
+  const targetId = existing?.[0]?.id;
+
+  // The profile title follows the search title while it is the placeholder or still the one a previous onboarding set
+  // (replay); a title the user edited by hand is kept.
+  const previousTitle = existing?.[0]?.search_title ?? null;
+  if (profile.job_title !== firstTitle && (profile.job_title === PLACEHOLDER_JOB_TITLE || profile.job_title === previousTitle)) {
     must(await s.supabase.from('profiles').update({ job_title: firstTitle }).eq('id', profile.id), 'profiles');
   }
 
@@ -827,12 +841,6 @@ export async function saveOnboardingAnswers(s: SupabaseScope, a: OnboardingAnswe
   };
   const legacy = { ...base, remote_mode: workplaces[0] ?? null, salary_min_eur: currency === 'EUR' ? salaryMin : null };
 
-  const existing = must(
-    await s.supabase.from('searches').select('id').eq('profile_id', profile.id).order('created_at', { ascending: true }).limit(1),
-    'searches',
-  ) as { id: string }[] | null;
-  const targetId = existing?.[0]?.id;
-
   const write = (values: Record<string, unknown>) =>
     targetId
       ? s.supabase.from('searches').update(values).eq('id', targetId)
@@ -840,6 +848,8 @@ export async function saveOnboardingAnswers(s: SupabaseScope, a: OnboardingAnswe
 
   const first = await write(full);
   if (!first.error) return;
-  console.error('[profile] full onboarding save failed, retrying with legacy columns:', first.error.message);
+  // Only an unknown column (v2 migration not applied) may fall back; anything else (constraint, RLS, network) must reach the user.
+  if (!isMissingColumn(first.error)) throw new Error(`Supabase searches: ${first.error.message}`);
+  console.error('[profile] v2 columns missing, retrying with legacy columns:', first.error.message);
   must(await write(legacy), 'searches');
 }
