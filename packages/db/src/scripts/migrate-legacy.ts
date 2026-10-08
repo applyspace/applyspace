@@ -5,9 +5,9 @@ import { fileURLToPath } from 'node:url';
 import { eq } from 'drizzle-orm';
 import { v7 as uuidv7 } from 'uuid';
 
-import type { DrizzleDB } from '../client.ts';
-import { openDatabase } from '../client.ts';
-import { runMigrations } from '../migrate.ts';
+import type { DrizzleDB } from '../client.js';
+import { openDatabase } from '../client.js';
+import { runMigrations } from '../migrate.js';
 import {
   type ApplicationStatus,
   type Contract,
@@ -26,8 +26,8 @@ import {
   searchNoGos,
   searches,
   settings,
-} from '../schema.ts';
-import { runSeed } from '../seed.ts';
+} from '../schema.js';
+import { runSeed } from '../seed.js';
 
 // =============================================================================
 // Paths
