@@ -64,14 +64,14 @@ export const SALARY_MIN = 0;
 export const SALARY_MAX = 100;
 
 /**
- * Placeholder salary distribution (purely visual for now), one bar per 2K.
+ * Placeholder salary distribution (purely visual for now), one bar per 4K.
  * Two overlapping bumps (junior and senior pay) plus deterministic jitter, so it looks like real data.
  */
-const SALARY_BARS = Array.from({ length: 50 }, (_, i) => {
-  const x = (i + 0.5) * 2;
+const SALARY_BARS = Array.from({ length: 25 }, (_, i) => {
+  const x = (i + 0.5) * 4;
   const bump = (mu: number, sigma: number, h: number) => h * Math.exp(-((x - mu) ** 2) / (2 * sigma ** 2));
   const jitter = 0.72 + 0.56 * Math.abs(Math.sin(i * 12.9898 + 4.1) * Math.cos(i * 3.7 + 1.3));
-  const roundNumber = x % 10 === 1 ? 1.12 : 1; // salaries cluster around round figures
+  const roundNumber = i % 5 === 2 ? 1.12 : 1; // salaries cluster around round figures
   return Math.max(1.5, (bump(32, 10, 100) + bump(55, 14, 62) + bump(85, 18, 22)) * jitter * roundNumber);
 });
 
@@ -158,7 +158,7 @@ function SalaryMinimum({
   return (
     <div className="mx-auto w-full max-w-sm">
       <div className="mb-9 flex justify-center">
-        <div className="inline-flex items-center font-heading text-4xl leading-none font-medium tracking-tight tabular-nums">
+        <div className="inline-flex items-center font-heading text-3xl leading-none font-medium tracking-tight tabular-nums">
           <DropdownMenu>
             <DropdownMenuTrigger render={<button type="button" aria-label="Currency" className="mr-1.5 rounded-lg px-1 py-1 outline-none transition-colors hover:bg-muted focus-visible:ring-3 focus-visible:ring-ring/30" />}>
               {symbol}
@@ -183,22 +183,22 @@ function SalaryMinimum({
                 const digits = e.target.value.replace(/\D/g, '').slice(0, 3);
                 onValue(digits === '' ? 0 : Number(digits));
               }}
-              className="rounded-lg bg-muted/70 px-1 py-0.5 text-center font-[inherit] tracking-[inherit] text-transparent caret-foreground outline-none placeholder:text-muted-foreground/50 focus-visible:ring-3 focus-visible:ring-ring/30"
+              className="rounded-lg bg-transparent px-1 py-0.5 text-center font-[inherit] tracking-[inherit] text-transparent caret-foreground outline-none placeholder:text-muted-foreground/50 focus-visible:ring-3 focus-visible:ring-ring/30"
               style={{ width: `calc(${Math.max(text.length, 1)}ch + 0.5rem)` }}
             />
             <span className="pointer-events-none absolute inset-0 flex items-center justify-center" aria-hidden>
               <RollingText value={text} fast />
             </span>
           </span>
-          <span className={cn(value === 0 && 'text-muted-foreground/50')}>K+</span>
-          <span className="ml-2 text-2xl font-semibold text-muted-foreground">/year</span>
+          <span className={cn('ml-1', value === 0 && 'text-muted-foreground/50')}>K+</span>
+          <span className="ml-2 text-xl font-semibold text-muted-foreground">/year</span>
         </div>
       </div>
-      <div className="flex h-16 items-end gap-px px-2" aria-hidden>
+      <div className="flex h-24 items-end gap-0.5 px-2" aria-hidden>
         {SALARY_BARS.map((v, i) => {
           const from = SALARY_MIN + i * perBar;
           const inside = from + perBar > value;
-          return <div key={i} className={cn('flex-1 rounded-t-[2px] transition-colors', inside ? 'bg-brand-300' : 'bg-brand-100')} style={{ height: `${(v / peak) * 100}%` }} />;
+          return <div key={i} className={cn('flex-1 rounded-t-[3px] transition-colors', inside ? 'bg-brand-400' : 'bg-brand-200')} style={{ height: `${(v / peak) * 100}%` }} />;
         })}
       </div>
       <Slider
@@ -208,7 +208,7 @@ function SalaryMinimum({
         step={1}
         onValueChange={(v) => onValue(Array.isArray(v) ? v[0] : v)}
         aria-label="Minimum salary"
-        className="mt-3 **:data-[slot=slider-track]:bg-foreground **:data-[slot=slider-range]:bg-border"
+        className="mt-0 **:data-[slot=slider-track]:bg-foreground **:data-[slot=slider-range]:bg-border"
       />
     </div>
   );

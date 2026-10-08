@@ -13,6 +13,7 @@ import {
   FileCheckCornerIcon,
   JobSearchIcon,
   Link01Icon,
+  DatabaseAddIcon,
   NotepadTextDashedIcon,
   CheckListIcon,
   CursorMagicSelection01Icon,
@@ -82,6 +83,7 @@ const PLUS_FEATURES: Feature[] = [
 const MAX_FEATURES: Feature[] = [
   { text: 'AI Interview simulation', icon: Mic02Icon },
   { text: 'Shareable progress page', icon: Link01Icon },
+  { text: 'Custom job offers source', icon: DatabaseAddIcon },
 ];
 
 type Plan = {
@@ -289,7 +291,7 @@ function ComparisonTable() {
                       <HugeiconsIcon icon={Tick02Icon} size={14} strokeWidth={2.5} />
                     </span>
                   ) : v === undefined ? (
-                    <span className="my-2.5 h-0.5 w-4 rounded-full bg-foreground" aria-label="Not included" />
+                    <span className="my-2.5 h-px w-3 rounded-full bg-foreground/25" aria-label="Not included" />
                   ) : (
                     <span className="font-medium">{v}</span>
                   )}
