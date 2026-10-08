@@ -45,6 +45,7 @@ import {
 } from '@hugeicons/core-free-icons';
 import { Button } from '@/components/ui/button';
 import { RollingText } from '@/components/onboarding/v2/RollingText';
+import { useOverflow } from '@/components/onboarding/v2/useOverflow';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Slider } from '@/components/ui/slider';
 import { ChoiceCard, toggle } from '@/components/onboarding/v2/fields';
@@ -266,6 +267,7 @@ export function CompanyStep({
   // Same pattern as the platforms step: the list scrolls inside its own section (the page never scrolls), fades out above the bottom nav, and "See more" reveals the other sectors.
   const ordered = [...SECTORS.filter((s) => s.top), ...SECTORS.filter((s) => !s.top)];
   const list = showAll ? ordered : ordered.filter((s) => s.top);
+  const { ref: listRef, scrollable } = useOverflow<HTMLDivElement>([showAll]);
   return (
     <>
       <StepHeader title="What kind of company suits you?" subtitle="Leave anything empty to keep every option open." />
@@ -287,7 +289,14 @@ export function CompanyStep({
             </button>
           ))}
         </div>
-        <div className="flex max-h-[max(10rem,calc(100dvh-36rem))] w-full flex-wrap content-start justify-center gap-3 overflow-y-auto border-t p-1 pt-6 pb-16 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden [mask-image:linear-gradient(to_bottom,black_calc(100%-4.5rem),transparent)]">
+        <div
+          ref={listRef}
+          data-scrollable={scrollable}
+          className={cn(
+            'flex max-h-[max(10rem,calc(100dvh-36rem))] w-full flex-wrap content-start justify-center gap-3 overflow-y-auto border-t p-1 pt-6 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden',
+            scrollable && 'pb-16 [mask-image:linear-gradient(to_bottom,black_calc(100%-4.5rem),transparent)]',
+          )}
+        >
           {list.map((s) => {
             const selected = sectors.includes(s.label);
             return (

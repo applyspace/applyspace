@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { BrandLogo } from '@/components/onboarding/v2/BrandLogo';
 import { StepHeader } from '@/components/onboarding/v2/StepHeader';
+import { useOverflow } from '@/components/onboarding/v2/useOverflow';
 import { cn } from '@/lib/utils';
 import { toggle } from '@/components/onboarding/v2/fields';
 
@@ -50,15 +51,21 @@ export function PlatformsStep({
 }) {
   const inFrance = places.length === 0 || places.some((p) => /france|paris|lyon|bordeaux|nantes|le-de-france/i.test(p));
   const list = (expanded ? [...PLATFORMS, ...MORE_PLATFORMS] : PLATFORMS).filter((p) => !p.franceOnly || inFrance);
+  const { ref: listRef, scrollable } = useOverflow<HTMLDivElement>([expanded, inFrance]);
 
   return (
     <>
       <StepHeader title="Where should we look for offers?" subtitle="We search these platforms for you and merge duplicates into one offer." />
       <div className="mx-auto max-w-2xl">
         <div
+          ref={listRef}
+          data-scrollable={scrollable}
           role="group"
           aria-label="Job platforms"
-          className="grid max-h-[max(10rem,calc(100dvh-36rem))] grid-cols-2 gap-4 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden p-1 pb-16 [mask-image:linear-gradient(to_bottom,black_calc(100%-4.5rem),transparent)]"
+          className={cn(
+            'grid max-h-[max(10rem,calc(100dvh-36rem))] grid-cols-2 gap-4 overflow-y-auto p-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden',
+            scrollable && 'pb-16 [mask-image:linear-gradient(to_bottom,black_calc(100%-4.5rem),transparent)]',
+          )}
         >
           {list.map((p) => {
             const selected = values.includes(p.name);
