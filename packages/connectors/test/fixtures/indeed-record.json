@@ -1,0 +1,14 @@
+{
+  "_synthetic": "Built from the documented Indeed record fields (scraper doc summary in the Notion report). Not captured from the platform.",
+  "jobKey": "2aa489becfc76419",
+  "title": "Data Analyst",
+  "jobUrl": "https://fr.indeed.com/viewjob?jk=2aa489becfc76419",
+  "descriptionText": "Vous analysez les données.",
+  "location": { "raw": "Niort (79)", "city": "Niort", "postalCode": "79000", "countryCode": "FR", "admin1Code": "NAQ", "latitude": 46.32, "longitude": -0.46, "isRemote": false },
+  "salary": { "salaryText": "45 000 € - 60 000 € par an", "salaryMin": 45000, "salaryMax": 60000, "salaryType": "YEAR", "salaryCurrency": "EUR", "isEstimated": false },
+  "companyName": "Société Exemple",
+  "companyIndustry": "Services",
+  "datePublished": "2026-10-03T00:00:00Z",
+  "attributes": ["SQL", "Python"],
+  "language": "fr"
+}

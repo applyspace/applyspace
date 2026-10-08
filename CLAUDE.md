@@ -10,6 +10,7 @@ apps/desktop     → Electron shell (see apps/desktop/CLAUDE.md)
 apps/mobile      → Expo app, not started
 packages/db      → Drizzle schema and migrations (see packages/db/CLAUDE.md)
 packages/scraper → Playwright scraper
+packages/connectors → Job board connector contract, parsers and local Playwright probe (see packages/connectors/README.md)
 site/            → Marketing website, not started
 ```
 
@@ -27,7 +28,7 @@ All commit messages follow the gitmoji + scope format:
 emoji(scope): message
 ```
 
-**Scopes:** `web`, `desktop`, `mobile`, `extension`, `site`, `db`, `scraper`, `dev`, `config`, `deps`, `docs`
+**Scopes:** `web`, `desktop`, `mobile`, `extension`, `site`, `db`, `scraper`, `connectors`, `dev`, `config`, `deps`, `docs`
 
 | Emoji | Code | When to use |
 |---|---|---|

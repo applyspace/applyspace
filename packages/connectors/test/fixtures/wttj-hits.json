@@ -1,0 +1,40 @@
+{
+  "_synthetic": "Built from the documented WTTJ field list (Notion: Job platforms data access report). Not captured from the platform.",
+  "hits": [
+    {
+      "reference": "SYNTH_AAAA111",
+      "title": "Lead Developer (Python/React) - CDI - Paris",
+      "company_name": "Exemple SAS",
+      "company_employee_count": 330,
+      "company_logo": "https://example.test/logo-a.png",
+      "city": "Paris",
+      "country_code": "FR",
+      "latitude": 48.8566,
+      "longitude": 2.3522,
+      "contract_type": "FULL_TIME",
+      "remote_policy": "partial",
+      "published_at": "2026-07-10T15:00:00.000+02:00",
+      "salary_minimum": 65000,
+      "salary_maximum": 80000,
+      "salary_currency": "EUR",
+      "salary_period": "yearly",
+      "url": "/fr/companies/exemple-sas/jobs/lead-developer-python-react_paris"
+    },
+    {
+      "reference": "SYNTH_BBBB222",
+      "title": "Product Designer",
+      "company_name": "Demo Studio",
+      "city": "Lyon",
+      "country_code": "FR",
+      "contract_type": "internship",
+      "remote_policy": "fulltime",
+      "published_at": "2026-10-01T08:30:00.000Z",
+      "salary_minimum": null,
+      "salary_maximum": null,
+      "salary_currency": null,
+      "salary_period": null,
+      "url": "https://www.welcometothejungle.com/fr/companies/demo-studio/jobs/product-designer_lyon"
+    },
+    { "title": "Entry without reference is dropped" }
+  ]
+}

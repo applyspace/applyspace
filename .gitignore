@@ -36,3 +36,6 @@ yarn-debug.log*
 .vercel
 .claude/settings.local.json
 .claude/launch.json
+
+# ── Job connector probe output (raw pages from your own session) ───
+probe-output/
