@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
   ContractsIcon,
@@ -7,13 +6,13 @@ import {
   UserMultipleIcon,
   Location06Icon,
   HomeWifiIcon,
-  FilterHorizontalIcon,
 } from "@hugeicons/core-free-icons";
 import { readOffers } from "@/lib/offers";
+import { readSearches } from "@/lib/searches";
 import { readSettings } from "@/lib/settings";
+import { EditSearchButton } from "@/components/jobs/EditSearchButton";
+import { SearchNowButton } from "@/components/jobs/SearchNowButton";
 import { JobTable } from "@/components/jobs/JobTable";
-import { buttonVariants } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 
 const CONTRACT_EN: Record<string, string> = {
   CDI: "Permanent",
@@ -70,7 +69,11 @@ function mergeCompanySizes(sizes: string[]): string | null {
 }
 
 export default async function OffersPage() {
-  const [offers, settings] = await Promise.all([readOffers(), readSettings()]);
+  const [offers, settings, searches] = await Promise.all([
+    readOffers(),
+    readSettings(),
+    readSearches(),
+  ]);
 
   const salaryLabel = (() => {
     const { salaryMin, salaryMax } = settings;
@@ -170,16 +173,10 @@ export default async function OffersPage() {
             </div>
 
             {/* Edit button */}
-            <Link
-              href="/settings"
-              className={cn(
-                buttonVariants({ variant: "outline", size: "sm" }),
-                "mt-0.5 shrink-0 gap-1.5 text-muted-foreground",
-              )}
-            >
-              <HugeiconsIcon icon={FilterHorizontalIcon} size={14} />
-              Edit criteria
-            </Link>
+            <div className="flex shrink-0 items-start gap-3">
+              {searches[0] && <SearchNowButton searchId={searches[0].id} />}
+              <EditSearchButton settings={settings} />
+            </div>
           </div>
         </div>
       </div>

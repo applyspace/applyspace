@@ -1,12 +1,15 @@
 'use client';
 
-import { SessionProvider } from 'next-auth/react';
-import type { Session } from 'next-auth';
-import { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
+import { useLocalStorageItem } from '@/lib/useLocalStorage';
 import type { Locale, T } from '@/lib/i18n';
 import { translations } from '@/lib/i18n';
+import { toAuthUser, type AuthUser } from '@/lib/auth-user';
+import { createClient } from '@/lib/supabase/client';
+import { isSupabaseConfigured } from '@/lib/supabase/env';
+import posthog from 'posthog-js';
 
-// ── Locale context ──────────────────────────────────────────────────────────
+// ── Locale context ────────────────────────────────────────────────────────────────────────
 
 interface LocaleContextValue {
   locale: Locale;
@@ -26,17 +29,18 @@ export function useLocale() {
   return useContext(LocaleContext);
 }
 
-function LocaleProvider({ children }: { children: React.ReactNode }) {
-  const [locale, setLocaleState] = useState<Locale>(DEFAULT_LOCALE);
-
-  useEffect(() => {
-    const saved = localStorage.getItem('apply-locale') as Locale | null;
-    if (saved === 'en' || saved === 'fr') setLocaleState(saved);
-  }, []);
+function LocaleProvider({
+  children,
+  initialLocale,
+}: {
+  children: React.ReactNode;
+  initialLocale: Locale;
+}) {
+  const [savedLocale, saveLocale] = useLocalStorageItem('apply-locale');
+  const locale: Locale = savedLocale === 'en' || savedLocale === 'fr' ? savedLocale : initialLocale;
 
   function setLocale(l: Locale) {
-    setLocaleState(l);
-    localStorage.setItem('apply-locale', l);
+    saveLocale(l);
     document.documentElement.lang = l;
   }
 
@@ -47,18 +51,86 @@ function LocaleProvider({ children }: { children: React.ReactNode }) {
   );
 }
 
-// ── Combined providers ───────────────────────────────────────────────────────
+// ── Auth context ──────────────────────────────────────────────────────────────────────────
+
+interface AuthContextValue {
+  user: AuthUser | null;
+  signOut: () => Promise<void>;
+}
+
+const AuthContext = createContext<AuthContextValue>({
+  user: null,
+  signOut: async () => {},
+});
+
+export function useAuth() {
+  return useContext(AuthContext);
+}
+
+function AuthProvider({
+  initialUser,
+  children,
+}: {
+  initialUser: AuthUser | null;
+  children: React.ReactNode;
+}) {
+  const [user, setUser] = useState<AuthUser | null>(initialUser);
+  const userIdRef = useRef(initialUser?.id ?? null);
+  const didResetForSignOutRef = useRef(false);
+
+  useEffect(() => {
+    if (!isSupabaseConfigured) return;
+    const { data } = createClient().auth.onAuthStateChange((event, session) => {
+      const nextUser = session?.user ? toAuthUser(session.user) : null;
+
+      if (event === 'SIGNED_OUT') {
+        if (didResetForSignOutRef.current) didResetForSignOutRef.current = false;
+        else posthog.reset();
+      } else if (nextUser && userIdRef.current && userIdRef.current !== nextUser.id) {
+        // A direct account switch must not merge the previous account's activity.
+        posthog.reset();
+      }
+
+      userIdRef.current = nextUser?.id ?? null;
+      setUser((currentUser) => (currentUser?.id === nextUser?.id ? currentUser : nextUser));
+    });
+    return () => data.subscription.unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    if (!user) return;
+    posthog.identify(user.id, {
+      email: user.email ?? undefined,
+      name: user.name ?? undefined,
+    });
+  }, [user]);
+
+  const signOut = useCallback(async () => {
+    posthog.capture('sign_out_completed');
+    didResetForSignOutRef.current = true;
+    posthog.reset();
+    if (isSupabaseConfigured) await createClient().auth.signOut();
+    window.location.assign('/login');
+  }, []);
+
+  return <AuthContext.Provider value={{ user, signOut }}>{children}</AuthContext.Provider>;
+}
+
+// ── Combined providers ─────────────────────────────────────────────────────────────────────────
 
 export function Providers({
   children,
-  session,
+  user,
+  initialLocale = DEFAULT_LOCALE,
 }: {
   children: React.ReactNode;
-  session: Session | null;
+  user: AuthUser | null;
+  /** Locale before the visitor has chosen one (from the browser language). */
+  initialLocale?: Locale;
 }) {
   return (
-    <SessionProvider session={session}>
-      <LocaleProvider>{children}</LocaleProvider>
-    </SessionProvider>
+    <AuthProvider initialUser={user}>
+      <LocaleProvider initialLocale={initialLocale}>{children}</LocaleProvider>
+    </AuthProvider>
   );
 }

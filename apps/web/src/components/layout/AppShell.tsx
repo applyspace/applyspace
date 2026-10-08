@@ -1,13 +1,15 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import { Sidebar } from './Sidebar';
+import { SettingsModal } from '@/components/settings/SettingsModal';
+import { SettingsModalProvider } from '@/components/settings/SettingsModalProvider';
+import { useLocalStorageItem } from '@/lib/useLocalStorage';
 import type {
   ApplicationWithRelations,
   InterviewWithRelations,
 } from '@/types/applications';
-import type { Profile } from '@/types/profiles';
 import type { SearchWithCount } from '@/types/searches';
+import type { AccountPlan } from '@/types/candidate-profile';
 
 const DEFAULT_WIDTH = 240;
 const MIN_WIDTH = 180;
@@ -15,57 +17,60 @@ const MAX_WIDTH = 360;
 
 export function AppShell({
   children,
-  profiles,
   searches,
   applications,
   interviews,
+  firstName,
+  lastName,
+  platformStatuses,
+  plan,
 }: {
   children: React.ReactNode;
-  profiles: Profile[];
   searches: SearchWithCount[];
   applications: ApplicationWithRelations[];
   interviews: InterviewWithRelations[];
+  /** Account name from settings (empty strings when not set). */
+  firstName: string;
+  lastName: string;
+  /** Job board connection status per source, for Settings > Connectors. */
+  platformStatuses: Record<string, boolean>;
+  /** Account plan, or null when nobody is signed in (demo, desktop). */
+  plan: AccountPlan | null;
 }) {
-  const [collapsed, setCollapsed] = useState(false);
-  const [sidebarWidth, setSidebarWidth] = useState(DEFAULT_WIDTH);
+  const [savedCollapsed, saveCollapsed] = useLocalStorageItem('apply-sidebar-collapsed');
+  const [savedWidth, saveWidth] = useLocalStorageItem('apply-sidebar-width');
 
-  useEffect(() => {
-    const savedCollapsed = localStorage.getItem('apply-sidebar-collapsed');
-    if (savedCollapsed === 'true') setCollapsed(true);
-
-    const savedWidth = localStorage.getItem('apply-sidebar-width');
-    if (savedWidth) {
-      const w = parseInt(savedWidth, 10);
-      if (!isNaN(w) && w >= MIN_WIDTH && w <= MAX_WIDTH) setSidebarWidth(w);
-    }
-  }, []);
+  const collapsed = savedCollapsed === 'true';
+  const parsedWidth = savedWidth ? parseInt(savedWidth, 10) : NaN;
+  const sidebarWidth =
+    parsedWidth >= MIN_WIDTH && parsedWidth <= MAX_WIDTH ? parsedWidth : DEFAULT_WIDTH;
 
   function toggle() {
-    setCollapsed((prev) => {
-      const next = !prev;
-      localStorage.setItem('apply-sidebar-collapsed', String(next));
-      return next;
-    });
+    saveCollapsed(String(!collapsed));
   }
 
   function handleWidthChange(width: number) {
-    setSidebarWidth(width);
-    localStorage.setItem('apply-sidebar-width', String(width));
+    saveWidth(String(width));
   }
 
   return (
-    <div className="flex h-screen overflow-hidden bg-background">
-      <Sidebar
-        collapsed={collapsed}
-        onToggle={toggle}
-        width={sidebarWidth}
-        onWidthChange={handleWidthChange}
-        profiles={profiles}
-        searches={searches}
-        applications={applications}
-        interviews={interviews}
-      />
-      <main className="flex-1 overflow-y-auto">{children}</main>
-    </div>
+    <SettingsModalProvider>
+      <div className="flex h-screen overflow-hidden bg-background">
+        <Sidebar
+          collapsed={collapsed}
+          onToggle={toggle}
+          width={sidebarWidth}
+          onWidthChange={handleWidthChange}
+          searches={searches}
+          applications={applications}
+          interviews={interviews}
+          firstName={firstName}
+          lastName={lastName}
+          plan={plan}
+        />
+        <main className="flex-1 overflow-y-auto">{children}</main>
+      </div>
+      <SettingsModal firstName={firstName} lastName={lastName} statuses={platformStatuses} />
+    </SettingsModalProvider>
   );
 }

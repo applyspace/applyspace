@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useTransition } from 'react';
+import posthog from 'posthog-js';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { Tick01Icon, Loading02Icon } from '@hugeicons/core-free-icons';
 import { Label } from '@/components/ui/label';
@@ -52,11 +53,13 @@ export function TabSearchCriteria({ settings }: TabSearchCriteriaProps) {
 
   function handleSave() {
     startTransition(async () => {
-      await fetch('/api/settings', {
+      const response = await fetch('/api/settings', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(form),
       });
+      if (!response.ok) return;
+      posthog.capture('settings_saved', { section: 'search_criteria' });
       setSaved(true);
       setTimeout(() => setSaved(false), 2000);
     });
@@ -172,8 +175,6 @@ export function TabSearchCriteria({ settings }: TabSearchCriteriaProps) {
         {/* Presets */}
         <div className="flex flex-wrap gap-2">
           {noGoPresets.map((preset, idx) => {
-            // Map translated preset to stored value (use EN index to find FR stored value)
-            const storedValue = preset; // We'll store displayed value for simplicity
             const active = form.noGos.includes(preset);
             return (
               <button

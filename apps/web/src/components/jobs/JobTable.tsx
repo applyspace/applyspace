@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useCallback } from 'react';
+import posthog from 'posthog-js';
 import { JobCard } from '@/components/jobs/JobCard';
 import { JobDetail } from '@/components/jobs/JobDetail';
 import type { OfferWithRelations } from '@/types/offers';
@@ -16,11 +17,13 @@ export function JobTable({ offers }: JobTableProps) {
   const [statuses, setStatuses] = useState<Record<string, JobStatus>>({});
 
   const handleDecline = useCallback((id: string) => {
+    posthog.capture('offer_declined');
     setStatuses((prev) => ({ ...prev, [id]: 'declined' }));
     setSelectedOffer((prev) => (prev?.id === id ? null : prev));
   }, []);
 
   const handleApply = useCallback((id: string) => {
+    posthog.capture('offer_application_started');
     setStatuses((prev) => ({ ...prev, [id]: 'applied' }));
   }, []);
 

@@ -1,4 +1,3 @@
-import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { HugeiconsIcon } from '@hugeicons/react';
 import {
@@ -7,14 +6,14 @@ import {
   Money01Icon,
   Location06Icon,
   HomeWifiIcon,
-  FilterHorizontalIcon,
 } from '@hugeicons/core-free-icons';
 import { readOffers } from '@/lib/offers';
 import { readSearches } from '@/lib/searches';
+import { readSettings } from '@/lib/settings';
 import { matchIdInSlug } from '@/lib/slug';
+import { EditSearchButton } from '@/components/jobs/EditSearchButton';
+import { SearchNowButton } from '@/components/jobs/SearchNowButton';
 import { JobTable } from '@/components/jobs/JobTable';
-import { buttonVariants } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
 
 // Canonical DB tokens → display labels. Keys include both the current canonical
 // values ('CDI', 'entry', 'hybrid'…) and legacy FR/EN strings still found in
@@ -74,9 +73,10 @@ export default async function SearchPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const [allOffers, searches] = await Promise.all([
+  const [allOffers, searches, settings] = await Promise.all([
     readOffers(),
     readSearches(),
+    readSettings(),
   ]);
 
   const id = matchIdInSlug(
@@ -162,16 +162,10 @@ export default async function SearchPage({
               )}
             </div>
 
-            <Link
-              href="/settings"
-              className={cn(
-                buttonVariants({ variant: 'outline', size: 'sm' }),
-                'mt-0.5 shrink-0 gap-1.5 text-muted-foreground'
-              )}
-            >
-              <HugeiconsIcon icon={FilterHorizontalIcon} size={14} />
-              Edit criteria
-            </Link>
+            <div className="flex shrink-0 items-start gap-3">
+              <SearchNowButton searchId={search.id} />
+              <EditSearchButton settings={settings} />
+            </div>
           </div>
         </div>
       </div>
