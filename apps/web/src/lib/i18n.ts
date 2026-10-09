@@ -44,6 +44,9 @@ export const translations = {
       desktopReturnTitle: 'Back to ApplySpace',
       desktopReturnHint: 'You are signed in. Open the app to continue, then close this tab.',
       desktopReturnButton: 'Open ApplySpace',
+      desktopSigningIn: 'Signing you in…',
+      desktopSignInFailed: 'Sign-in could not be completed.',
+      desktopBackToLogin: 'Back to sign in',
       disclaimer: 'We only access your public profile info — name, photo, email.',
     },
     settings: {
@@ -184,6 +187,9 @@ export const translations = {
       desktopReturnTitle: 'Retour sur ApplySpace',
       desktopReturnHint: "Vous êtes connecté. Ouvrez l'application pour continuer, puis fermez cet onglet.",
       desktopReturnButton: 'Ouvrir ApplySpace',
+      desktopSigningIn: 'Connexion en cours…',
+      desktopSignInFailed: "La connexion n'a pas pu aboutir.",
+      desktopBackToLogin: 'Retour à la connexion',
       disclaimer: 'Nous accédons uniquement à votre profil public — nom, photo, email.',
     },
     settings: {
