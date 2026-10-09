@@ -1,4 +1,5 @@
 import snapshot from '@/data/demo-offers.json';
+import { isDemoRequest } from '@/lib/hosted';
 import type { ConnectorOffer, OfferConnector } from './types';
 
 /**
@@ -9,8 +10,8 @@ import type { ConnectorOffer, OfferConnector } from './types';
  * execution backend that runs on the user's side (desktop window or browser
  * extension), which will replace this implementation.
  *
- * Until then: with `APPLY_DEMO=1` it serves the committed snapshot, otherwise
- * it reports that search is not available on the web yet.
+ * Until then: on the demo host (or with `APPLY_DEMO=1`) it serves the committed
+ * snapshot, otherwise it reports that search is not available on the web yet.
  */
 
 interface SnapshotJob {
@@ -28,7 +29,7 @@ interface SnapshotJob {
 export const wttjConnector: OfferConnector = {
   slug: 'wttj',
   async searchOffers() {
-    if (process.env.APPLY_DEMO !== '1') {
+    if (!(await isDemoRequest())) {
       return {
         status: 'unavailable',
         message:

@@ -1,7 +1,7 @@
 import * as supabaseSettings from '@/lib/settings-supabase';
 import { getSupabaseScope } from '@/lib/supabase/scope';
 import { demoSettings } from '@/lib/demo';
-import { IS_DEMO } from '@/lib/hosted';
+import { isDemoRequest } from '@/lib/hosted';
 import type { Source } from '@apply/core/platforms';
 
 /**
@@ -59,7 +59,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
 export async function readSettings(): Promise<AppSettings> {
   const scope = await getSupabaseScope();
   if (scope) return supabaseSettings.readSettings(scope);
-  return IS_DEMO ? demoSettings() : DEFAULT_SETTINGS;
+  return (await isDemoRequest()) ? demoSettings() : DEFAULT_SETTINGS;
 }
 
 /** Patch AppSettings. Signed-out visitors and the read-only demo have nothing to save. */
@@ -76,7 +76,7 @@ export async function writeSettings(patch: Partial<AppSettings>): Promise<void> 
  * keychain-backed store comes with the in-app login capture.
  */
 export async function checkSourceConnected(source: Source): Promise<boolean> {
-  if (IS_DEMO) return false;
+  if (await isDemoRequest()) return false;
   const cookiesDir = process.env.COOKIES_DIR;
   if (!cookiesDir) return false;
   try {

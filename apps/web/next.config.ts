@@ -1,10 +1,6 @@
 import type { NextConfig } from "next";
 import path from "node:path";
 
-// Hosted build (Vercel): `/demo` serves the Offers page without an account.
-// Left out of the desktop/standalone builds.
-const IS_DEMO = process.env.APPLY_DEMO === '1' || Boolean(process.env.VERCEL);
-
 const nextConfig: NextConfig = {
   // Packaged as an Electron app: we need the self-contained Next server
   // (`.next/standalone/server.js`) so Electron can fork it in prod.
@@ -40,20 +36,16 @@ const nextConfig: NextConfig = {
     cpus: 2,
   },
 
-  async redirects() {
-    if (!IS_DEMO) return [];
-    // Once Supabase is configured, sign-in is real: the proxy sends signed-out
-    // visitors from `/` to `/login`. Until then everything lands on the demo.
-    if (process.env.NEXT_PUBLIC_SUPABASE_URL) return [];
-    return [
-      { source: '/', destination: '/demo', permanent: false },
-      { source: '/login', destination: '/demo', permanent: false },
-    ];
-  },
-
+  // The public demo lives on `demo.*` (demo.applyspace.app): `/demo` serves the
+  // Offers page there. The main domain and previews have no demo route.
   async rewrites() {
-    if (!IS_DEMO) return [];
-    return [{ source: '/demo', destination: '/offers' }];
+    return [
+      {
+        source: '/demo',
+        has: [{ type: 'host', value: 'demo\\..+' }],
+        destination: '/offers',
+      },
+    ];
   },
 
   images: {

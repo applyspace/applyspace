@@ -33,11 +33,7 @@ export function JobTable({ offers }: JobTableProps) {
     return (
       <div className="flex h-48 flex-col items-center justify-center gap-2 text-zinc-400">
         <p className="text-sm">No offers found.</p>
-        <p className="text-xs">
-          Run{' '}
-          <code className="rounded bg-zinc-100 px-1 py-0.5 text-zinc-600">pnpm scrape</code>{' '}
-          to fetch new offers.
-        </p>
+        <p className="text-xs">Run a search to fetch new offers.</p>
       </div>
     );
   }

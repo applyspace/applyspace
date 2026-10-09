@@ -2,7 +2,7 @@ import type { Search } from '@apply/db/schema';
 import { getSupabaseScope } from '@/lib/supabase/scope';
 import * as supabaseData from '@/lib/supabase/queries';
 import { demoSearches } from '@/lib/demo';
-import { IS_DEMO } from '@/lib/hosted';
+import { isDemoRequest } from '@/lib/hosted';
 
 /**
  * All searches across every profile. Ordered by `(profileId, searchTitle)` so
@@ -16,17 +16,17 @@ import { IS_DEMO } from '@/lib/hosted';
 export async function readSearches(): Promise<Search[]> {
   const scope = await getSupabaseScope();
   if (scope) return supabaseData.readSearches(scope);
-  return IS_DEMO ? demoSearches() : [];
+  return (await isDemoRequest()) ? demoSearches() : [];
 }
 
 export async function readSearch(id: string): Promise<Search | null> {
   const scope = await getSupabaseScope();
   if (scope) return supabaseData.readSearch(scope, id);
-  return IS_DEMO ? (demoSearches().find((s) => s.id === id) ?? null) : null;
+  return (await isDemoRequest()) ? (demoSearches().find((s) => s.id === id) ?? null) : null;
 }
 
 export async function readSearchesForProfile(profileId: string): Promise<Search[]> {
   const scope = await getSupabaseScope();
   if (scope) return supabaseData.readSearchesForProfile(scope, profileId);
-  return IS_DEMO ? demoSearches().filter((s) => s.profileId === profileId) : [];
+  return (await isDemoRequest()) ? demoSearches().filter((s) => s.profileId === profileId) : [];
 }
