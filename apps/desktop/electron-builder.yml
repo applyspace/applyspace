@@ -1,5 +1,5 @@
-appId: com.aurelienlouvel.apply
-productName: Apply
+appId: app.applyspace.desktop
+productName: applyspace
 copyright: Copyright © 2026 Aurélien Louvel
 
 # Registers the applyspace:// scheme (OAuth return from the system browser).
@@ -67,15 +67,12 @@ asar: false
 npmRebuild: false
 
 mac:
+  # Apple Silicon only for the alpha (faster build); add x64 when needed.
   target:
     - target: dmg
       arch:
         - arm64
-        - x64
-    - target: zip
-      arch:
-        - arm64
-        - x64
+  artifactName: '${productName}-${version}-${arch}.${ext}'
   category: public.app-category.productivity
   hardenedRuntime: true
   gatekeeperAssess: false
