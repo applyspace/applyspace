@@ -1,3 +1,3 @@
-import type { Profile } from '@apply/db';
+import type { Profile } from '@apply/db/schema';
 
 export type { Profile };

@@ -13,9 +13,9 @@ const geist = Geist({ subsets: ['latin'], variable: '--font-sans' });
 const fraunces = Fraunces({ subsets: ['latin'], variable: '--font-display', axes: ['SOFT', 'WONK', 'opsz'] });
 
 // Force dynamic rendering for the whole tree — this Electron app has zero
-// static content: every page reads from the local SQLite DB or the Supabase
-// session at request time. Static pre-render would fire up workers that each
-// load the server bundle + better-sqlite3 native binary, OOM-ing the build.
+// static content: every page reads the Supabase session at request time.
+// Static pre-render would fire up workers that each load the server bundle,
+// OOM-ing the build.
 export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {

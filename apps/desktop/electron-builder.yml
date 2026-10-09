@@ -15,12 +15,10 @@ directories:
 # Tree layout inside the packaged app (under <resources>/app).
 # We ship:
 #   - apps/desktop/dist/**           — Electron main + preload + shared (compiled)
-#   - apps/desktop/node_modules/**   — direct deps (incl. better-sqlite3 native)
+#   - apps/desktop/node_modules/**   — direct deps
 #   - apps/web/.next/standalone/**   — Next.js standalone server + its deps
 #   - apps/web/.next/static/**       — Next.js client-side assets
 #   - apps/web/public/**             — user-facing static files
-#   - packages/db/dist/**            — compiled @apply/db (consumed by main + Next)
-#   - packages/db/drizzle/migrations — migration SQL files applied at boot
 files:
   - dist/**/*
   - package.json
@@ -45,15 +43,12 @@ files:
 #   Contents/Resources/apps/web/.next/standalone/apps/web/server.js
 #   Contents/Resources/apps/web/.next/standalone/apps/web/.next/static/...
 #   Contents/Resources/apps/web/.next/standalone/apps/web/public/...
-# `@apply/db` ships via `files: node_modules/**/*` which correctly resolves
-# the pnpm symlink — no duplicate copy needed in extraResources.
 extraResources:
   - from: '../web/.next/standalone'
     to: 'apps/web/.next/standalone'
     filter:
       - '**/*'
       - '!.local/**/*'
-      - '!**/apply.sqlite'
   - from: '../web/.next/static'
     to: 'apps/web/.next/standalone/apps/web/.next/static'
   - from: '../web/public'
@@ -67,10 +62,8 @@ extraResources:
 # for a local-first app. Revisit if we ever sign/notarize for public release.
 asar: false
 
-# We run `@electron/rebuild` ourselves via `pnpm desktop:rebuild` before a dist
-# build. electron-builder's built-in rebuild step chokes on pnpm's node_modules
-# layout (tries to stat a non-existent `.pnpm/node_modules/web` path), so we
-# turn it off and rely on the manual step.
+# No native module is bundled any more (the local SQLite database is gone), so
+# electron-builder's rebuild step stays off.
 npmRebuild: false
 
 mac:

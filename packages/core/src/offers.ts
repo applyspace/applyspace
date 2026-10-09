@@ -1,4 +1,4 @@
-import type { Company, Offer, Platform } from '@apply/db';
+import type { Company, Offer, Platform } from '@apply/db/schema';
 
 export type { Offer };
 

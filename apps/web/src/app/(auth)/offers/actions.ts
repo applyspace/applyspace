@@ -1,7 +1,7 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { EXPERIENCE_LEVEL_VALUES, type Search } from '@apply/db';
+import { EXPERIENCE_LEVEL_VALUES, type Search } from '@apply/db/schema';
 import * as candidate from '@/lib/candidate-profile';
 import { getConnector } from '@/lib/connectors';
 import { getSupabaseScope } from '@/lib/supabase/scope';

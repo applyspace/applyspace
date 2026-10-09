@@ -13,13 +13,6 @@ importers:
         version: 9.2.1
 
   apps/desktop:
-    dependencies:
-      '@apply/db':
-        specifier: workspace:*
-        version: link:../../packages/db
-      better-sqlite3:
-        specifier: ^12.0.0
-        version: 12.9.0
     devDependencies:
       '@electron/rebuild':
         specifier: ^3.7.0
@@ -63,9 +56,6 @@ importers:
       '@supabase/supabase-js':
         specifier: ^2.58.0
         version: 2.117.2
-      better-sqlite3:
-        specifier: ^12.0.0
-        version: 12.9.0
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1

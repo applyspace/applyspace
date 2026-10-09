@@ -20,7 +20,6 @@
     "db:build":          "pnpm --filter @apply/db build",
 
     "desktop":           "pnpm --filter @apply/desktop dev",
-    "desktop:rebuild":   "pnpm --filter @apply/desktop electron:rebuild",
 
     "dev":               "concurrently -n web,desktop -c cyan,magenta \"pnpm --filter web dev\" \"pnpm --filter @apply/desktop dev\"",
     "build:web":         "NODE_OPTIONS=\"--max-old-space-size=8192\" pnpm --filter web exec next build --webpack",

@@ -8,14 +8,9 @@
     "build":    "tsc",
     "dev":      "wait-on tcp:3000 && pnpm build && electron dist/main/index.js",
     "start":    "electron dist/main/index.js",
-    "electron:rebuild": "electron-rebuild -f -w better-sqlite3",
     "pack":     "electron-builder --dir",
     "dist":     "electron-builder",
     "clean":    "rm -rf dist release"
-  },
-  "dependencies": {
-    "@apply/db": "workspace:*",
-    "better-sqlite3": "^12.0.0"
   },
   "devDependencies": {
     "@electron/rebuild": "^3.7.0",

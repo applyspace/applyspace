@@ -1,4 +1,4 @@
-import type { Company, Offer, Platform, Profile, Search, Contract, RemoteMode } from '@apply/db';
+import type { Company, Offer, Platform, Profile, Search, Contract, RemoteMode } from '@apply/db/schema';
 import type { OfferWithRelations } from '@apply/core/offers';
 import snapshot from '@/data/demo-offers.json';
 import { labelsFromExperienceLevels, toK } from '@/lib/settings-mapping';
