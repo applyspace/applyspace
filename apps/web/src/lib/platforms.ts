@@ -1,23 +1,15 @@
-import { asc } from 'drizzle-orm';
-import {
-  platforms,
-  platformConnections,
-  type Platform,
-  type PlatformConnection,
-} from '@apply/db';
+import { platformConnections, type Platform, type PlatformConnection } from '@apply/db';
 import { getDb } from '@/lib/db';
 import { getSupabaseScope } from '@/lib/supabase/scope';
 import * as supabaseData from '@/lib/supabase/queries';
 import { demoPlatforms } from '@/lib/demo';
 import { IS_DEMO } from '@/lib/hosted';
 
-/** All known scraping platforms, in the order the seed inserted them. */
+/** All known scraping platforms, by slug. Supabase for signed-in users, fixtures for the demo. */
 export async function readPlatforms(): Promise<Platform[]> {
   const scope = await getSupabaseScope();
   if (scope) return supabaseData.readPlatforms(scope);
-  if (IS_DEMO) return demoPlatforms();
-  const db = getDb();
-  return db.select().from(platforms).orderBy(asc(platforms.slug)).all();
+  return IS_DEMO ? demoPlatforms() : [];
 }
 
 /** Per-platform connection state (cookies captured, last scrape timestamp…). */
