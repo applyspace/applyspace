@@ -3,6 +3,8 @@ import { searches, type Search } from '@apply/db';
 import { getDb } from '@/lib/db';
 import { getSupabaseScope } from '@/lib/supabase/scope';
 import * as supabaseData from '@/lib/supabase/queries';
+import { demoSearches } from '@/lib/demo';
+import { IS_DEMO } from '@/lib/hosted';
 
 /**
  * All searches across every profile. Ordered by `(profileId, searchTitle)` so
@@ -15,6 +17,7 @@ import * as supabaseData from '@/lib/supabase/queries';
 export async function readSearches(): Promise<Search[]> {
   const scope = await getSupabaseScope();
   if (scope) return supabaseData.readSearches(scope);
+  if (IS_DEMO) return demoSearches();
   const db = getDb();
   return db
     .select()
@@ -26,6 +29,7 @@ export async function readSearches(): Promise<Search[]> {
 export async function readSearch(id: string): Promise<Search | null> {
   const scope = await getSupabaseScope();
   if (scope) return supabaseData.readSearch(scope, id);
+  if (IS_DEMO) return demoSearches().find((s) => s.id === id) ?? null;
   const db = getDb();
   const [row] = await db.select().from(searches).where(eq(searches.id, id)).limit(1);
   return row ?? null;
@@ -34,6 +38,7 @@ export async function readSearch(id: string): Promise<Search | null> {
 export async function readSearchesForProfile(profileId: string): Promise<Search[]> {
   const scope = await getSupabaseScope();
   if (scope) return supabaseData.readSearchesForProfile(scope, profileId);
+  if (IS_DEMO) return demoSearches().filter((s) => s.profileId === profileId);
   const db = getDb();
   return db
     .select()

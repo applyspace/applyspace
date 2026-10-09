@@ -1,27 +1,22 @@
-import { eq } from 'drizzle-orm';
-import { randomUUID } from 'node:crypto';
-import {
-  companies,
-  offers,
-  profiles,
-  searches,
-  settings,
-  type Contract,
-  type DrizzleDB,
-  type RemoteMode,
-} from '@apply/db';
+import type { Company, Offer, Platform, Profile, Search, Contract, RemoteMode } from '@apply/db';
+import type { OfferWithRelations } from '@apply/core/offers';
 import snapshot from '@/data/demo-offers.json';
+import { labelsFromExperienceLevels, toK } from '@/lib/settings-mapping';
+import type { AppSettings } from '@/lib/settings';
 
 /**
- * Demo content for the hosted version: one search profile ("Product Designer",
- * mid-level, WTTJ) and the offers from a committed snapshot of that search.
+ * Demo content for the hosted version, served from memory (no database): one
+ * search profile ("Product Designer", mid-level, WTTJ), the four platforms and
+ * the offers from a committed snapshot of that search.
  *
  * The snapshot is produced by `pnpm --filter @apply/scraper demo:snapshot`
  * (no account needed) so the public demo never calls WTTJ at request time.
- * Idempotent: does nothing once the demo profile exists.
+ * Read-only: the demo never saves anything.
  */
 
 const DEMO_PROFILE_ID = 'demo-profile';
+const DEMO_SEARCH_ID = 'demo-search';
+const NOW = '2026-01-01T00:00:00.000Z';
 
 interface SnapshotJob {
   id: string;
@@ -59,113 +54,123 @@ function toSalary(raw: string | undefined): { min: number | null; max: number | 
   return { min: nums[0] ?? null, max: nums[1] ?? null };
 }
 
-export function seedDemo(db: DrizzleDB): void {
-  const exists = db.select({ id: profiles.id }).from(profiles).where(eq(profiles.id, DEMO_PROFILE_ID)).get();
-  if (exists) return;
+// Mirrors the platforms seeded by `runSeed()` in packages/db/src/seed.ts.
+const PLATFORMS: Platform[] = [
+  { slug: 'hellowork', label: 'HelloWork', brandColor: '#FD3345', loginUrl: 'https://www.hellowork.com/fr-fr/candidat/login.html' },
+  { slug: 'jobsthatmakesense', label: 'JobsThatMakeSense', brandColor: '#006A4E', loginUrl: 'https://www.jobs_that_makesense.org/fr/login' },
+  { slug: 'linkedin', label: 'LinkedIn', brandColor: '#0A66C2', loginUrl: 'https://www.linkedin.com/login' },
+  { slug: 'wttj', label: 'Welcome to the Jungle', brandColor: '#FFC619', loginUrl: 'https://www.welcometothejungle.com/fr/signin' },
+];
 
-  const now = new Date().toISOString();
+const PROFILE: Profile = {
+  id: DEMO_PROFILE_ID,
+  jobTitle: 'Product Designer',
+  isDefault: true,
+  description: null,
+  createdAt: NOW,
+  updatedAt: NOW,
+};
 
-  db.transaction((tx) => {
-    tx.insert(profiles)
-      .values({
-        id: DEMO_PROFILE_ID,
-        jobTitle: 'Product Designer',
-        isDefault: true,
+const SEARCH: Search = {
+  id: DEMO_SEARCH_ID,
+  profileId: DEMO_PROFILE_ID,
+  searchTitle: 'Product Designer',
+  location: 'France',
+  contractTypes: ['CDI'],
+  experienceLevels: ['mid'],
+  remoteMode: null,
+  salaryMinEur: null,
+  salaryMaxEur: null,
+  enabledPlatforms: ['wttj'],
+  createdAt: NOW,
+  updatedAt: NOW,
+};
+
+function buildContent(): { companies: Company[]; offers: OfferWithRelations[] } {
+  const wttj = PLATFORMS.find((p) => p.slug === 'wttj')!;
+  const companies = new Map<string, Company>();
+  const offers: OfferWithRelations[] = [];
+
+  for (const job of snapshot.jobs as SnapshotJob[]) {
+    const name = job.company?.trim();
+    if (!name || !job.url || !job.title) continue;
+
+    let company = companies.get(name);
+    if (!company) {
+      company = {
+        id: `demo-company-${companies.size + 1}`,
+        name,
+        domain: null,
+        linkedinHandle: null,
+        sector: null,
+        size: null,
+        headquarters: null,
         description: null,
-        createdAt: now,
-        updatedAt: now,
-      })
-      .run();
-
-    tx.insert(searches)
-      .values({
-        id: 'demo-search',
-        profileId: DEMO_PROFILE_ID,
-        searchTitle: 'Product Designer',
-        location: 'France',
-        contractTypes: ['CDI'],
-        experienceLevels: ['mid'],
-        remoteMode: null,
-        salaryMinEur: null,
-        salaryMaxEur: null,
-        enabledPlatforms: ['wttj'],
-        createdAt: now,
-        updatedAt: now,
-      })
-      .run();
-
-    tx.insert(settings)
-      .values({
-        id: 'default',
-        defaultProfileId: DEMO_PROFILE_ID,
-        locale: 'fr',
-        createdAt: now,
-        updatedAt: now,
-      })
-      .onConflictDoUpdate({
-        target: settings.id,
-        set: { defaultProfileId: DEMO_PROFILE_ID, updatedAt: now },
-      })
-      .run();
-
-    const companyIds = new Map<string, string>();
-    for (const job of snapshot.jobs as SnapshotJob[]) {
-      const name = job.company?.trim();
-      if (!name || !job.url || !job.title) continue;
-
-      let companyId = companyIds.get(name);
-      if (!companyId) {
-        companyId = randomUUID();
-        tx.insert(companies)
-          .values({
-            id: companyId,
-            name,
-            domain: null,
-            linkedinHandle: null,
-            sector: null,
-            size: null,
-            headquarters: null,
-            description: null,
-            logoUrl: null,
-            createdAt: now,
-            updatedAt: now,
-          })
-          .onConflictDoNothing()
-          .run();
-        // A duplicate name keeps the existing row; read back the real id.
-        const row = tx.select({ id: companies.id }).from(companies).where(eq(companies.name, name)).get();
-        companyId = row?.id ?? companyId;
-        companyIds.set(name, companyId);
-      }
-
-      const salary = toSalary(job.salary);
-      const seenAt = job.scrapedAt ?? snapshot.scrapedAt ?? now;
-      tx.insert(offers)
-        .values({
-          id: randomUUID(),
-          platformSlug: 'wttj',
-          companyId,
-          externalId: job.id,
-          url: job.url,
-          title: job.title,
-          location: job.location ?? '',
-          remoteMode: toRemoteMode(job.location ?? ''),
-          contract: toContract(job.contract),
-          experienceLevel: 'mid',
-          salaryMinEur: salary.min,
-          salaryMaxEur: salary.max,
-          salaryRaw: job.salary ?? null,
-          description: job.description ?? '',
-          descriptionHtml: null,
-          postedAt: job.postedAt ?? null,
-          firstSeenAt: seenAt,
-          lastSeenAt: seenAt,
-          userStatus: 'new',
-          createdAt: now,
-          updatedAt: now,
-        })
-        .onConflictDoNothing()
-        .run();
+        logoUrl: null,
+        createdAt: NOW,
+        updatedAt: NOW,
+      };
+      companies.set(name, company);
     }
-  });
+
+    const salary = toSalary(job.salary);
+    const seenAt = job.scrapedAt ?? snapshot.scrapedAt ?? NOW;
+    const offer: Offer = {
+      id: `demo-offer-${job.id}`,
+      platformSlug: 'wttj',
+      companyId: company.id,
+      externalId: job.id,
+      url: job.url,
+      title: job.title,
+      location: job.location ?? '',
+      remoteMode: toRemoteMode(job.location ?? ''),
+      contract: toContract(job.contract),
+      experienceLevel: 'mid',
+      salaryMinEur: salary.min,
+      salaryMaxEur: salary.max,
+      salaryRaw: job.salary ?? null,
+      description: job.description ?? '',
+      descriptionHtml: null,
+      postedAt: job.postedAt ?? null,
+      firstSeenAt: seenAt,
+      lastSeenAt: seenAt,
+      userStatus: 'new',
+      createdAt: NOW,
+      updatedAt: NOW,
+    };
+    offers.push({ ...offer, company, platform: wttj });
+  }
+
+  offers.sort((a, b) => b.lastSeenAt.localeCompare(a.lastSeenAt));
+  return {
+    companies: [...companies.values()].sort((a, b) => a.name.localeCompare(b.name)),
+    offers,
+  };
+}
+
+const CONTENT = buildContent();
+
+export const demoPlatforms = (): Platform[] => PLATFORMS;
+export const demoProfiles = (): Profile[] => [PROFILE];
+export const demoSearches = (): Search[] => [SEARCH];
+export const demoCompanies = (): Company[] => CONTENT.companies;
+export const demoOffers = (): OfferWithRelations[] => CONTENT.offers;
+
+export function demoSettings(): AppSettings {
+  return {
+    firstName: '',
+    lastName: '',
+    jobTitle: PROFILE.jobTitle,
+    location: SEARCH.location ?? '',
+    availability: '',
+    searchTitles: [SEARCH.searchTitle],
+    contractTypes: [...(SEARCH.contractTypes ?? [])],
+    experienceLevels: labelsFromExperienceLevels(SEARCH.experienceLevels ?? null),
+    searchLocation: SEARCH.location ?? '',
+    companySizes: [],
+    salaryMin: toK(SEARCH.salaryMinEur),
+    salaryMax: toK(SEARCH.salaryMaxEur),
+    remotePreference: [],
+    noGos: [],
+  };
 }
