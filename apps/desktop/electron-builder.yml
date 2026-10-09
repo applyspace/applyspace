@@ -2,6 +2,12 @@ appId: com.aurelienlouvel.apply
 productName: Apply
 copyright: Copyright © 2026 Aurélien Louvel
 
+# Registers the applyspace:// scheme (OAuth return from the system browser).
+protocols:
+  - name: applyspace
+    schemes:
+      - applyspace
+
 directories:
   output: release
   buildResources: build

@@ -10,8 +10,28 @@
 export const Channel = {
   GetDbPath:    'apply:get-db-path',
   OpenExternal: 'apply:open-external',
+  GetInfo:      'apply:get-info',
+  /** Main -> renderer push: the OAuth deep link came back. */
+  AuthCallback: 'apply:auth-callback',
+  /** Renderer -> main: fetch a callback received before the renderer was listening. */
+  TakeAuthCallback: 'apply:take-auth-callback',
 } as const;
 export type Channel = (typeof Channel)[keyof typeof Channel];
+
+/** Deep link scheme registered by the desktop app (OAuth return). */
+export const AUTH_SCHEME = 'applyspace';
+
+/**
+ * What the main process forwards after validating `applyspace://auth/callback`.
+ * Only the one-time `code` (or a bare failure flag) crosses the boundary, never the raw URL.
+ */
+export type AuthCallbackPayload = { code: string } | { error: true };
+
+export interface DesktopInfo {
+  /** False in dev: the `applyspace://` scheme is not reliably registered there. */
+  packaged: boolean;
+  platform: string;
+}
 
 /**
  * The API surface exposed on `window.apply` by the preload script.
@@ -27,6 +47,14 @@ export interface ApplyApi {
    * we don't want.
    */
   openExternal: (url: string) => Promise<void>;
+
+  getInfo: () => Promise<DesktopInfo>;
+
+  /** Subscribe to the OAuth return. Returns an unsubscribe function. */
+  onAuthCallback: (listener: (payload: AuthCallbackPayload) => void) => () => void;
+
+  /** Returns (and clears) a callback that arrived before the renderer was listening. */
+  takeAuthCallback: () => Promise<AuthCallbackPayload | null>;
 }
 
 declare global {

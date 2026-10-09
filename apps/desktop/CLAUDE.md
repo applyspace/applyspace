@@ -14,3 +14,4 @@
 - `better-sqlite3` is a native module: run `pnpm desktop:rebuild` after dependency changes.
 - Keep `contextIsolation: true` and `nodeIntegration: false`. Expose only typed IPC channels.
 - Release tag: `desktop-vX.Y.Z`.
+- Sign-in: packaged app opens Google/LinkedIn in the system browser and returns through `applyspace://auth/callback`. Main validates the link (`main/deepLink.ts`) and hands only the one-time `code` to the renderer (`takeAuthCallback`), which runs `exchangeCodeForSession`. In dev the scheme is not reliable, so the login keeps the in-window web flow. The Supabase redirect allow-list must contain `applyspace://auth/callback`.
