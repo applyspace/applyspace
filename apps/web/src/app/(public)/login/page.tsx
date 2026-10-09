@@ -4,6 +4,7 @@ import { useSearchParams } from "next/navigation";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { LoaderIcon } from "@hugeicons/core-free-icons";
 import { useState } from "react";
+import { DESKTOP_AUTH_REDIRECT, getDesktopBridge } from "@/lib/desktop";
 import posthog from "posthog-js";
 import { OffersPreview } from "@/components/auth/OffersPreview";
 import { ApplyLogo } from "@/components/brand/ApplyLogo";
@@ -33,15 +34,34 @@ export default function LoginPage() {
     setPending(provider);
     setFailed(false);
     posthog.capture('sign_in_started', { provider });
-    const { error } = await createClient().auth.signInWithOAuth({
+    const desktop = getDesktopBridge();
+    // Packaged desktop app: Google refuses embedded windows, so sign in through the
+    // system browser and come back via the applyspace:// deep link. In dev the scheme
+    // is not reliably registered, so we keep the in-window web flow.
+    const useSystemBrowser = desktop !== null && (await desktop.getInfo()).packaged;
+    const { data, error } = await createClient().auth.signInWithOAuth({
       provider,
-      options: { redirectTo: `${window.location.origin}/auth/callback` },
+      options: useSystemBrowser
+        ? { redirectTo: DESKTOP_AUTH_REDIRECT, skipBrowserRedirect: true }
+        : { redirectTo: `${window.location.origin}/auth/callback` },
     });
-    // On success the browser is redirected to the provider.
-    if (error) {
+    if (error || (useSystemBrowser && !data?.url)) {
       setFailed(true);
       setPending(null);
+      return;
     }
+    if (useSystemBrowser && desktop && data?.url) {
+      try {
+        await desktop.openExternal(data.url);
+      } catch {
+        setFailed(true);
+        setPending(null);
+        return;
+      }
+      // The deep link reloads the app on success; give up waiting after 2 minutes.
+      window.setTimeout(() => setPending(null), 120_000);
+    }
+    // Web: the browser is redirected to the provider.
   }
 
   const disabled = pending !== null || !isSupabaseConfigured;

@@ -3,6 +3,7 @@ import { headers } from 'next/headers';
 import { Fraunces, Geist } from 'next/font/google';
 import './globals.css';
 import { TooltipProvider } from '@/components/ui/tooltip';
+import { DesktopAuthBridge } from '@/components/auth/DesktopAuthBridge';
 import { Providers } from '@/components/providers/Providers';
 import { getCurrentUser } from '@/lib/auth';
 import { cn } from "@/lib/utils";
@@ -36,6 +37,7 @@ export default async function RootLayout({
     <html lang={initialLocale} className={cn("font-sans", geist.variable, fraunces.variable)}>
       <body className="antialiased tracking-[-0.011em]">
         <Providers user={user} initialLocale={initialLocale}>
+          <DesktopAuthBridge />
           <TooltipProvider>
             {children}
           </TooltipProvider>
