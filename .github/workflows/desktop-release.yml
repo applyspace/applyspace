@@ -1,0 +1,70 @@
+name: Desktop release
+
+# Builds the macOS .dmg on a GitHub runner, so nobody needs a local build.
+# Run it by hand (Actions > Desktop release > Run workflow) or push a tag
+# `desktop-vX.Y.Z`: the tag also publishes the .dmg as a GitHub pre-release.
+on:
+  workflow_dispatch:
+  push:
+    tags: ['desktop-v*']
+
+permissions:
+  contents: write
+
+jobs:
+  dmg:
+    runs-on: macos-14
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+
+      # Public values only (Supabase URL and publishable key are public by
+      # design). Set them once under Settings > Secrets and variables > Actions
+      # > Variables. They are inlined into the web build the app ships.
+      - name: Check the public build variables
+        env:
+          SUPABASE_URL: ${{ vars.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_KEY: ${{ vars.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY }}
+        run: |
+          if [ -z "$SUPABASE_URL" ] || [ -z "$SUPABASE_KEY" ]; then
+            echo "::error::Add the repository variables NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY (Settings > Secrets and variables > Actions > Variables)."
+            exit 1
+          fi
+
+      - name: App icon
+        run: mkdir -p apps/desktop/build && cp apps/web/src/app/icon.png apps/desktop/build/icon.png
+
+      - name: Build the .dmg
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ vars.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ${{ vars.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY }}
+          NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN: ${{ vars.NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN }}
+          NEXT_PUBLIC_POSTHOG_HOST: ${{ vars.NEXT_PUBLIC_POSTHOG_HOST }}
+          NEXT_PUBLIC_BRANDFETCH_CLIENT_ID: ${{ vars.NEXT_PUBLIC_BRANDFETCH_CLIENT_ID }}
+          # Unsigned for now: Developer ID signing and notarization come later.
+          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+        run: pnpm dist
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: applyspace-desktop
+          path: apps/desktop/release/*.dmg
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Publish a pre-release
+        if: startsWith(github.ref, 'refs/tags/desktop-v')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" apps/desktop/release/*.dmg \
+            --prerelease --generate-notes \
+            --title "applyspace desktop ${GITHUB_REF_NAME#desktop-v}"
