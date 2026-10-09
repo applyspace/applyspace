@@ -8,7 +8,6 @@
  */
 
 export const Channel = {
-  GetDbPath:    'apply:get-db-path',
   OpenExternal: 'apply:open-external',
   GetInfo:      'apply:get-info',
   /** Main -> renderer push: the OAuth deep link came back. */
@@ -38,9 +37,6 @@ export interface DesktopInfo {
  * Every method returns a Promise because it is dispatched via `ipcRenderer.invoke`.
  */
 export interface ApplyApi {
-  /** Absolute path to the SQLite file — useful for an "About" / debug panel. */
-  getDbPath: () => Promise<string>;
-
   /**
    * Open a URL in the user's system browser. Use this instead of `<a target="_blank">`
    * or `window.open` — in Electron those either no-op or spawn a new BrowserWindow

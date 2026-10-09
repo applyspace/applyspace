@@ -5,7 +5,6 @@ import { BrowserWindow, app, ipcMain, shell } from 'electron';
 
 import { AUTH_SCHEME, type AuthCallbackPayload, Channel, type DesktopInfo } from '../shared/ipc.js';
 import { findDeepLink, parseAuthCallback } from './deepLink.js';
-import { initializeDatabase, resolveDbPath } from './db.js';
 import { type NextServer, startNextServer } from './nextServer.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -23,7 +22,6 @@ if (!gotLock) {
 
 let mainWindow: BrowserWindow | null = null;
 let nextServer: NextServer | null = null;
-let dbPath: string | null = null;
 
 // -----------------------------------------------------------------------------
 // Deep link: `applyspace://auth/callback?code=...` brings the user back from the
@@ -80,7 +78,6 @@ if (coldStartLink) {
 // -----------------------------------------------------------------------------
 // IPC handlers (see shared/ipc.ts for the typed surface).
 // -----------------------------------------------------------------------------
-ipcMain.handle(Channel.GetDbPath, () => dbPath ?? '');
 ipcMain.handle(Channel.GetInfo, (): DesktopInfo => ({
   packaged: app.isPackaged,
   platform: process.platform,
@@ -105,10 +102,7 @@ ipcMain.handle(Channel.OpenExternal, async (_event, url: unknown) => {
 // Lifecycle
 // -----------------------------------------------------------------------------
 async function createMainWindow(): Promise<void> {
-  dbPath = resolveDbPath();
-  initializeDatabase(dbPath);
-
-  nextServer = await startNextServer(dbPath);
+  nextServer = await startNextServer();
 
   mainWindow = new BrowserWindow({
     width: 1440,
