@@ -22,7 +22,7 @@ jobs:
           version: 11
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 24
           cache: pnpm
       - run: pnpm install --frozen-lockfile
 
@@ -40,7 +40,7 @@ jobs:
           fi
 
       - name: App icon
-        run: mkdir -p apps/desktop/build && cp apps/web/src/app/icon.png apps/desktop/build/icon.png
+        run: node apps/desktop/scripts/make-icon.mjs
 
       - name: Build the .dmg
         env:
@@ -67,4 +67,4 @@ jobs:
         run: |
           gh release create "$GITHUB_REF_NAME" apps/desktop/release/*.dmg \
             --prerelease --generate-notes \
-            --title "applyspace desktop ${GITHUB_REF_NAME#desktop-v}"
+            --title "ApplySpace desktop ${GITHUB_REF_NAME#desktop-v}"

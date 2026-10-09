@@ -19,7 +19,7 @@ const fraunces = Fraunces({ subsets: ['latin'], variable: '--font-display', axes
 export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
-  title: 'Apply',
+  title: 'ApplySpace',
   description: 'Your personal job research dashboard',
 };
 

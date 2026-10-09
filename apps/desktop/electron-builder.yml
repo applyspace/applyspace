@@ -1,5 +1,5 @@
 appId: app.applyspace.desktop
-productName: applyspace
+productName: ApplySpace
 copyright: Copyright © 2026 Aurélien Louvel
 
 # Registers the applyspace:// scheme (OAuth return from the system browser).
@@ -66,6 +66,8 @@ asar: false
 # electron-builder's rebuild step stays off.
 npmRebuild: false
 
+afterPack: scripts/adhoc-sign.cjs
+
 mac:
   # Apple Silicon only for the alpha (faster build); add x64 when needed.
   target:
@@ -74,7 +76,8 @@ mac:
         - arm64
   artifactName: '${productName}-${version}-${arch}.${ext}'
   category: public.app-category.productivity
-  hardenedRuntime: true
+  # No Apple Developer account yet: ad-hoc sign in afterPack (see scripts/adhoc-sign.cjs).
+  hardenedRuntime: false
   gatekeeperAssess: false
 
 win:

@@ -8,7 +8,7 @@ import { findDeepLink, parseAuthCallback } from './deepLink.js';
 import { type NextServer, startNextServer } from './nextServer.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const PRELOAD_PATH = path.join(__dirname, '..', 'preload', 'index.js');
+const PRELOAD_PATH = path.join(__dirname, '..', 'preload', 'index.mjs');
 
 // -----------------------------------------------------------------------------
 // Single-instance lock — prevent two copies of the app from racing on the DB
@@ -110,6 +110,7 @@ async function createMainWindow(): Promise<void> {
     minWidth: 960,
     minHeight: 600,
     show: false,
+    title: 'ApplySpace',
     backgroundColor: '#0b0b0f',
     webPreferences: {
       preload: PRELOAD_PATH,
