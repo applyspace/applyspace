@@ -3,7 +3,7 @@
 import { useSearchParams } from "next/navigation";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { LoaderIcon } from "@hugeicons/core-free-icons";
-import { useEffect, useState } from "react";
+import { useState, useSyncExternalStore } from "react";
 import { DESKTOP_AUTH_REDIRECT, getDesktopBridge } from "@/lib/desktop";
 import posthog from "posthog-js";
 import { OffersPreview } from "@/components/auth/OffersPreview";
@@ -29,8 +29,11 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [emailNotice, setEmailNotice] = useState(false);
   // The download button is for the web; hide it inside the desktop app.
-  const [inDesktop, setInDesktop] = useState(false);
-  useEffect(() => setInDesktop(getDesktopBridge() !== null), []);
+  const inDesktop = useSyncExternalStore(
+    () => () => {},
+    () => getDesktopBridge() !== null,
+    () => false,
+  );
   const [failed, setFailed] = useState(searchParams.get("error") !== null);
 
   async function handleSignIn(provider: Provider) {
