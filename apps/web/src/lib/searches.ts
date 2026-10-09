@@ -1,6 +1,4 @@
-import { asc, eq } from 'drizzle-orm';
-import { searches, type Search } from '@apply/db';
-import { getDb } from '@/lib/db';
+import type { Search } from '@apply/db';
 import { getSupabaseScope } from '@/lib/supabase/scope';
 import * as supabaseData from '@/lib/supabase/queries';
 import { demoSearches } from '@/lib/demo';
@@ -12,38 +10,23 @@ import { IS_DEMO } from '@/lib/hosted';
  *
  * A "search" is the table that replaces the legacy JSON "offer-groups": it
  * captures a profile's search criteria (title, location, contracts, remote,
- * salary…) and ultimately feeds the scraper.
+ * salary…) and ultimately feeds the scraper. Supabase for signed-in users,
+ * fixtures for the hosted demo, nothing otherwise.
  */
 export async function readSearches(): Promise<Search[]> {
   const scope = await getSupabaseScope();
   if (scope) return supabaseData.readSearches(scope);
-  if (IS_DEMO) return demoSearches();
-  const db = getDb();
-  return db
-    .select()
-    .from(searches)
-    .orderBy(asc(searches.profileId), asc(searches.searchTitle))
-    .all();
+  return IS_DEMO ? demoSearches() : [];
 }
 
 export async function readSearch(id: string): Promise<Search | null> {
   const scope = await getSupabaseScope();
   if (scope) return supabaseData.readSearch(scope, id);
-  if (IS_DEMO) return demoSearches().find((s) => s.id === id) ?? null;
-  const db = getDb();
-  const [row] = await db.select().from(searches).where(eq(searches.id, id)).limit(1);
-  return row ?? null;
+  return IS_DEMO ? (demoSearches().find((s) => s.id === id) ?? null) : null;
 }
 
 export async function readSearchesForProfile(profileId: string): Promise<Search[]> {
   const scope = await getSupabaseScope();
   if (scope) return supabaseData.readSearchesForProfile(scope, profileId);
-  if (IS_DEMO) return demoSearches().filter((s) => s.profileId === profileId);
-  const db = getDb();
-  return db
-    .select()
-    .from(searches)
-    .where(eq(searches.profileId, profileId))
-    .orderBy(asc(searches.searchTitle))
-    .all();
+  return IS_DEMO ? demoSearches().filter((s) => s.profileId === profileId) : [];
 }
