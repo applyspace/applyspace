@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button';
 import { LinkedInIcon } from '@/components/icons/LinkedInIcon';
 import { useLocale } from '@/components/providers/Providers';
 import type { AppSettings } from '@/lib/settings';
-import type { LinkedInProfile } from '@/types/linkedin';
+import type { LinkedInProfile } from '@apply/core/linkedin';
 
 interface TabProfileProps {
   settings: AppSettings;

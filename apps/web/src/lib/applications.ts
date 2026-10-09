@@ -4,7 +4,7 @@ import { getDb } from '@/lib/db';
 import type {
   ApplicationWithRelations,
   InterviewWithRelations,
-} from '@/types/applications';
+} from '@apply/core/applications';
 import { getSupabaseScope } from '@/lib/supabase/scope';
 import * as supabaseData from '@/lib/supabase/queries';
 

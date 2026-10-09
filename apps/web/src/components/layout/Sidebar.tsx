@@ -26,9 +26,9 @@ import type {
   ApplicationWithRelations,
   InterviewStage,
   InterviewWithRelations,
-} from '@/types/applications';
-import type { SearchWithCount } from '@/types/searches';
-import type { AccountPlan } from '@/types/candidate-profile';
+} from '@apply/core/applications';
+import type { SearchWithCount } from '@apply/core/searches';
+import type { AccountPlan } from '@apply/core/candidate-profile';
 
 /* ── Constants ────────────────────────────────────────────────────── */
 

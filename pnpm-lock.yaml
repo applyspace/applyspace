@@ -42,6 +42,9 @@ importers:
 
   apps/web:
     dependencies:
+      '@apply/core':
+        specifier: workspace:*
+        version: link:../../packages/core
       '@apply/db':
         specifier: workspace:*
         version: link:../../packages/db
@@ -123,6 +126,16 @@ importers:
         version: 4.2.2
       typescript:
         specifier: ^5
+        version: 5.9.3
+
+  packages/core:
+    dependencies:
+      '@apply/db':
+        specifier: workspace:*
+        version: link:../db
+    devDependencies:
+      typescript:
+        specifier: ^5.4.0
         version: 5.9.3
 
   packages/db:

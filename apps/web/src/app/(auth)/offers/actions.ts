@@ -11,7 +11,7 @@ import {
   CONTRACT_TOKENS,
   type CreateSearchResult,
   type NewSearchInput,
-} from '@/types/candidate-profile';
+} from '@apply/core/candidate-profile';
 
 export type RunSearchResult =
   | { ok: true; found: number; inserted: number; updated: number }

@@ -1,0 +1,27 @@
+{
+  "name": "@apply/core",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Shared app types and constants (web, desktop, extension, mobile).",
+  "exports": {
+    ".": "./src/index.ts",
+    "./applications": "./src/applications.ts",
+    "./candidate-profile": "./src/candidate-profile.ts",
+    "./companies": "./src/companies.ts",
+    "./linkedin": "./src/linkedin.ts",
+    "./offers": "./src/offers.ts",
+    "./platforms": "./src/platforms.ts",
+    "./profiles": "./src/profiles.ts",
+    "./searches": "./src/searches.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@apply/db": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.0"
+  }
+}

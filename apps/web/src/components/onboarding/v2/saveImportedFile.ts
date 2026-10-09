@@ -1,7 +1,7 @@
 import { registerDocument } from '@/app/onboarding/actions';
 import { createClient } from '@/lib/supabase/client';
 import { isSupabaseConfigured } from '@/lib/supabase/env';
-import { CV_MAX_BYTES, CV_MIME_TYPES, DOCUMENTS_BUCKET } from '@/types/candidate-profile';
+import { CV_MAX_BYTES, CV_MIME_TYPES, DOCUMENTS_BUCKET } from '@apply/core/candidate-profile';
 
 export type ImportedFileResult =
   | { ok: true }

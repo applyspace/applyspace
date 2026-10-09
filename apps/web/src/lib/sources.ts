@@ -1,4 +1,4 @@
-import type { Source } from '@/types/platforms';
+import type { Source } from '@apply/core/platforms';
 
 export const SOURCE_META: Record<
   Source,

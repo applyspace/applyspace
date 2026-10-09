@@ -40,6 +40,9 @@ const nextConfig: NextConfig = {
   // server bundle keeps Server-Component code paths happy.
   serverExternalPackages: ['better-sqlite3'],
 
+  // `@apply/core` ships TypeScript source (types and constants, no build step).
+  transpilePackages: ['@apply/core'],
+
   // Cap the static-generation worker pool — Next would otherwise spawn one per
   // CPU core (11 on this machine) and each worker loads the server bundle +
   // better-sqlite3 + Server Components. 11 × ~2-4 GB overshoots our 18 GB

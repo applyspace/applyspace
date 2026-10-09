@@ -13,7 +13,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { MultiChip } from '@/components/ui/multi-chip';
-import type { AccountPlan, ContractToken } from '@/types/candidate-profile';
+import type { AccountPlan, ContractToken } from '@apply/core/candidate-profile';
 
 // Chip label → canonical token stored in `searches` (same labels as onboarding).
 const CONTRACT_OPTIONS: ReadonlyArray<{ value: ContractToken; label: string }> = [

@@ -4,7 +4,7 @@ import { useState, useCallback } from 'react';
 import posthog from 'posthog-js';
 import { JobCard } from '@/components/jobs/JobCard';
 import { JobDetail } from '@/components/jobs/JobDetail';
-import type { OfferWithRelations } from '@/types/offers';
+import type { OfferWithRelations } from '@apply/core/offers';
 
 export type JobStatus = 'unreviewed' | 'applied' | 'declined';
 

@@ -21,7 +21,7 @@ import {
   type OnboardingAnswers,
   type SkillEntry,
   type SkillInput,
-} from '@/types/candidate-profile';
+} from '@apply/core/candidate-profile';
 
 /**
  * Candidate profile data for signed-in users: account, experiences, education,

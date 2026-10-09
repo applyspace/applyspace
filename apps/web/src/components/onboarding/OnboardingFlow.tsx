@@ -26,7 +26,7 @@ import {
   TextField,
 } from '@/components/profile/fields';
 import { cn } from '@/lib/utils';
-import type { ActionResult, ContractToken } from '@/types/candidate-profile';
+import type { ActionResult, ContractToken } from '@apply/core/candidate-profile';
 
 const STEPS = ['Your name', 'Your background', 'What you are looking for'] as const;
 

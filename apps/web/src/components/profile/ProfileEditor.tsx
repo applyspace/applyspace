@@ -35,7 +35,7 @@ import {
   type SkillEntry,
   type SkillInput,
   type SkillLevel,
-} from '@/types/candidate-profile';
+} from '@apply/core/candidate-profile';
 import {
   CONTROL_CLASS,
   Field,

@@ -16,7 +16,7 @@ import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { buttonVariants } from '@/components/ui/button';
 import { cn, parseWorkMode, parseLocation, formatSalaryLabel } from '@/lib/utils';
-import type { OfferWithRelations } from '@/types/offers';
+import type { OfferWithRelations } from '@apply/core/offers';
 
 interface JobDetailProps {
   offer: OfferWithRelations | null;

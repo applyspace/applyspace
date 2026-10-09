@@ -1,4 +1,4 @@
-import type { OfferWithRelations } from '@/types/offers';
+import type { OfferWithRelations } from '@apply/core/offers';
 
 export function JobGrid({ offers }: { offers: OfferWithRelations[] }) {
   if (offers.length === 0) {
