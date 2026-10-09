@@ -4,7 +4,7 @@ import { useSearchParams } from "next/navigation";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { LoaderIcon } from "@hugeicons/core-free-icons";
 import { useState, useSyncExternalStore } from "react";
-import { DESKTOP_AUTH_REDIRECT, getDesktopBridge } from "@/lib/desktop";
+import { DESKTOP_AUTH_BRIDGE, getDesktopBridge } from "@/lib/desktop";
 import posthog from "posthog-js";
 import { OffersPreview } from "@/components/auth/OffersPreview";
 import { ApplyLogo } from "@/components/brand/ApplyLogo";
@@ -48,7 +48,7 @@ export default function LoginPage() {
     const { data, error } = await createClient().auth.signInWithOAuth({
       provider,
       options: useSystemBrowser
-        ? { redirectTo: DESKTOP_AUTH_REDIRECT, skipBrowserRedirect: true }
+        ? { redirectTo: DESKTOP_AUTH_BRIDGE, skipBrowserRedirect: true }
         : { redirectTo: `${window.location.origin}/auth/callback` },
     });
     if (error || (useSystemBrowser && !data?.url)) {

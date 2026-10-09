@@ -12,8 +12,15 @@ export interface DesktopBridge {
   takeAuthCallback: () => Promise<DesktopAuthCallback | null>;
 }
 
-/** Deep link Supabase sends the browser back to after sign-in (must be in its redirect allow-list). */
+/** Deep link that hands the one-time code back to the desktop app. */
 export const DESKTOP_AUTH_REDIRECT = 'applyspace://auth/callback';
+
+/**
+ * Where Supabase sends the system browser after sign-in (must be in its redirect
+ * allow-list). Browsers refuse to launch an app from a redirect the user did not
+ * click, so this page asks for one click and then opens `DESKTOP_AUTH_REDIRECT`.
+ */
+export const DESKTOP_AUTH_BRIDGE = 'https://applyspace.app/auth/desktop';
 
 export function getDesktopBridge(): DesktopBridge | null {
   if (typeof window === 'undefined') return null;
