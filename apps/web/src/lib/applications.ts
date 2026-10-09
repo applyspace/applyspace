@@ -1,13 +1,11 @@
-import { desc, eq } from 'drizzle-orm';
-import { applications, interviews } from '@apply/db';
-import { getDb } from '@/lib/db';
 import type {
   ApplicationWithRelations,
   InterviewWithRelations,
 } from '@apply/core/applications';
 import { getSupabaseScope } from '@/lib/supabase/scope';
 import * as supabaseData from '@/lib/supabase/queries';
-import { IS_DEMO } from '@/lib/hosted';
+
+// Supabase for signed-in users; the hosted demo and signed-out visitors have none.
 
 /**
  * All applications, newest `appliedAt` first. Pre-joins `company` (the FK now
@@ -16,28 +14,14 @@ import { IS_DEMO } from '@/lib/hosted';
  */
 export async function readApplications(): Promise<ApplicationWithRelations[]> {
   const scope = await getSupabaseScope();
-  if (scope) return supabaseData.readApplications(scope);
-  if (IS_DEMO) return [];
-  const db = getDb();
-  const rows = await db.query.applications.findMany({
-    with: { company: true, offer: true },
-    orderBy: desc(applications.appliedAt),
-  });
-  return rows as ApplicationWithRelations[];
+  return scope ? supabaseData.readApplications(scope) : [];
 }
 
 export async function readApplication(
   id: string,
 ): Promise<ApplicationWithRelations | null> {
   const scope = await getSupabaseScope();
-  if (scope) return supabaseData.readApplication(scope, id);
-  if (IS_DEMO) return null;
-  const db = getDb();
-  const row = await db.query.applications.findFirst({
-    with: { company: true, offer: true },
-    where: eq(applications.id, id),
-  });
-  return (row as ApplicationWithRelations | undefined) ?? null;
+  return scope ? supabaseData.readApplication(scope, id) : null;
 }
 
 /**
@@ -47,26 +31,12 @@ export async function readApplication(
  */
 export async function readInterviews(): Promise<InterviewWithRelations[]> {
   const scope = await getSupabaseScope();
-  if (scope) return supabaseData.readInterviews(scope);
-  if (IS_DEMO) return [];
-  const db = getDb();
-  const rows = await db.query.interviews.findMany({
-    with: { application: { with: { company: true } } },
-    orderBy: desc(interviews.createdAt),
-  });
-  return rows as InterviewWithRelations[];
+  return scope ? supabaseData.readInterviews(scope) : [];
 }
 
 export async function readInterview(
   id: string,
 ): Promise<InterviewWithRelations | null> {
   const scope = await getSupabaseScope();
-  if (scope) return supabaseData.readInterview(scope, id);
-  if (IS_DEMO) return null;
-  const db = getDb();
-  const row = await db.query.interviews.findFirst({
-    with: { application: { with: { company: true } } },
-    where: eq(interviews.id, id),
-  });
-  return (row as InterviewWithRelations | undefined) ?? null;
+  return scope ? supabaseData.readInterview(scope, id) : null;
 }
