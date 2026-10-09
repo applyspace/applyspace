@@ -24,6 +24,8 @@ import {
 } from '@/lib/settings-mapping';
 import * as supabaseSettings from '@/lib/settings-supabase';
 import { getSupabaseScope } from '@/lib/supabase/scope';
+import { demoSettings } from '@/lib/demo';
+import { IS_DEMO } from '@/lib/hosted';
 import type { Source } from '@apply/core/platforms';
 
 /**
@@ -99,6 +101,7 @@ function getPrimarySearch(profileId: string): Search | null {
 export async function readSettings(): Promise<AppSettings> {
   const scope = await getSupabaseScope();
   if (scope) return supabaseSettings.readSettings(scope);
+  if (IS_DEMO) return demoSettings();
 
   const db = getDb();
 
@@ -158,6 +161,8 @@ export async function readSettings(): Promise<AppSettings> {
 export async function writeSettings(patch: Partial<AppSettings>): Promise<void> {
   const scope = await getSupabaseScope();
   if (scope) return supabaseSettings.writeSettings(scope, patch);
+  // The hosted demo is read-only: nothing to save.
+  if (IS_DEMO) return;
 
   const db = getDb();
   const nowIso = new Date().toISOString();
@@ -347,7 +352,7 @@ async function reconcileNoGos(
  */
 export async function checkSourceConnected(source: Source): Promise<boolean> {
   // Platform sessions stay on the user's device (ADR-004), not in Supabase.
-  if (await getSupabaseScope()) return false;
+  if ((await getSupabaseScope()) || IS_DEMO) return false;
 
   const db = getDb();
   const [conn] = db

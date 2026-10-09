@@ -8,7 +8,7 @@
 - **Language** — TypeScript (strict mode)
 - **Styling** — Tailwind CSS v4 + shadcn/ui
 - **Auth** — Supabase Auth (Google and LinkedIn OIDC)
-- **Database** — Supabase PostgreSQL for signed-in users (Row Level Security); local SQLite for the demo and desktop
+- **Database** — Supabase PostgreSQL for signed-in users (Row Level Security); the hosted demo is served from memory (`lib/demo.ts`); local SQLite for the desktop until APP-123 is done
 - **Deployment** — Vercel
 - **Package manager** — pnpm
 

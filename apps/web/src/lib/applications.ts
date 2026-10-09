@@ -7,6 +7,7 @@ import type {
 } from '@apply/core/applications';
 import { getSupabaseScope } from '@/lib/supabase/scope';
 import * as supabaseData from '@/lib/supabase/queries';
+import { IS_DEMO } from '@/lib/hosted';
 
 /**
  * All applications, newest `appliedAt` first. Pre-joins `company` (the FK now
@@ -16,6 +17,7 @@ import * as supabaseData from '@/lib/supabase/queries';
 export async function readApplications(): Promise<ApplicationWithRelations[]> {
   const scope = await getSupabaseScope();
   if (scope) return supabaseData.readApplications(scope);
+  if (IS_DEMO) return [];
   const db = getDb();
   const rows = await db.query.applications.findMany({
     with: { company: true, offer: true },
@@ -29,6 +31,7 @@ export async function readApplication(
 ): Promise<ApplicationWithRelations | null> {
   const scope = await getSupabaseScope();
   if (scope) return supabaseData.readApplication(scope, id);
+  if (IS_DEMO) return null;
   const db = getDb();
   const row = await db.query.applications.findFirst({
     with: { company: true, offer: true },
@@ -45,6 +48,7 @@ export async function readApplication(
 export async function readInterviews(): Promise<InterviewWithRelations[]> {
   const scope = await getSupabaseScope();
   if (scope) return supabaseData.readInterviews(scope);
+  if (IS_DEMO) return [];
   const db = getDb();
   const rows = await db.query.interviews.findMany({
     with: { application: { with: { company: true } } },
@@ -58,6 +62,7 @@ export async function readInterview(
 ): Promise<InterviewWithRelations | null> {
   const scope = await getSupabaseScope();
   if (scope) return supabaseData.readInterview(scope, id);
+  if (IS_DEMO) return null;
   const db = getDb();
   const row = await db.query.interviews.findFirst({
     with: { application: { with: { company: true } } },
