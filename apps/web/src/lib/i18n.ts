@@ -41,6 +41,9 @@ export const translations = {
       continueWithEmail: 'Continue with email',
       emailSoon: 'Email sign-in is coming soon.',
       downloadDesktop: 'Download desktop app',
+      desktopReturnTitle: 'Back to ApplySpace',
+      desktopReturnHint: 'You are signed in. Open the app to continue, then close this tab.',
+      desktopReturnButton: 'Open ApplySpace',
       disclaimer: 'We only access your public profile info — name, photo, email.',
     },
     settings: {
@@ -178,6 +181,9 @@ export const translations = {
       continueWithEmail: 'Continuer avec e-mail',
       emailSoon: "La connexion par e-mail arrive bientôt.",
       downloadDesktop: "Télécharger l'application de bureau",
+      desktopReturnTitle: 'Retour sur ApplySpace',
+      desktopReturnHint: "Vous êtes connecté. Ouvrez l'application pour continuer, puis fermez cet onglet.",
+      desktopReturnButton: 'Ouvrir ApplySpace',
       disclaimer: 'Nous accédons uniquement à votre profil public — nom, photo, email.',
     },
     settings: {
