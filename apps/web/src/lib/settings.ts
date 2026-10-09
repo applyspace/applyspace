@@ -1,6 +1,3 @@
-import { platformConnections } from '@apply/db';
-import { eq } from 'drizzle-orm';
-import { getDb } from '@/lib/db';
 import * as supabaseSettings from '@/lib/settings-supabase';
 import { getSupabaseScope } from '@/lib/supabase/scope';
 import { demoSettings } from '@/lib/demo';
@@ -72,27 +69,14 @@ export async function writeSettings(patch: Partial<AppSettings>): Promise<void> 
 }
 
 /**
- * Whether we have scraped auth cookies captured for a given platform.
- * Reads from `platform_connections.cookieFilePath`; a row with a non-null path
- * counts as "connected" even if the actual cookies are expired (the v2 plan
- * will add freshness). We also keep back-compat with the old
- * `.local/cookies/<source>.json` convention for the transition window, via an
- * env-var override.
+ * Whether session cookies are captured on this device for a given platform:
+ * `<COOKIES_DIR>/<source>.json`, written by the login capture. Platform
+ * sessions stay on the user's device (ADR-004) and never reach Supabase; the
+ * hosted build and the demo have no `COOKIES_DIR`, so they report none. A
+ * keychain-backed store comes with the in-app login capture.
  */
 export async function checkSourceConnected(source: Source): Promise<boolean> {
-  // Platform sessions stay on the user's device (ADR-004), not in Supabase.
-  if ((await getSupabaseScope()) || IS_DEMO) return false;
-
-  const db = getDb();
-  const [conn] = db
-    .select()
-    .from(platformConnections)
-    .where(eq(platformConnections.platformSlug, source))
-    .limit(1)
-    .all();
-  if (conn && (conn.cookieFilePath || conn.cookieBlob)) return true;
-
-  // Legacy fallback: peek at the JSON cookies file if it still exists.
+  if (IS_DEMO) return false;
   const cookiesDir = process.env.COOKIES_DIR;
   if (!cookiesDir) return false;
   try {
