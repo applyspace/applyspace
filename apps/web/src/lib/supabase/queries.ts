@@ -6,7 +6,7 @@ import type {
   Platform,
   Profile,
   Search,
-} from '@apply/db';
+} from '@apply/db/schema';
 import type { ApplicationWithRelations, InterviewWithRelations } from '@apply/core/applications';
 import type { OfferWithRelations } from '@apply/core/offers';
 import { selectAll, selectById, selectIn } from './rows';

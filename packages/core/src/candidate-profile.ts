@@ -1,4 +1,4 @@
-import type { ExperienceLevel } from '@apply/db';
+import type { ExperienceLevel } from '@apply/db/schema';
 
 /**
  * Candidate profile data that only exists in Supabase (signed-in users):

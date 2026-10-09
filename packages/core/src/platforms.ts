@@ -1,4 +1,4 @@
-import type { Platform, PlatformConnection } from '@apply/db';
+import type { Platform, PlatformConnection } from '@apply/db/schema';
 
 /**
  * The 4 platforms we scrape. Historically called `Source` in the codebase — we

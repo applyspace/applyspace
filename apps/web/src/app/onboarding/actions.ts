@@ -1,7 +1,7 @@
 'use server';
 
 import { redirect } from 'next/navigation';
-import { EXPERIENCE_LEVEL_VALUES, type ExperienceLevel } from '@apply/db';
+import { EXPERIENCE_LEVEL_VALUES, type ExperienceLevel } from '@apply/db/schema';
 import * as candidate from '@/lib/candidate-profile';
 import { extractDocxText } from '@/lib/docxText';
 import { getSupabaseScope, type SupabaseScope } from '@/lib/supabase/scope';

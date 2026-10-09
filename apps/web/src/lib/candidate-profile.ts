@@ -1,4 +1,4 @@
-import type { ExperienceLevel } from '@apply/db';
+import type { ExperienceLevel } from '@apply/db/schema';
 import { UUID_RE } from '@/lib/supabase/rows';
 import { entrySlug } from '@/lib/slug';
 import type { SupabaseScope } from '@/lib/supabase/scope';

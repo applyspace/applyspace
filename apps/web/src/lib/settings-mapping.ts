@@ -1,4 +1,4 @@
-import type { ExperienceLevel, RemoteMode } from '@apply/db';
+import type { ExperienceLevel, RemoteMode } from '@apply/db/schema';
 
 // The UI historically used numbers in "k€" (e.g. 40 means 40k). The DB stores
 // raw euros. Convert at the boundary so the UI stays unchanged.

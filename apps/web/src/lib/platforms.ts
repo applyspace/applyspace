@@ -1,4 +1,4 @@
-import type { Platform } from '@apply/db';
+import type { Platform } from '@apply/db/schema';
 import { getSupabaseScope } from '@/lib/supabase/scope';
 import * as supabaseData from '@/lib/supabase/queries';
 import { demoPlatforms } from '@/lib/demo';
