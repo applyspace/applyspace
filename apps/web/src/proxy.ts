@@ -1,25 +1,27 @@
 import { createServerClient } from '@supabase/ssr';
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import { isDemoHost } from '@/lib/demo-host';
 import {
   SUPABASE_PUBLISHABLE_KEY,
   SUPABASE_URL,
   isSupabaseConfigured,
 } from '@/lib/supabase/env';
 
-// Same rule as next.config.ts: the hosted build (Vercel), not desktop.
-const IS_HOSTED = process.env.APPLY_DEMO === '1' || Boolean(process.env.VERCEL);
-
 /**
- * Keeps the Supabase session cookie fresh on every request, and routes the
- * entry points: `/` and `/login`. Signed-out visitors land on the sign-in page,
- * signed-in users on the Home page (`/`). On the hosted build other routes are
- * not gated; on desktop and local dev every page needs a session, since there
- * is no local fallback database any more.
+ * Keeps the Supabase session cookie fresh on every request and gates the app:
+ * every page except `/login`, `/auth/*` and `/api/*` needs a session, so
+ * signed-out visitors land on the sign-in page and signed-in users on the Home
+ * page (`/`). The public demo (`demo.applyspace.app`, see `lib/demo-host.ts`)
+ * is the one exception: it serves fixtures, never reads a session and is never
+ * gated. Previews and the main domain are the real app.
  */
 export async function proxy(request: NextRequest) {
   let response = NextResponse.next({ request });
   if (!isSupabaseConfigured) return response;
+  if (isDemoHost(request.headers.get('x-forwarded-host') ?? request.headers.get('host'))) {
+    return response;
+  }
 
   const supabase = createServerClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
     cookies: {
@@ -49,16 +51,10 @@ export async function proxy(request: NextRequest) {
 
   const { pathname } = request.nextUrl;
   let target: string | null = null;
-  if (IS_HOSTED) {
-    // Home routing: signed-in users stay on `/` (the Home page), signed-out ones go to `/login`.
-    if (pathname === '/' && !signedIn) target = '/login';
-    else if (pathname === '/login' && signedIn) target = '/';
-  } else {
-    const isPublic =
-      pathname === '/login' || pathname.startsWith('/auth/') || pathname.startsWith('/api/');
-    if (!signedIn && !isPublic) target = '/login';
-    else if (pathname === '/login' && signedIn) target = '/';
-  }
+  const isPublic =
+    pathname === '/login' || pathname.startsWith('/auth/') || pathname.startsWith('/api/');
+  if (!signedIn && !isPublic) target = '/login';
+  else if (pathname === '/login' && signedIn) target = '/';
   if (!target) return response;
 
   // Keep any refreshed session cookies on the redirect.

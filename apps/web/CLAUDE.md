@@ -8,7 +8,7 @@
 - **Language** — TypeScript (strict mode)
 - **Styling** — Tailwind CSS v4 + shadcn/ui
 - **Auth** — Supabase Auth (Google and LinkedIn OIDC)
-- **Database** — Supabase PostgreSQL for signed-in users (Row Level Security); the hosted demo is served from memory (`lib/demo.ts`); no local database (the desktop app signs in and uses Supabase too)
+- **Database** — Supabase PostgreSQL for signed-in users (Row Level Security); the public demo (`demo.applyspace.app`, host-based, see `lib/demo-host.ts`) is served from memory (`lib/demo.ts`) and never reads a session; every other host requires sign-in; no local database (the desktop app signs in and uses Supabase too)
 - **Deployment** — Vercel
 - **Package manager** — pnpm
 

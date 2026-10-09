@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { OnboardingV2 } from '@/components/onboarding/v2/OnboardingV2';
 import { getAccount } from '@/lib/candidate-profile';
+import { isDemoRequest } from '@/lib/hosted';
 import { isSupabaseConfigured } from '@/lib/supabase/env';
 import { getSupabaseScope } from '@/lib/supabase/scope';
 
@@ -26,7 +27,7 @@ export default async function OnboardingPage({
   const scope = await getSupabaseScope();
 
   if (!scope) {
-    if (isSupabaseConfigured && process.env.APPLY_DEMO !== '1') redirect('/login');
+    if (isSupabaseConfigured && !(await isDemoRequest())) redirect('/login');
     return <OnboardingV2 />;
   }
 

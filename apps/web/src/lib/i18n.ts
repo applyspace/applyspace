@@ -132,7 +132,7 @@ export const translations = {
     jobs: {
       title: 'Jobs',
       noJobs: 'No jobs found.',
-      noJobsHint: 'Run pnpm scrape to fetch new listings.',
+      noJobsHint: 'Run a search to fetch new listings.',
       allSources: 'All sources',
       allContracts: 'All contracts',
       scraped: 'Scraped',
@@ -269,7 +269,7 @@ export const translations = {
     jobs: {
       title: 'Offres',
       noJobs: 'Aucune offre trouvée.',
-      noJobsHint: 'Lancez pnpm scrape pour récupérer des offres.',
+      noJobsHint: 'Lancez une recherche pour récupérer des offres.',
       allSources: 'Toutes les sources',
       allContracts: 'Tous les contrats',
       scraped: 'Récupéré',
