@@ -8,11 +8,11 @@ The macOS .dmg is built by GitHub Actions, not on a laptop.
 2. Actions > Desktop release > Run workflow (the .dmg is attached to the run as an artifact), or push a tag `desktop-vX.Y.Z` to also publish it as a GitHub pre-release.
 3. Bump `version` in `apps/desktop/package.json` before tagging.
 
-Output: `applyspace-<version>-arm64.dmg` (Apple Silicon). Intel (x64) is left out until someone needs it.
+Output: `ApplySpace-<version>-arm64.dmg` (Apple Silicon). Intel (x64) is left out until someone needs it.
 
 ## First open (unsigned build)
 
-The alpha is not signed or notarized yet. After downloading: right-click the app > Open, or run `xattr -cr /Applications/applyspace.app` once. Developer ID signing and notarization remove this step (needs an Apple Developer account, set up by the owner).
+The alpha is not signed or notarized yet. After downloading: right-click the app > Open, or run `xattr -cr /Applications/ApplySpace.app` once. Developer ID signing and notarization remove this step (needs an Apple Developer account, set up by the owner).
 
 ## Not in the alpha
 

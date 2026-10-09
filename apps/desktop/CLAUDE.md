@@ -5,7 +5,7 @@
 ## Stack
 
 - Electron 34, TypeScript, electron-builder
-- Main process in `src/main`, preload in `src/preload`, typed IPC in `src/shared/ipc.ts`
+- Main process in `src/main`, preload in `src/preload` (`index.mts`: Electron only loads an ESM preload with the `.mjs` extension), typed IPC in `src/shared/ipc.ts`
 
 ## Notes
 
