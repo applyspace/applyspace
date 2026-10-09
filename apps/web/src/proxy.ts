@@ -12,9 +12,10 @@ const IS_HOSTED = process.env.APPLY_DEMO === '1' || Boolean(process.env.VERCEL);
 
 /**
  * Keeps the Supabase session cookie fresh on every request, and routes the
- * entry points of the hosted app: `/` and `/login`. Signed-out visitors land
- * on the sign-in page, signed-in users on the Home page (`/`). Other routes are
- * not gated yet.
+ * entry points: `/` and `/login`. Signed-out visitors land on the sign-in page,
+ * signed-in users on the Home page (`/`). On the hosted build other routes are
+ * not gated; on desktop and local dev every page needs a session, since there
+ * is no local fallback database any more.
  */
 export async function proxy(request: NextRequest) {
   let response = NextResponse.next({ request });
@@ -51,6 +52,11 @@ export async function proxy(request: NextRequest) {
   if (IS_HOSTED) {
     // Home routing: signed-in users stay on `/` (the Home page), signed-out ones go to `/login`.
     if (pathname === '/' && !signedIn) target = '/login';
+    else if (pathname === '/login' && signedIn) target = '/';
+  } else {
+    const isPublic =
+      pathname === '/login' || pathname.startsWith('/auth/') || pathname.startsWith('/api/');
+    if (!signedIn && !isPublic) target = '/login';
     else if (pathname === '/login' && signedIn) target = '/';
   }
   if (!target) return response;

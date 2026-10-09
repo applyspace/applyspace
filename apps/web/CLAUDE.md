@@ -8,7 +8,7 @@
 - **Language** — TypeScript (strict mode)
 - **Styling** — Tailwind CSS v4 + shadcn/ui
 - **Auth** — Supabase Auth (Google and LinkedIn OIDC)
-- **Database** — Supabase PostgreSQL for signed-in users (Row Level Security); the hosted demo is served from memory (`lib/demo.ts`); local SQLite for the desktop until APP-123 is done
+- **Database** — Supabase PostgreSQL for signed-in users (Row Level Security); the hosted demo is served from memory (`lib/demo.ts`); no local database (the desktop app signs in and uses Supabase too)
 - **Deployment** — Vercel
 - **Package manager** — pnpm
 
@@ -36,8 +36,8 @@ src/
 │   ├── providers/      # Providers (SessionProvider, LocaleProvider)
 │   └── ui/             # shadcn/ui components — do not modify
 ├── lib/
-│   ├── profiles.ts, searches.ts, offers.ts, applications.ts, …   # Readers: Supabase when signed in, else SQLite
-│   ├── settings.ts     # Read/write user settings (Supabase when signed in, else SQLite)
+│   ├── profiles.ts, searches.ts, offers.ts, applications.ts, …   # Readers: Supabase when signed in, fixtures on the demo, else empty
+│   ├── settings.ts     # Read/write user settings (Supabase when signed in)
 │   ├── supabase/       # Clients, request scope, row helpers and queries
 │   ├── sources.ts      # Platform metadata (labels, colors, cookie keys)
 │   ├── i18n.ts         # EN / FR translations

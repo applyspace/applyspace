@@ -14,8 +14,8 @@ import { app } from 'electron';
  *
  *  - **Prod** (`app.isPackaged === true`): we fork Next's standalone server
  *    (`apps/web/.next/standalone/server.js`) as a Node child process on a
- *    random free loopback port, with `APPLY_DB_PATH` injected so the Next
- *    runtime opens the same SQLite file as the main process.
+ *    random free loopback port. All data lives in Supabase; nothing is stored
+ *    locally except the session cookies of the Electron profile.
  */
 
 export interface NextServer {
@@ -55,7 +55,7 @@ function resolveStandaloneServerPath(): string {
   );
 }
 
-export async function startNextServer(dbPath: string): Promise<NextServer> {
+export async function startNextServer(): Promise<NextServer> {
   if (!app.isPackaged) {
     return {
       url: 'http://localhost:3000',
@@ -74,7 +74,6 @@ export async function startNextServer(dbPath: string): Promise<NextServer> {
       HOSTNAME: '127.0.0.1',
       PORT: String(port),
       NODE_ENV: 'production',
-      APPLY_DB_PATH: dbPath,
     },
     // Inherit stdio so Next's request logs surface in the Electron terminal
     // (or the packaged app's console, if launched from one).

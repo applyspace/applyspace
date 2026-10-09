@@ -12,7 +12,6 @@ import { type ApplyApi, type AuthCallbackPayload, Channel, type DesktopInfo } fr
  */
 
 const api: ApplyApi = {
-  getDbPath: () => ipcRenderer.invoke(Channel.GetDbPath) as Promise<string>,
   openExternal: (url: string) =>
     ipcRenderer.invoke(Channel.OpenExternal, url) as Promise<void>,
   getInfo: () => ipcRenderer.invoke(Channel.GetInfo) as Promise<DesktopInfo>,
