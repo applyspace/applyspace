@@ -73,7 +73,7 @@ Plan caps in Sanity must match the database (`enforce_application_cap`: Free 15,
 
 1. **Sanity**: create the project and a `production` dataset (founder account, no account is created by agents). Run `pnpm studio:deploy` or host the studio; add CORS origins for the studio and site URLs. Create documents (or leave empty to keep the fallback).
 2. **Vercel**: new project from this repo with Root Directory `site`; set the env vars above; add `applyspace.app` and `www.applyspace.app` (redirect www to apex). Do not remove `demo.applyspace.app` from the app project.
-3. **Same-origin routing**: the app and the site share `applyspace.app`; signed-out visitors must get the site and signed-in users the app (for example a rewrite in the app's proxy for `/`, `/product`, `/pricing`, `/resources`). Tracked separately, not in this PR.
+3. **Same-origin routing** (WEB-10): the app's proxy (`apps/web/src/proxy.ts`) rewrites `/product`, `/pricing`, `/resources`, `/og`, `/sitemap.xml`, `/robots.txt`, `/api/revalidate` and `/_site/*` to the site for everyone, and `/` for signed-out visitors only. It is off until `SITE_ORIGIN` is set on the app's Vercel project (server env, no `NEXT_PUBLIC_`). Set it to a publicly reachable hostname of the site project (a custom domain such as `site.applyspace.app`; generated `*.vercel.app` URLs sit behind Vercel protection). Rollback: unset `SITE_ORIGIN` and redeploy. Site build assets are served under `/_site` (`assetPrefix`, production only) so they never collide with the app's `/_next`.
 4. **DNS** for the domains above (not touched here).
 5. Sanity webhook to `/api/revalidate`, Search Console, privacy policy and terms.
 6. Review the two seed articles before launch.
