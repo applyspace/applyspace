@@ -1,7 +1,7 @@
 import { createServerClient } from '@supabase/ssr';
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { isDemoHost } from '@/lib/demo-host';
+import { isDemoHost, isDemoWriteBlocked } from '@/lib/demo-host';
 import {
   SUPABASE_PUBLISHABLE_KEY,
   SUPABASE_URL,
@@ -18,10 +18,18 @@ import {
  */
 export async function proxy(request: NextRequest) {
   let response = NextResponse.next({ request });
-  if (!isSupabaseConfigured) return response;
+  // The public demo is read-only and never reads a session (checked before anything else,
+  // so it holds even when Supabase is not configured).
   if (isDemoHost(request.headers.get('x-forwarded-host') ?? request.headers.get('host'))) {
+    if (isDemoWriteBlocked(request.method, request.nextUrl.pathname)) {
+      return NextResponse.json(
+        { error: 'demo_read_only', message: 'The public demo is read-only.' },
+        { status: 403 },
+      );
+    }
     return response;
   }
+  if (!isSupabaseConfigured) return response;
 
   const supabase = createServerClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
     cookies: {

@@ -3,7 +3,12 @@ import posthog from 'posthog-js';
 const projectToken = process.env.NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN;
 const host = process.env.NEXT_PUBLIC_POSTHOG_HOST;
 
-if (!projectToken || !host) {
+// The public demo (demo.applyspace.app) never loads PostHog: nothing to opt out of, nothing sent.
+const isDemoHost = window.location.hostname.toLowerCase().startsWith('demo.');
+
+if (isDemoHost) {
+  // Analytics disabled on the demo host.
+} else if (!projectToken || !host) {
   if (process.env.NODE_ENV === 'development') {
     const missingVariable = projectToken
       ? 'NEXT_PUBLIC_POSTHOG_HOST'

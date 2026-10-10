@@ -9,6 +9,8 @@
     "./applications": "./src/applications.ts",
     "./candidate-profile": "./src/candidate-profile.ts",
     "./companies": "./src/companies.ts",
+    "./demo": "./src/demo/index.ts",
+    "./demo-identity": "./src/demo/identity.ts",
     "./linkedin": "./src/linkedin.ts",
     "./offers": "./src/offers.ts",
     "./platforms": "./src/platforms.ts",

@@ -19,6 +19,9 @@
     "db:migrate-legacy": "pnpm --filter @apply/db migrate-legacy",
     "db:build":          "pnpm --filter @apply/db build",
 
+    "demo:sql":          "pnpm --filter web demo:sql",
+    "demo:seed":         "pnpm --filter web demo:seed",
+
     "desktop":           "pnpm --filter @apply/desktop dev",
 
     "dev":               "concurrently -n web,desktop -c cyan,magenta \"pnpm --filter web dev\" \"pnpm --filter @apply/desktop dev\"",

@@ -7,7 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "node --test --experimental-strip-types src/lib/analytics.test.ts"
+    "test": "node --test --experimental-strip-types src/lib/analytics.test.ts src/lib/demo-host.test.ts src/lib/demo-login.test.ts",
+    "demo:sql": "node --import ../../packages/core/test/register.mjs scripts/demo-sql.mts",
+    "demo:seed": "node --env-file-if-exists=.env.local --import ../../packages/core/test/register.mjs scripts/demo-seed.mts"
   },
   "dependencies": {
     "@apply/core": "workspace:*",

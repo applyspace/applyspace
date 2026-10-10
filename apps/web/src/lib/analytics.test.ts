@@ -106,6 +106,50 @@ test('a client that is not initialised captures nothing', () => {
   a.capture('offer_declined');
 });
 
+test('blocked (demo) sessions send nothing and hide the prompt, even after an earlier accept', () => {
+  const { client, calls } = fakeClient();
+  const a = createAnalytics(client, () => 'web');
+  a.setConsent(true);
+  calls.length = 0;
+  a.setBlocked(true);
+  assert.equal(a.consentStatus(), 'denied');
+  assert.equal(a.hasConsent(), false);
+  a.capture('offer_declined');
+  a.identify({ id: 'demo-user' }, { locale: 'fr' });
+  a.setPlan('max');
+  a.registerPlatform();
+  a.setConsent(true); // the banner and the Settings switch cannot turn it back on
+  assert.deepEqual(calls, []);
+  assert.equal(client.get_explicit_consent_status(), 'denied'); // posthog itself is opted out
+});
+
+test('unblocking restores the previous choice instead of asking again or forgetting it', () => {
+  const accepted = fakeClient();
+  const a = createAnalytics(accepted.client, () => 'web');
+  a.setConsent(true);
+  a.setBlocked(true);
+  a.reset(); // signing out of the demo account must not store a refusal
+  a.setBlocked(false);
+  assert.equal(a.consentStatus(), 'granted');
+
+  const pending = fakeClient();
+  const b = createAnalytics(pending.client, () => 'web');
+  b.setBlocked(true);
+  b.setBlocked(false);
+  assert.equal(b.consentStatus(), 'pending');
+});
+
+test('blocking notifies subscribers once per change', () => {
+  const { client } = fakeClient();
+  const a = createAnalytics(client, () => 'web');
+  let n = 0;
+  a.subscribeConsent(() => { n++; });
+  a.setBlocked(true);
+  a.setBlocked(true);
+  a.setBlocked(false);
+  assert.equal(n, 2);
+});
+
 test('applications and resume events pass through with only enum and count properties', () => {
   const { client, calls } = fakeClient();
   const a = createAnalytics(client, () => 'web');

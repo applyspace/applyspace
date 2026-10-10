@@ -8,6 +8,7 @@ import { toAuthUser, type AuthUser } from '@/lib/auth-user';
 import { createClient } from '@/lib/supabase/client';
 import { isSupabaseConfigured } from '@/lib/supabase/env';
 import { analytics } from '@/lib/analytics';
+import { isDemoEmail } from '@apply/core/demo-identity';
 import { ConsentBanner } from '@/components/analytics/ConsentBanner';
 
 // ── Locale context ────────────────────────────────────────────────────────────────────────
@@ -109,6 +110,29 @@ function AuthProvider({
   return <AuthContext.Provider value={{ user, signOut }}>{children}</AuthContext.Provider>;
 }
 
+// ── Demo sessions send no analytics ───────────────────────────────────────────────────────
+
+const AnalyticsBlockedContext = createContext(false);
+
+/** True in a demo session (public demo host, or the demo account): no analytics, no consent prompt. */
+export function useAnalyticsBlocked() {
+  return useContext(AnalyticsBlockedContext);
+}
+
+/**
+ * Blocks analytics for the public demo host and for the demo account (an
+ * `example.com` address, see docs/demo-account.md), so demo activity is never
+ * recorded as a real user's. Lifts the block when the visitor signs out.
+ */
+function AnalyticsGate({ demo, children }: { demo: boolean; children: React.ReactNode }) {
+  const { user } = useAuth();
+  const blocked = demo || isDemoEmail(user?.email);
+  useEffect(() => {
+    analytics.setBlocked(blocked);
+  }, [blocked]);
+  return <AnalyticsBlockedContext.Provider value={blocked}>{children}</AnalyticsBlockedContext.Provider>;
+}
+
 /**
  * Identifies the signed-in user once analytics consent is granted (opt-in).
  * Same distinct id (Supabase user id) on web and desktop: the desktop shell loads this app.
@@ -139,19 +163,24 @@ export function Providers({
   children,
   user,
   initialLocale = DEFAULT_LOCALE,
+  demo = false,
 }: {
   children: React.ReactNode;
   user: AuthUser | null;
   /** Locale before the visitor has chosen one (from the browser language). */
   initialLocale?: Locale;
+  /** The request is for the public demo host: no analytics at all. */
+  demo?: boolean;
 }) {
   return (
     <AuthProvider initialUser={user}>
-      <LocaleProvider initialLocale={initialLocale}>
-        {children}
-        <AnalyticsIdentity />
-        <ConsentBanner />
-      </LocaleProvider>
+      <AnalyticsGate demo={demo}>
+        <LocaleProvider initialLocale={initialLocale}>
+          {children}
+          <AnalyticsIdentity />
+          <ConsentBanner />
+        </LocaleProvider>
+      </AnalyticsGate>
     </AuthProvider>
   );
 }
