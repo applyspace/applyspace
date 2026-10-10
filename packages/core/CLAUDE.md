@@ -27,3 +27,12 @@ Tests: `pnpm --filter @apply/core test` (Node's built-in test runner; `test/regi
 - `extract/docx.ts` + `extract/zip.ts`: `word/document.xml` to lines (table cells tab separated). The zip reader is also what the LinkedIn archive import (APP-109) uses.
 - `sections.ts`: `splitSections(text)` cuts the text at EN/FR headings (experience, education, skills, languages, ...) for the parsers.
 - Tests build synthetic PDF and DOCX files in `test/helpers.ts`; no real resumes in the repo.
+
+## Resume parsing (`@apply/core/resume`, APP-108)
+
+`parseResume(text, { provider? })` returns `{ resume, method: 'rules' | 'llm', attempts, fallbackReason? }`.
+
+- `parse/rules.ts`: deterministic parser (EN/FR headings, date ranges, role lines "Title - Company - City" / "at" / "chez", education, skills, languages with levels, contacts, name, seniority and years). It is the default and the fallback.
+- `parse/llm.ts`: `ResumeLlmProvider` interface (`complete({ system, user, maxTokens })`), prompt that treats the resume as data, loose JSON parsing, `validateParsedResume`, grounding (an email, phone or link the model returns must appear in the text), one retry with the rejection reason, then `LlmExtractionError`. `parseResume` merges the model answer with the rules (rule-found contacts win) and falls back to the rules on any failure. There is no `packages/ai` yet; the provider interface lives here and the Claude adapter in `apps/web/src/lib/resume/provider.ts`.
+- The Claude provider is OFF unless `RESUME_LLM_ENABLED=1`, `ANTHROPIC_API_KEY` and `RESUME_LLM_MODEL` are all set on the server. Enabling it sends resume text to Anthropic: needs a privacy notice and the founder's go first.
+- Eval set: `test/fixtures.ts` (synthetic FR/EN resumes with expected JSON, no real data) scored by `parse/eval.ts` (`scoreResume`, fact-level precision, recall, F1). Run with `pnpm --filter @apply/core test`; the same `scoreResume` can score a real model run on the same fixtures.

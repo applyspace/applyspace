@@ -39,6 +39,7 @@ src/
 │   ├── profiles.ts, searches.ts, offers.ts, applications.ts, …   # Readers: Supabase when signed in, fixtures on the demo, else empty
 │   ├── settings.ts     # Read/write user settings (Supabase when signed in)
 │   ├── supabase/       # Clients, request scope, row helpers and queries
+│   ├── resume/         # Resume parser server glue: optional Claude provider (off by default), parseResumeText
 │   ├── sources.ts      # Platform metadata (labels, colors, cookie keys)
 │   ├── i18n.ts         # EN / FR translations
 │   └── utils.ts        # Shared helpers
