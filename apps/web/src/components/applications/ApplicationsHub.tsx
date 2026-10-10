@@ -18,6 +18,7 @@ import {
 import { useHubT } from '@/lib/applicationsI18n';
 import { cn } from '@/lib/utils';
 import { updateApplicationStatus } from '@/app/(auth)/applications/actions';
+import { analytics } from '@/lib/analytics';
 import { ApplicationPeek } from './ApplicationPeek';
 import { BoardLayout } from './BoardLayout';
 import { HubHeader } from './HubHeader';
@@ -74,6 +75,8 @@ export function ApplicationsHub({
   );
 
   function changeLayout(next: HubLayout) {
+    if (next === layout) return;
+    analytics.capture('applications_layout_changed', { from_layout: layout, to_layout: next });
     setLayout(next);
     // Keep the layout in the URL so a reload or a shared link opens the same view.
     const url = new URL(window.location.href);
@@ -84,10 +87,18 @@ export function ApplicationsHub({
 
   function move(id: string, status: ApplicationStatus) {
     setError(null);
+    const fromStatus = items.find((a) => a.id === id)?.status;
     startTransition(async () => {
       applyMove({ id, status });
       const result = await updateApplicationStatus(id, status);
-      if (!result.ok) setError(t.statusError);
+      if (!result.ok) {
+        setError(t.statusError);
+        return;
+      }
+      // Only a saved move counts; ids and company names are never sent.
+      if (fromStatus && fromStatus !== status) {
+        analytics.capture('application_status_changed', { from_status: fromStatus, to_status: status, layout });
+      }
     });
   }
 

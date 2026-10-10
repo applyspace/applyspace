@@ -105,3 +105,22 @@ test('a client that is not initialised captures nothing', () => {
   assert.equal(a.consentStatus(), 'denied');
   a.capture('offer_declined');
 });
+
+test('applications and resume events pass through with only enum and count properties', () => {
+  const { client, calls } = fakeClient();
+  const a = createAnalytics(client, () => 'web');
+  a.capture('application_status_changed', { from_status: 'waiting', to_status: 'interviewing', layout: 'board' });
+  assert.deepEqual(calls, [], 'nothing before consent');
+  a.setConsent(true);
+  a.capture('application_status_changed', { from_status: 'waiting', to_status: 'interviewing', layout: 'board' });
+  a.capture('applications_layout_changed', { from_layout: 'board', to_layout: 'table' });
+  a.capture('application_created', { source: 'manual' });
+  a.capture('resume_import_confirmed', { context: 'onboarding', sections_count: 3 });
+  a.capture('onboarding_import_save_failed', { reason: 'profile' });
+  assert.equal(calls.length, 5);
+  for (const call of calls) {
+    for (const value of Object.values(call[2] as Record<string, unknown>)) {
+      assert.ok(typeof value === 'number' || /^[a-z_-]+$/.test(String(value)), 'no free text');
+    }
+  }
+});
