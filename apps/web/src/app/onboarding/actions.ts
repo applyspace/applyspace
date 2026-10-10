@@ -3,7 +3,6 @@
 import { redirect } from 'next/navigation';
 import { EXPERIENCE_LEVEL_VALUES, type ExperienceLevel } from '@apply/db/schema';
 import * as candidate from '@/lib/candidate-profile';
-import { extractDocxText } from '@/lib/docxText';
 import { getSupabaseScope, type SupabaseScope } from '@/lib/supabase/scope';
 import {
   CONTRACT_TOKENS,
@@ -26,6 +25,7 @@ import {
   type SkillEntry,
   type SkillInput,
 } from '@apply/core/candidate-profile';
+import { extractResumeText } from '@apply/core/resume';
 
 /**
  * Server actions for the candidate profile, shared by onboarding and the
@@ -118,8 +118,8 @@ export async function loadDocuments(): Promise<DocumentsData> {
 }
 
 /**
- * Records a CV the browser has just uploaded to Storage. A .docx also gets its
- * plain text extracted (kept in `extracted_text`); a PDF is stored as is.
+ * Records a CV the browser has just uploaded to Storage. A CV (PDF or .docx) also gets its
+ * plain text extracted (kept in `extracted_text`).
  */
 export async function registerDocument(input: DocumentUploadInput): Promise<ActionResult<DocumentEntry>> {
   return run('registering a document', async (s) => {
@@ -134,12 +134,15 @@ export async function registerDocument(input: DocumentUploadInput): Promise<Acti
       throw new candidate.InvalidInputError('Unknown document type.');
     }
 
+    // Plain text of the resume (PDF or .docx), kept for the parser. A file that cannot be read
+    // (scanned, protected) is still recorded: text extraction is a bonus.
     let text: string | null = null;
-    if (input.mimeType === CV_MIME_TYPES.docx && input.storagePath.startsWith(`${s.userId}/`)) {
+    if (input.kind === 'cv' && input.storagePath.startsWith(`${s.userId}/`)) {
       try {
-        text = extractDocxText(await candidate.downloadDocument(s, input.storagePath));
+        const extracted = await extractResumeText(await candidate.downloadDocument(s, input.storagePath));
+        if (extracted.ok) text = extracted.text;
       } catch {
-        // Text extraction is a bonus: the document is still recorded.
+        // The document is recorded without text.
       }
     }
     return candidate.insertDocument(s, input, text);
