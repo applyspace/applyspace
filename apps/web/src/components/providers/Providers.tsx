@@ -5,6 +5,7 @@ import { useLocalStorageItem } from '@/lib/useLocalStorage';
 import type { Locale, T } from '@/lib/i18n';
 import { translations } from '@/lib/i18n';
 import { toAuthUser, type AuthUser } from '@/lib/auth-user';
+import { getDesktopBridge } from '@/lib/desktop';
 import { createClient } from '@/lib/supabase/client';
 import { isSupabaseConfigured } from '@/lib/supabase/env';
 import { analytics } from '@/lib/analytics';
@@ -103,7 +104,11 @@ function AuthProvider({
     analytics.capture('sign_out_completed');
     didResetForSignOutRef.current = true;
     analytics.reset();
-    if (isSupabaseConfigured) await createClient().auth.signOut();
+    // Desktop: sign out this device only. The default (global) scope would also revoke the
+    // sessions of the web app and every other device. The shell forgets any callback still waiting.
+    const desktop = getDesktopBridge();
+    await desktop?.resetAuth?.();
+    if (isSupabaseConfigured) await createClient().auth.signOut({ scope: desktop ? 'local' : 'global' });
     window.location.assign('/login');
   }, []);
 
