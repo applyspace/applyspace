@@ -273,7 +273,7 @@ export function PrivacySection() {
     <div className="flex flex-col gap-6">
       <Row
         title="Usage analytics"
-        hint="Off by default. Turn on to share anonymous product usage that helps us improve Apply (never your email or name). Turn off to stop all tracking on this device."
+        hint="Off by default. Turn on to share product usage, linked to your account email, that helps us improve Apply (never your name). Turn off to stop all tracking on this device."
       >
         <button
           type="button"

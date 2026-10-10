@@ -53,17 +53,16 @@ test('declined choice also survives reset and stays off', () => {
   assert.equal(a.consentStatus(), 'denied');
 });
 
-test('identify sends the user id and non-personal props only', () => {
+test('identify sends the user id and email, never the name', () => {
   const { client, calls } = fakeClient();
   const a = createAnalytics(client, () => 'desktop');
   a.setConsent(true);
   a.setPlan('plus');
   calls.length = 0;
-  // Extra fields (email, name) must never reach PostHog, even if a caller passes the full user.
-  a.identify({ id: 'u1', email: 'a@b.c', name: 'Ada' } as { id: string }, { locale: 'fr' });
+  // The email is allowed (founder decision); the name must never reach PostHog, even if a caller passes the full user.
+  a.identify({ id: 'u1', email: 'a@b.c', name: 'Ada' } as { id: string; email: string }, { locale: 'fr' });
   assert.deepEqual(calls[0], ['register', { app_platform: 'desktop' }]);
-  assert.deepEqual(calls[1], ['identify', 'u1', { app_platform: 'desktop', locale: 'fr', plan: 'plus' }]);
-  assert.ok(!JSON.stringify(calls).includes('a@b.c'));
+  assert.deepEqual(calls[1], ['identify', 'u1', { app_platform: 'desktop', locale: 'fr', plan: 'plus', email: 'a@b.c' }]);
   assert.ok(!JSON.stringify(calls).includes('Ada'));
 });
 
