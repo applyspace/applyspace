@@ -29,7 +29,11 @@ Naming: `snake_case`, `object_action` in past tense (`cv_uploaded`), `*_failed` 
 | `onboarding_plan_selected` | `plan` (`free`/`plus`/`max`) | User clicks a plan |
 | `onboarding_completed` | `completion_method` (`plan_selected`/`completed`/`skipped`), `plan?` | Answers saved and onboarding stamped (no longer fired before the save) |
 | `onboarding_save_failed` | `reason` | Saving onboarding answers failed (incl. `signed-out`) |
-| `onboarding_import_save_failed` | `reason` | Attaching the imported resume failed |
+| `onboarding_import_save_failed` | `reason` (`unsupported`/`too-large`/`signed-out`/`upload`/`register`/`profile`) | Attaching the imported resume failed. `profile` = the confirmed resume data could not be saved to the profile (call site lands with APP-110/APP-120) |
+| `resume_import_confirmed` | `context` (`onboarding`/`profile`), `sections_count` | User reviewed a parsed resume and confirmed it. Counts only, never content. **Call site pending**: APP-110 (`importParsedProfile` in `OnboardingV2`) |
+| `application_status_changed` | `from_status`, `to_status`, `layout` | A status move was saved in the Applications hub (not fired when the save fails) |
+| `applications_layout_changed` | `from_layout`, `to_layout` (`board`/`table`/`timeline`/`map`) | User switches the Applications hub layout |
+| `application_created` | `source` (`manual`/`offer`) | An application is created. **Call site pending**: APP-118 (`ApplicationForm` after `createApplication` succeeds) |
 | `search_created` | `has_location`, `contract_types_count`, `experience_levels_count` | New search profile created |
 | `search_run_completed` | `offers_found`, `offers_inserted`, `offers_updated` | "Search now" finished |
 | `offer_declined` / `offer_application_started` | none | Offer actions in the offers table |
@@ -40,13 +44,20 @@ Naming: `snake_case`, `object_action` in past tense (`cv_uploaded`), `*_failed` 
 | `settings_saved` | `section` (`profile`/`search_criteria`) | Settings tab saved |
 | `$exception` | PostHog default | `global-error.tsx` (`captureException`) and `capture_exceptions: true` |
 
+### Pending call sites
+
+`resume_import_confirmed`, `application_created` and the `profile` reason of `onboarding_import_save_failed` are declared in the typed helper but not fired yet: their screens are in open PRs (APP-110, APP-118, APP-120) that were not merged when this was written. Each PR adds a single `analytics.capture(...)` line at the spot named above; until then the matching dashboard tiles stay empty. Properties are enums and counts only: no company names, job titles, notes, URLs, file names or resume content.
+
 ## Feature flags
 
 None are read in the code today (no `getFeatureFlag`, `isFeatureEnabled`, `useFeatureFlag`, no bootstrap). If one is added, read it through a typed helper next to `analytics.ts`, define a safe default for when PostHog is blocked or not loaded, and bootstrap it for first paint.
 
-## Proposed insights (not created; to build in PostHog after the APP-129 retest)
+## Dashboards (PostHog EU, project 296021)
 
-1. Onboarding funnel (funnel, 14 days, unique users): `onboarding_step_viewed` (step = import) > ... > `onboarding_step_viewed` (step = plan) > `onboarding_plan_selected` > `onboarding_completed`. Breakdown: `app_platform`, then `plan`. Companion trend: `onboarding_save_failed` and `onboarding_import_save_failed` by `reason`.
-2. Activation (funnel, 7 days from `onboarding_completed`): `search_created` or `search_run_completed` (offers_found > 0) > `offer_application_started`. Activation = first `search_run_completed` with offers within 24 h of onboarding.
-3. Weekly retention (retention, weekly, 8 weeks): start `onboarding_completed`, return on any of `search_run_completed`, `offer_application_started`, `offer_declined`, `profile_section_saved`. Breakdown `app_platform`.
-4. Data health: unique users per day with `$identify`, to check identified vs anonymous ratio and opt-outs (expect volume to follow the opt-in rate: only users who accepted are tracked).
+| Dashboard | Id | Insights |
+|---|---|---|
+| Onboarding funnel | 1011880 | Onboarding funnel by platform, plan selected by plan, save failures by reason (includes `onboarding_import_save_failed` reasons), resume imports confirmed (new) |
+| Activation and retention | 1011881 | Activation funnel, weekly retention after onboarding, weekly active users (now also `application_status_changed` and `application_created`), application status moves by new status (new), Applications hub layout usage (new) |
+| Data health and errors | 1011882 | Event volume by name, identified users per day, exceptions per day, sign-in by provider |
+
+Notes: retention uses `search_run_completed` as the single returning event (the typed retention query takes one). Data only exists for users who opted in, so volume follows the opt-in rate. Retest steps for the founder: `docs/posthog-retest.md` (APP-129).

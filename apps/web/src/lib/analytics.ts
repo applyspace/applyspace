@@ -1,4 +1,6 @@
 import posthog from 'posthog-js';
+import type { ApplicationStatus } from '@apply/core/applications';
+import type { HubLayout } from './applicationsHub';
 
 /**
  * The single entry point to product analytics. Every event is declared in
@@ -8,6 +10,14 @@ import posthog from 'posthog-js';
 
 export type Plan = 'free' | 'plus' | 'max';
 export type AppPlatform = 'web' | 'desktop';
+/** Why storing the resume picked at import failed. A fixed list: never an error message or file detail. */
+export type ImportSaveFailureReason =
+  | 'unsupported'
+  | 'too-large'
+  | 'signed-out'
+  | 'upload'
+  | 'register'
+  | 'profile';
 
 export interface AnalyticsEvents {
   // Auth
@@ -22,7 +32,15 @@ export interface AnalyticsEvents {
     plan?: Plan;
   };
   onboarding_save_failed: { reason: string };
-  onboarding_import_save_failed: { reason: string };
+  onboarding_import_save_failed: { reason: ImportSaveFailureReason };
+  // Applications hub
+  application_status_changed: {
+    from_status: ApplicationStatus;
+    to_status: ApplicationStatus;
+    layout: HubLayout;
+  };
+  applications_layout_changed: { from_layout: HubLayout; to_layout: HubLayout };
+  application_created: { source: 'manual' | 'offer' };
   // Offers and searches
   search_created: {
     has_location: boolean;
@@ -39,6 +57,8 @@ export interface AnalyticsEvents {
   profile_section_saved: { section: string };
   profile_section_removed: { section: string };
   linkedin_profile_sync_completed: undefined;
+  /** The user reviewed a parsed resume and confirmed it. Counts only, never the content. */
+  resume_import_confirmed: { context: 'onboarding' | 'profile'; sections_count: number };
   // Settings
   settings_saved: { section: 'profile' | 'search_criteria' };
 }
