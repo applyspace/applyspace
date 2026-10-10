@@ -10,7 +10,8 @@
     "start":    "electron dist/main/index.js",
     "pack":     "electron-builder --dir",
     "dist":     "electron-builder",
-    "clean":    "rm -rf dist release"
+    "clean":    "rm -rf dist release",
+    "test":     "tsc && node --test \"dist/**/*.test.js\""
   },
   "devDependencies": {
     "@electron/rebuild": "^3.7.0",

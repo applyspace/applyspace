@@ -5,11 +5,32 @@
  */
 export type DesktopAuthCallback = { code: string } | { error: true };
 
+/** Steps reported to the shell's auth log (names only, never a code or a token). */
+export type DesktopAuthStage =
+  | 'sign-in-start'
+  | 'open-browser-failed'
+  | 'no-return-timeout'
+  | 'callback-taken'
+  | 'callback-invalid'
+  | 'exchange-start'
+  | 'exchange-ok'
+  | 'exchange-error'
+  | 'exchange-timeout';
+
+export interface DesktopAuthReport {
+  stage: DesktopAuthStage;
+  errorName?: string;
+  status?: number;
+}
+
 export interface DesktopBridge {
   openExternal: (url: string) => Promise<void>;
   getInfo: () => Promise<{ packaged: boolean; platform: string }>;
   onAuthCallback: (listener: (payload: DesktopAuthCallback) => void) => () => void;
   takeAuthCallback: () => Promise<DesktopAuthCallback | null>;
+  /** Absent in shells older than the auth log: callers use optional chaining. */
+  resetAuth?: () => Promise<void>;
+  reportAuth?: (report: DesktopAuthReport) => void;
 }
 
 /** Deep link that hands the one-time code back to the desktop app. */

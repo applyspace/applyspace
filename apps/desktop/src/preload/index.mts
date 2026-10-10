@@ -1,6 +1,6 @@
 import { contextBridge, ipcRenderer } from 'electron';
 
-import { type ApplyApi, type AuthCallbackPayload, Channel, type DesktopInfo } from '../shared/ipc.js';
+import { type ApplyApi, type AuthCallbackPayload, type AuthReport, Channel, type DesktopInfo } from '../shared/ipc.js';
 
 /**
  * Preload script — runs in an isolated world with access to a small subset of
@@ -24,6 +24,10 @@ const api: ApplyApi = {
   },
   takeAuthCallback: () =>
     ipcRenderer.invoke(Channel.TakeAuthCallback) as Promise<AuthCallbackPayload | null>,
+  resetAuth: () => ipcRenderer.invoke(Channel.AuthReset) as Promise<void>,
+  reportAuth: (report: AuthReport) => {
+    ipcRenderer.send(Channel.AuthReport, report);
+  },
 };
 
 contextBridge.exposeInMainWorld('apply', api);

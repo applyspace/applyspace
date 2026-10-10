@@ -35,16 +35,24 @@ export default function LoginPage() {
     () => false,
   );
   const [failed, setFailed] = useState(searchParams.get("error") !== null);
+  // Desktop only: the browser was opened but nothing came back to the app in time.
+  const [noReturn, setNoReturn] = useState(false);
 
   async function handleSignIn(provider: Provider) {
     setPending(provider);
     setFailed(false);
+    setNoReturn(false);
     analytics.capture('sign_in_started', { provider });
     const desktop = getDesktopBridge();
     // Packaged desktop app: Google refuses embedded windows, so sign in through the
     // system browser and come back via the applyspace:// deep link. In dev the scheme
     // is not reliably registered, so we keep the in-window web flow.
     const useSystemBrowser = desktop !== null && (await desktop.getInfo()).packaged;
+    if (useSystemBrowser) {
+      // Forget any callback left over from an earlier attempt, then start the auth log for this one.
+      await desktop?.resetAuth?.();
+      desktop?.reportAuth?.({ stage: 'sign-in-start' });
+    }
     const { data, error } = await createClient().auth.signInWithOAuth({
       provider,
       options: useSystemBrowser
@@ -60,12 +68,17 @@ export default function LoginPage() {
       try {
         await desktop.openExternal(data.url);
       } catch {
+        desktop.reportAuth?.({ stage: 'open-browser-failed' });
         setFailed(true);
         setPending(null);
         return;
       }
-      // The deep link reloads the app on success; give up waiting after 2 minutes.
-      window.setTimeout(() => setPending(null), 120_000);
+      // The deep link reloads the app on success; give up waiting after 2 minutes, and say so.
+      window.setTimeout(() => {
+        desktop.reportAuth?.({ stage: 'no-return-timeout' });
+        setPending(null);
+        setNoReturn(true);
+      }, 120_000);
     }
     // Web: the browser is redirected to the provider.
   }
@@ -156,6 +169,12 @@ export default function LoginPage() {
             {failed && (
               <p role="alert" className="text-xs text-destructive">
                 {t.auth.signInError}
+              </p>
+            )}
+
+            {noReturn && (
+              <p role="alert" className="text-xs text-destructive">
+                {t.auth.desktopNoReturn}
               </p>
             )}
 

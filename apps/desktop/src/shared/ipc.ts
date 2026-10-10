@@ -14,6 +14,10 @@ export const Channel = {
   AuthCallback: 'apply:auth-callback',
   /** Renderer -> main: fetch a callback received before the renderer was listening. */
   TakeAuthCallback: 'apply:take-auth-callback',
+  /** Renderer -> main: a new sign-in starts (or the user signed out); forget any callback still waiting. */
+  AuthReset: 'apply:auth-reset',
+  /** Renderer -> main: progress report for the auth log (stage and error names only, never codes). */
+  AuthReport: 'apply:auth-report',
 } as const;
 export type Channel = (typeof Channel)[keyof typeof Channel];
 
@@ -25,6 +29,27 @@ export const AUTH_SCHEME = 'applyspace';
  * Only the one-time `code` (or a bare failure flag) crosses the boundary, never the raw URL.
  */
 export type AuthCallbackPayload = { code: string } | { error: true };
+
+/** Steps of a desktop sign-in the renderer reports to the main-process auth log. */
+export const AUTH_STAGES = [
+  'sign-in-start',
+  'open-browser-failed',
+  'no-return-timeout',
+  'callback-taken',
+  'callback-invalid',
+  'exchange-start',
+  'exchange-ok',
+  'exchange-error',
+  'exchange-timeout',
+] as const;
+export type AuthStage = (typeof AUTH_STAGES)[number];
+
+/** What the renderer may tell the auth log: a stage, and for failures an error name and HTTP status. */
+export interface AuthReport {
+  stage: AuthStage;
+  errorName?: string;
+  status?: number;
+}
 
 export interface DesktopInfo {
   /** False in dev: the `applyspace://` scheme is not reliably registered there. */
@@ -51,6 +76,12 @@ export interface ApplyApi {
 
   /** Returns (and clears) a callback that arrived before the renderer was listening. */
   takeAuthCallback: () => Promise<AuthCallbackPayload | null>;
+
+  /** Drop any callback still waiting in main. Call when a sign-in starts and on sign-out. */
+  resetAuth: () => Promise<void>;
+
+  /** Fire-and-forget progress report for the main-process auth log. */
+  reportAuth: (report: AuthReport) => void;
 }
 
 declare global {

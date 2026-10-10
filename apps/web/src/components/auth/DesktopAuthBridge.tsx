@@ -3,64 +3,50 @@
 import { useEffect, useState } from 'react';
 import { useLocale } from '@/components/providers/Providers';
 import { getDesktopBridge } from '@/lib/desktop';
+import { createDesktopAuthController, type DesktopAuthStatus } from '@/lib/desktop-auth';
 import { createClient } from '@/lib/supabase/client';
 import { isSupabaseConfigured } from '@/lib/supabase/env';
-
-/** Give up on the code exchange after this long instead of spinning forever. */
-const EXCHANGE_TIMEOUT_MS = 20_000;
-
-type Status = { kind: 'idle' } | { kind: 'working' } | { kind: 'error'; detail: string };
 
 /**
  * Desktop only: finishes the Google/LinkedIn sign-in that was started in the
  * system browser. The shell hands over the one-time code from
  * `applyspace://auth/callback`; we exchange it here, where the PKCE verifier
  * cookie was created, then reload so server components see the session.
- * While it runs it shows a status screen, and on failure it shows what went
- * wrong (Supabase's error text, never a code or token) instead of a blank spinner.
+ *
+ * The shell's push is only a wake-up call and can be missed, so the callback is also
+ * looked for on mount, on window focus (the shell focuses the window when the link
+ * arrives) and when the page becomes visible again. On failure it shows what went wrong
+ * (Supabase's error text, never a code or token) instead of a blank spinner.
  * Renders nothing in a regular browser.
  */
 export function DesktopAuthBridge() {
   const { t } = useLocale();
-  const [status, setStatus] = useState<Status>({ kind: 'idle' });
+  const [status, setStatus] = useState<DesktopAuthStatus>({ kind: 'idle' });
 
   useEffect(() => {
     const bridge = getDesktopBridge();
     if (!bridge || !isSupabaseConfigured) return;
 
-    let busy = false;
-    async function consume() {
-      if (!bridge || busy) return;
-      const payload = await bridge.takeAuthCallback();
-      if (!payload) return;
-      busy = true;
-      setStatus({ kind: 'working' });
-      if (!('code' in payload)) {
-        setStatus({ kind: 'error', detail: 'No sign-in code came back from the browser.' });
-        return;
-      }
-      try {
-        const result = await Promise.race([
-          createClient().auth.exchangeCodeForSession(payload.code),
-          new Promise<never>((_, reject) =>
-            setTimeout(() => reject(new Error('Timed out waiting for Supabase.')), EXCHANGE_TIMEOUT_MS),
-          ),
-        ]);
-        if (result.error) {
-          setStatus({ kind: 'error', detail: `${result.error.name}: ${result.error.message}` });
-          busy = false;
-          return;
-        }
-        window.location.assign('/');
-      } catch (err) {
-        setStatus({ kind: 'error', detail: err instanceof Error ? err.message : 'Unknown error' });
-        busy = false;
-      }
-    }
+    const controller = createDesktopAuthController({
+      bridge,
+      exchange: (code) => createClient().auth.exchangeCodeForSession(code),
+      setStatus,
+      onSignedIn: () => window.location.assign('/'),
+    });
+    const run = () => void controller.consume();
+    const onVisible = () => {
+      if (document.visibilityState === 'visible') run();
+    };
 
-    void consume();
-    const off = bridge.onAuthCallback(() => void consume());
-    return off;
+    run();
+    const off = bridge.onAuthCallback(run);
+    window.addEventListener('focus', run);
+    document.addEventListener('visibilitychange', onVisible);
+    return () => {
+      off();
+      window.removeEventListener('focus', run);
+      document.removeEventListener('visibilitychange', onVisible);
+    };
   }, []);
 
   if (status.kind === 'idle') return null;
