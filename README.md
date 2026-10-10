@@ -1,10 +1,10 @@
 # Apply
 
-Job search companion, France first. Find offers across job boards, track applications and interviews, and write better applications, all in one place.
+Job search companion, France first. Find offers across job boards, track applications and interviews, and write better applications, all in one space.
 
 ## Status
 
-Prototype. Today the data lives in a local SQLite file and job boards are scraped with the user's own session. The target architecture moves candidate data to a shared Supabase database so web, desktop, extension and mobile see the same data. Platform sessions (cookies) always stay on the user's device.
+Candidate data lives in the cloud, in a shared Supabase database, so web, desktop, extension and mobile see the same data.
 
 ## Repository
 
@@ -16,7 +16,7 @@ apps/
 packages/
   db/         Drizzle SQLite schema and migrations (prototype storage)
   scraper/    Playwright scraper, cookie based (will become packages/connectors)
-site/         Marketing website (not started)
+site/         Marketing website (Next.js + Sanity), see site/README.md
 ```
 
 Planned: `apps/extension`, `packages/core`, `packages/connectors`, `packages/ai`, `packages/design-tokens`, `packages/ui`, `supabase/`.

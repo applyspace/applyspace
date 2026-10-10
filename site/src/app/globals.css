@@ -1,0 +1,80 @@
+@import "tailwindcss";
+@import "@fontsource-variable/fraunces/full.css";
+
+/* Same design tokens as apps/web (src/app/globals.css): brand scale, stone neutrals, radius, 1.6px borders, no shadows. */
+@theme {
+  --font-weight-medium: 600;
+
+  --color-brand-50: oklch(0.975 0.015 311);
+  --color-brand-100: oklch(0.945 0.035 311);
+  --color-brand-200: oklch(0.905 0.068 311);
+  --color-brand-300: oklch(0.843 0.106 311);
+  --color-brand-400: oklch(0.76 0.15 310);
+  --color-brand-500: oklch(0.66 0.19 310);
+  --color-brand-600: oklch(0.55 0.2 309);
+  --color-brand-700: oklch(0.45 0.17 309);
+  --color-brand-800: oklch(0.36 0.13 309);
+  --color-brand-900: oklch(0.28 0.095 309);
+  --color-brand-950: oklch(0.204 0.062 309);
+
+  --shadow-*: initial;
+  --inset-shadow-*: initial;
+  --drop-shadow-*: initial;
+
+  --radius-sm: calc(0.625rem * 0.6);
+  --radius-md: calc(0.625rem * 0.8);
+  --radius-lg: 0.625rem;
+  --radius-xl: calc(0.625rem * 1.4);
+  --radius-2xl: calc(0.625rem * 1.8);
+  --radius-3xl: calc(0.625rem * 2.2);
+  --radius-4xl: calc(0.625rem * 2.6);
+
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-display: 'Fraunces Variable', ui-serif, Georgia, serif;
+}
+
+:root {
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.147 0.004 49.25);
+  --border: oklch(0.923 0.003 48.717);
+  --ring: oklch(0.709 0.01 56.259);
+}
+
+@layer base {
+  * {
+    border-color: var(--border);
+  }
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 6rem;
+    font-family: var(--font-sans);
+  }
+  body {
+    background: var(--background);
+    color: var(--foreground);
+    letter-spacing: -0.011em;
+    -webkit-font-smoothing: antialiased;
+  }
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+  }
+}
+
+/* Default border width 1.6px, like the app. Unlayered so it wins over the utilities layer; side borders and explicit widths are untouched. */
+.border:not([class~="border-0"]):not([class*=":border-0"]) {
+  border-width: 1.6px;
+}
+
+/* Headlines: Fraunces, soft and wonky cut, single colour. */
+.font-display {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-variation-settings: "SOFT" 100, "WONK" 1, "opsz" 64;
+  letter-spacing: -0.02em;
+}

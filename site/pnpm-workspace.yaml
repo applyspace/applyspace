@@ -1,0 +1,3 @@
+# The site is its own pnpm root (separate Vercel project, root directory `site`), not part of the apps/* workspace.
+packages:
+  - '.'
