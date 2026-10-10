@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, useTransition } from 'react';
-import posthog from 'posthog-js';
+import { analytics, type Plan } from '@/lib/analytics';
 import { HugeiconsIcon } from '@hugeicons/react';
 import {
   ArrowLeft01Icon,
@@ -83,7 +83,7 @@ export function OnboardingV2() {
   const last = step === STEPS.length - 1;
 
   useEffect(() => {
-    posthog.capture('onboarding_step_viewed', { step: STEPS[step], step_index: step });
+    analytics.capture('onboarding_step_viewed', { step: STEPS[step], step_index: step });
   }, [step]);
 
   // Steps before the plan page never scroll: lock the document itself so no hidden scrollbar or focus jump can move the page. The plan page scrolls normally.
@@ -101,7 +101,7 @@ export function OnboardingV2() {
   }, [last]);
 
   const advance = (method: 'next' | 'skip') => {
-    posthog.capture('onboarding_step_completed', { step: current, step_index: step, method });
+    analytics.capture('onboarding_step_completed', { step: current, step_index: step, method });
     setStep(step + 1);
   };
   const canNext = {
@@ -185,14 +185,14 @@ export function OnboardingV2() {
         {current === 'plan' && <PlanStep
             onSelect={(plan) => {
               if (finishing) return;
-              posthog.capture('onboarding_completed', { completion_method: 'plan_selected', plan });
+              analytics.capture('onboarding_plan_selected', { plan: plan as Plan });
               // Stamps `accounts.onboarded_at` and redirects to Home.
               startFinishing(async () => {
                 setSaveError(null);
                 // Every answer goes to the first search profile before onboarding is stamped as done.
                 const saved = await saveOnboardingAnswers({ status, titles, levels, places, workplaces, contracts, minSalaryK: minSalary, currency, sizes, sectors, platforms, selectedPlan: plan });
                 if (!saved.ok) {
-                  posthog.capture('onboarding_save_failed', { reason: saved.reason });
+                  analytics.capture('onboarding_save_failed', { reason: saved.reason });
                   // Signed out (demo, desktop): nothing to attach to, carry on. Any other failure stays here so the answers are not lost.
                   if (saved.reason !== 'signed-out') {
                     setSaveError(saved.message);
@@ -202,8 +202,10 @@ export function OnboardingV2() {
                 // The imported resume is attached to the account. A failed upload never blocks onboarding: it can be added from Profile.
                 if (file && saved.ok) {
                   const stored = await saveImportedFile(file);
-                  if (!stored.ok) posthog.capture('onboarding_import_save_failed', { reason: stored.reason });
+                  if (!stored.ok) analytics.capture('onboarding_import_save_failed', { reason: stored.reason });
                 }
+                // Fired once the answers are saved (or there is nothing to save), so a failed save never counts as a completion.
+                analytics.capture('onboarding_completed', { completion_method: 'plan_selected', plan: plan as Plan });
                 await completeOnboarding();
               });
             }}

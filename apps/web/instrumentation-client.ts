@@ -17,6 +17,8 @@ if (!projectToken || !host) {
   posthog.init(projectToken, {
     api_host: host,
     defaults: '2026-05-30',
+    // Opt-in: nothing is captured (events, pageviews, exceptions, identify) until the user accepts.
+    opt_out_capturing_by_default: true,
     capture_exceptions: true,
     tracing_headers: [window.location.hostname],
     debug: process.env.NODE_ENV === 'development',

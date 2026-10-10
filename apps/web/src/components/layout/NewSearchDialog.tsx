@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useTransition } from 'react';
-import posthog from 'posthog-js';
+import { analytics } from '@/lib/analytics';
 import { useRouter } from 'next/navigation';
 import { Dialog } from '@base-ui/react/dialog';
 import { HugeiconsIcon } from '@hugeicons/react';
@@ -149,7 +149,7 @@ function NewSearchForm({
         experienceLevels: levels as ExperienceLevel[],
       });
       if (result.ok) {
-        posthog.capture('search_created', {
+        analytics.capture('search_created', {
           has_location: Boolean(location.trim()),
           contract_types_count: contractTypes.length,
           experience_levels_count: levels.length,

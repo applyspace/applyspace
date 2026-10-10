@@ -3,6 +3,8 @@
 import { Sidebar } from './Sidebar';
 import { SettingsModal } from '@/components/settings/SettingsModal';
 import { SettingsModalProvider } from '@/components/settings/SettingsModalProvider';
+import { useEffect } from 'react';
+import { analytics } from '@/lib/analytics';
 import { useLocalStorageItem } from '@/lib/useLocalStorage';
 import type {
   ApplicationWithRelations,
@@ -37,6 +39,10 @@ export function AppShell({
   /** Account plan, or null when nobody is signed in (demo, desktop). */
   plan: AccountPlan | null;
 }) {
+  useEffect(() => {
+    analytics.setPlan(plan);
+  }, [plan]);
+
   const [savedCollapsed, saveCollapsed] = useLocalStorageItem('apply-sidebar-collapsed');
   const [savedWidth, saveWidth] = useLocalStorageItem('apply-sidebar-width');
 

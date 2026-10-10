@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useState, useSyncExternalStore, useTransition } from 'react';
+import { analytics } from '@/lib/analytics';
 import { useRouter } from 'next/navigation';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { Loading02Icon, Tick02Icon } from '@hugeicons/core-free-icons';
@@ -257,8 +258,43 @@ export function AccountSection({ firstName, lastName }: { firstName: string; las
 const PRIVACY_LINKS = ['Privacy Policy', 'Terms of Service', 'Export my data'];
 
 export function PrivacySection() {
+  // Consent lives in browser storage, so the server render cannot know it (null until hydrated).
+  const consent = useSyncExternalStore(
+    analytics.subscribeConsent,
+    () => analytics.hasConsent(),
+    () => null,
+  );
+
+  function toggleConsent() {
+    analytics.setConsent(!analytics.hasConsent());
+  }
+
   return (
     <div className="flex flex-col gap-6">
+      <Row
+        title="Usage analytics"
+        hint="Off by default. Turn on to share anonymous product usage that helps us improve Apply (never your email or name). Turn off to stop all tracking on this device."
+      >
+        <button
+          type="button"
+          role="switch"
+          aria-checked={consent === true}
+          aria-label="Usage analytics"
+          disabled={consent === null}
+          onClick={toggleConsent}
+          className={cn(
+            'relative h-6 w-11 rounded-full transition-colors disabled:opacity-40',
+            consent ? 'bg-stone-950' : 'bg-stone-200',
+          )}
+        >
+          <span
+            className={cn(
+              'absolute top-0.5 left-0.5 size-5 rounded-full bg-white transition-transform',
+              consent && 'translate-x-5',
+            )}
+          />
+        </button>
+      </Row>
       <p className="max-w-prose text-sm leading-relaxed text-stone-700">
         Your job search is yours. Apply stores your profile, searches and applications so you can
         find them on every device, and your job board sessions stay on your own device. More

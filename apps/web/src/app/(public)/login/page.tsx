@@ -5,7 +5,7 @@ import { HugeiconsIcon } from "@hugeicons/react";
 import { LoaderIcon } from "@hugeicons/core-free-icons";
 import { useState, useSyncExternalStore } from "react";
 import { DESKTOP_AUTH_BRIDGE, getDesktopBridge } from "@/lib/desktop";
-import posthog from "posthog-js";
+import { analytics } from '@/lib/analytics';
 import { OffersPreview } from "@/components/auth/OffersPreview";
 import { ApplyLogo } from "@/components/brand/ApplyLogo";
 import { Button } from "@/components/ui/button";
@@ -39,7 +39,7 @@ export default function LoginPage() {
   async function handleSignIn(provider: Provider) {
     setPending(provider);
     setFailed(false);
-    posthog.capture('sign_in_started', { provider });
+    analytics.capture('sign_in_started', { provider });
     const desktop = getDesktopBridge();
     // Packaged desktop app: Google refuses embedded windows, so sign in through the
     // system browser and come back via the applyspace:// deep link. In dev the scheme
