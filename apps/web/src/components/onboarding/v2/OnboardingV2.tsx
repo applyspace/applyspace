@@ -13,12 +13,12 @@ import {
   SearchList01Icon,
 } from '@hugeicons/core-free-icons';
 import { completeOnboarding, saveOnboardingAnswers } from '@/app/onboarding/actions';
-import { ApplyLogo } from '@/components/brand/ApplyLogo';
 import { Button } from '@/components/ui/button';
 import { ImportDropzone } from '@/components/onboarding/v2/ImportDropzone';
 import { OptionRow } from '@/components/onboarding/v2/OptionRow';
 import { ChoiceCard, TagSearch, toggle } from '@/components/onboarding/v2/fields';
 import { CompanyStep, ContractStep } from '@/components/onboarding/v2/CriteriaSteps';
+import { OnboardingTopBar } from '@/components/onboarding/v2/OnboardingTopBar';
 import { PlanStep } from '@/components/onboarding/v2/PlanStep';
 import { PlatformsStep } from '@/components/onboarding/v2/PlatformsStep';
 import { saveImportedFile } from '@/components/onboarding/v2/saveImportedFile';
@@ -116,14 +116,12 @@ export function OnboardingV2() {
   }[current];
 
   return (
-    <div className={cn('flex flex-col bg-background text-foreground', last ? 'min-h-dvh' : 'h-dvh overflow-clip')}>
+    <div className={cn('relative flex flex-col bg-background text-foreground', last ? 'min-h-dvh' : 'h-dvh overflow-clip')}>
       {/* The plan page scrolls normally, without a visible scrollbar. */}
       <style>{'html{scrollbar-width:none}html::-webkit-scrollbar{display:none}'}</style>
-      {!last && (
-        <div className="flex justify-center pt-12 pb-[16vh]">
-          <ApplyLogo className="h-8 w-auto text-foreground" />
-        </div>
-      )}
+      <OnboardingTopBar />
+      {/* Keeps the content where it was before the logo moved into the top bar. */}
+      {!last && <div className="h-8 pt-12 pb-[16vh] box-content" aria-hidden />}
 
       <main className={cn('mx-auto w-full flex-1 px-6', last ? 'max-w-6xl pt-24' : 'max-w-4xl min-h-0 pt-[2vh]')}>
         {current === 'import' && (
