@@ -53,47 +53,97 @@ type CaptureArgs<E extends AnalyticsEventName> = AnalyticsEvents[E] extends unde
 export interface AnalyticsClient {
   capture(event: string, properties?: Record<string, unknown>): unknown;
   identify(distinctId: string, properties?: Record<string, unknown>): unknown;
+  setPersonProperties(properties: Record<string, unknown>): unknown;
   reset(): unknown;
   register(properties: Record<string, unknown>): unknown;
   opt_in_capturing(): unknown;
   opt_out_capturing(): unknown;
-  has_opted_out_capturing(): boolean;
+  get_explicit_consent_status(): ConsentStatus;
 }
 
+/** `pending` = the user has not chosen yet (nothing is captured); the banner shows. */
+export type ConsentStatus = 'granted' | 'denied' | 'pending';
+
+/** Only the id is needed: email and name are never sent to PostHog. */
 export interface AnalyticsUser {
   id: string;
-  email?: string | null;
-  name?: string | null;
 }
 
 export function createAnalytics(client: AnalyticsClient, platform: () => AppPlatform) {
+  const listeners = new Set<() => void>();
+  const notify = () => listeners.forEach((listener) => listener());
+  const status = (): ConsentStatus => {
+    try {
+      return client.get_explicit_consent_status();
+    } catch {
+      return 'denied'; // PostHog not initialised (no token configured): capture nothing, no prompt
+    }
+  };
+  const granted = () => status() === 'granted';
+  let plan: string | undefined;
+
   /** Super property on every event: lets dashboards split web from desktop. */
-  const registerPlatform = () => client.register({ app_platform: platform() });
+  const registerPlatform = () => {
+    if (granted()) client.register({ app_platform: platform() });
+  };
 
   return {
+    /** Analytics is opt-in: nothing is captured until the user accepts. */
     capture<E extends AnalyticsEventName>(...args: CaptureArgs<E>) {
+      if (!granted()) return;
       const [event, properties] = args as [E, Record<string, unknown>?];
       client.capture(event, properties);
     },
-    /** Distinct id is always the Supabase user id, on web and desktop. */
-    identify(user: AnalyticsUser) {
+    /**
+     * Distinct id is always the Supabase user id, on web and desktop. Only
+     * non-personal properties are sent (never email or name), and only after consent.
+     */
+    identify(user: AnalyticsUser, context: { locale?: string } = {}) {
+      if (!granted()) return;
       registerPlatform();
       client.identify(user.id, {
-        email: user.email ?? undefined,
-        name: user.name ?? undefined,
+        app_platform: platform(),
+        locale: context.locale,
+        plan,
       });
     },
-    /** Sign-out or account switch: new anonymous id, no merge with the previous user. */
+    /** Account plan (`free`/`plus`/`max`), attached to events and the person once known. */
+    setPlan(next: string | null | undefined) {
+      plan = next ?? undefined;
+      if (!plan || !granted()) return;
+      client.register({ plan });
+      client.setPersonProperties({ plan });
+    },
+    /**
+     * Sign-out or account switch: new anonymous id, no merge with the previous user.
+     * posthog-js clears the consent choice on reset(), so it is restored right after.
+     */
     reset() {
+      const before = status();
       client.reset();
+      if (before === 'granted') client.opt_in_capturing();
+      else if (before === 'denied') client.opt_out_capturing();
       registerPlatform();
     },
     registerPlatform,
-    /** Consent is stored by posthog-js itself (survives reset); opting out stops all capture. */
-    hasConsent: () => !client.has_opted_out_capturing(),
-    setConsent(granted: boolean) {
-      if (granted) client.opt_in_capturing();
-      else client.opt_out_capturing();
+    consentStatus: status,
+    hasConsent: granted,
+    /** Subscribe to consent changes (banner and Settings switch). Returns the unsubscribe. */
+    subscribeConsent(listener: () => void) {
+      listeners.add(listener);
+      return () => {
+        listeners.delete(listener);
+      };
+    },
+    /** Accept = opt in. Decline or switch off = reset first (drops the identity), then opt out. */
+    setConsent(accepted: boolean) {
+      if (accepted) {
+        client.opt_in_capturing();
+      } else {
+        client.reset();
+        client.opt_out_capturing();
+      }
+      notify();
     },
   };
 }

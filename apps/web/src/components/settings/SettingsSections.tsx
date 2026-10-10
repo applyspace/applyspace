@@ -257,32 +257,23 @@ export function AccountSection({ firstName, lastName }: { firstName: string; las
 
 const PRIVACY_LINKS = ['Privacy Policy', 'Terms of Service', 'Export my data'];
 
-const consentListeners = new Set<() => void>();
-function subscribeConsent(listener: () => void) {
-  consentListeners.add(listener);
-  return () => {
-    consentListeners.delete(listener);
-  };
-}
-
 export function PrivacySection() {
   // Consent lives in browser storage, so the server render cannot know it (null until hydrated).
   const consent = useSyncExternalStore(
-    subscribeConsent,
+    analytics.subscribeConsent,
     () => analytics.hasConsent(),
     () => null,
   );
 
   function toggleConsent() {
     analytics.setConsent(!analytics.hasConsent());
-    consentListeners.forEach((listener) => listener());
   }
 
   return (
     <div className="flex flex-col gap-6">
       <Row
         title="Usage analytics"
-        hint="Anonymous product analytics help us improve Apply. Turn off to stop all tracking on this device."
+        hint="Off by default. Turn on to share anonymous product usage that helps us improve Apply (never your email or name). Turn off to stop all tracking on this device."
       >
         <button
           type="button"

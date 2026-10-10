@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
+import { createContext, useCallback, useContext, useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { useLocalStorageItem } from '@/lib/useLocalStorage';
 import type { Locale, T } from '@/lib/i18n';
 import { translations } from '@/lib/i18n';
@@ -8,6 +8,7 @@ import { toAuthUser, type AuthUser } from '@/lib/auth-user';
 import { createClient } from '@/lib/supabase/client';
 import { isSupabaseConfigured } from '@/lib/supabase/env';
 import { analytics } from '@/lib/analytics';
+import { ConsentBanner } from '@/components/analytics/ConsentBanner';
 
 // ── Locale context ────────────────────────────────────────────────────────────────────────
 
@@ -97,16 +98,6 @@ function AuthProvider({
     return () => data.subscription.unsubscribe();
   }, []);
 
-  useEffect(() => {
-    analytics.registerPlatform();
-  }, []);
-
-  useEffect(() => {
-    if (!user) return;
-    // Same distinct id (Supabase user id) on web and desktop: the desktop shell loads this app.
-    analytics.identify(user);
-  }, [user]);
-
   const signOut = useCallback(async () => {
     analytics.capture('sign_out_completed');
     didResetForSignOutRef.current = true;
@@ -116,6 +107,29 @@ function AuthProvider({
   }, []);
 
   return <AuthContext.Provider value={{ user, signOut }}>{children}</AuthContext.Provider>;
+}
+
+/**
+ * Identifies the signed-in user once analytics consent is granted (opt-in).
+ * Same distinct id (Supabase user id) on web and desktop: the desktop shell loads this app.
+ */
+function AnalyticsIdentity() {
+  const { user } = useAuth();
+  const { locale } = useLocale();
+  const consent = useSyncExternalStore(
+    analytics.subscribeConsent,
+    analytics.consentStatus,
+    () => 'pending' as const,
+  );
+  const userId = user?.id;
+
+  useEffect(() => {
+    if (consent !== 'granted') return;
+    analytics.registerPlatform();
+    if (userId) analytics.identify({ id: userId }, { locale });
+  }, [consent, userId, locale]);
+
+  return null;
 }
 
 // ── Combined providers ─────────────────────────────────────────────────────────────────────────
@@ -132,7 +146,11 @@ export function Providers({
 }) {
   return (
     <AuthProvider initialUser={user}>
-      <LocaleProvider initialLocale={initialLocale}>{children}</LocaleProvider>
+      <LocaleProvider initialLocale={initialLocale}>
+        {children}
+        <AnalyticsIdentity />
+        <ConsentBanner />
+      </LocaleProvider>
     </AuthProvider>
   );
 }

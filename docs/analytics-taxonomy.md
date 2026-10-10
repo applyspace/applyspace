@@ -7,15 +7,16 @@ Naming: `snake_case`, `object_action` in past tense (`cv_uploaded`), `*_failed` 
 ## Identity
 
 - Distinct id = Supabase user id, on web and desktop (the desktop shell loads the same web app, so one code path).
-- `analytics.identify(user)` runs when a user is known (sign-in, session restore). Person properties: `email`, `name`.
-- `analytics.reset()` runs on sign-out (`sign_out_completed` is captured first, under the old id) and on a direct account switch, so two accounts never merge.
-- Super property on every event: `app_platform` = `web` | `desktop` (re-registered after each reset).
+- `analytics.identify({ id }, { locale })` runs only after consent, when a user is known (sign-in, session restore, or right after Accept). Person properties: `app_platform` (`web`/`desktop`), `plan` (`free`/`plus`/`max`, once known), `locale` (`en`/`fr`). Email and name are never sent to PostHog.
+- `analytics.reset()` runs on sign-out (`sign_out_completed` is captured first, under the old id) and on a direct account switch, so two accounts never merge. posthog-js clears the consent choice on `reset()`, so the helper restores it right after (granted stays granted, denied stays denied).
+- Super properties on every event: `app_platform`, and `plan` once known (re-registered after each reset).
 
 ## Consent
 
-- Current rule: tracking is on by default; there is no consent banner.
-- Settings > Privacy > "Usage analytics" toggle calls `analytics.setConsent(false|true)` (posthog-js `opt_out_capturing` / `opt_in_capturing`). The choice is stored by posthog-js on the device and survives `reset()`. While opted out, nothing is captured (events, pageviews, exceptions).
-- Founder decision pending: keep opt-out (current) or switch to opt-in (`opt_out_capturing_by_default: true` in `instrumentation-client.ts`, plus a first-run prompt).
+- Analytics is opt-in. PostHog initialises with `opt_out_capturing_by_default: true` (`instrumentation-client.ts`): until the user accepts, nothing is captured (no events, pageviews, exceptions or identify). `analytics.capture` and `identify` are also no-ops without consent.
+- Signed-in users see a small non-blocking prompt (`ConsentBanner`, bottom corner, EN and FR) until they choose Accept or Decline. The choice is stored by posthog-js on the device and persists across sessions on web and desktop.
+- Settings > Privacy > "Usage analytics" switch defaults to off and reflects the stored choice. On = `opt_in_capturing`; off = `reset()` then `opt_out_capturing` (drops the identity).
+- Consent states: `pending` (no choice, prompt shown, nothing captured), `granted`, `denied`.
 
 ## Events
 
@@ -48,4 +49,4 @@ None are read in the code today (no `getFeatureFlag`, `isFeatureEnabled`, `useFe
 1. Onboarding funnel (funnel, 14 days, unique users): `onboarding_step_viewed` (step = import) > ... > `onboarding_step_viewed` (step = plan) > `onboarding_plan_selected` > `onboarding_completed`. Breakdown: `app_platform`, then `plan`. Companion trend: `onboarding_save_failed` and `onboarding_import_save_failed` by `reason`.
 2. Activation (funnel, 7 days from `onboarding_completed`): `search_created` or `search_run_completed` (offers_found > 0) > `offer_application_started`. Activation = first `search_run_completed` with offers within 24 h of onboarding.
 3. Weekly retention (retention, weekly, 8 weeks): start `onboarding_completed`, return on any of `search_run_completed`, `offer_application_started`, `offer_declined`, `profile_section_saved`. Breakdown `app_platform`.
-4. Data health: unique users per day with `$identify`, to check identified vs anonymous ratio and opt-outs (drop in volume after the Settings toggle ships).
+4. Data health: unique users per day with `$identify`, to check identified vs anonymous ratio and opt-outs (expect volume to follow the opt-in rate: only users who accepted are tracked).
