@@ -73,6 +73,11 @@ const en = {
     nextStep: 'Next step',
     link: 'Link',
   },
+  timeline: {
+    legend: 'Legend',
+    today: 'Today',
+    events: { applied: 'Applied', reply: 'Reply', interview: 'Interview', deadline: 'Deadline' },
+  },
 };
 
 const fr: typeof en = {
@@ -139,6 +144,11 @@ const fr: typeof en = {
     location: 'Lieu',
     nextStep: 'Prochaine étape',
     link: 'Lien',
+  },
+  timeline: {
+    legend: 'Légende',
+    today: "Aujourd'hui",
+    events: { applied: 'Envoyée', reply: 'Réponse', interview: 'Entretien', deadline: 'Échéance' },
   },
 };
 
