@@ -16,7 +16,7 @@ apps/
 packages/
   db/         Drizzle SQLite schema and migrations (prototype storage)
   scraper/    Playwright scraper, cookie based (will become packages/connectors)
-site/         Marketing website (not started)
+site/         Marketing website (Next.js + Sanity), see site/README.md
 ```
 
 Planned: `apps/extension`, `packages/core`, `packages/connectors`, `packages/ai`, `packages/design-tokens`, `packages/ui`, `supabase/`.

@@ -10,7 +10,7 @@ apps/desktop     → Electron shell (see apps/desktop/CLAUDE.md)
 apps/mobile      → Expo app, not started
 packages/db      → Drizzle schema and migrations (see packages/db/CLAUDE.md)
 packages/scraper → Playwright scraper
-site/            → Marketing website, not started
+site/            → Marketing website (Next.js 16 + Sanity), own pnpm root, see site/README.md
 ```
 
 ## Branching
