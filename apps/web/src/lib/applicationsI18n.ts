@@ -62,6 +62,17 @@ const en = {
   retry: 'Try again',
   menu: 'Application actions',
   close: 'Close',
+  columns: 'Columns',
+  chooseColumns: 'Show columns',
+  columnNames: {
+    company: 'Company',
+    title: 'Title',
+    status: 'Status',
+    applied: 'Applied',
+    location: 'Location',
+    nextStep: 'Next step',
+    link: 'Link',
+  },
 };
 
 const fr: typeof en = {
@@ -118,6 +129,17 @@ const fr: typeof en = {
   retry: 'Réessayer',
   menu: 'Actions sur la candidature',
   close: 'Fermer',
+  columns: 'Colonnes',
+  chooseColumns: 'Colonnes affichées',
+  columnNames: {
+    company: 'Entreprise',
+    title: 'Poste',
+    status: 'Statut',
+    applied: 'Envoyée',
+    location: 'Lieu',
+    nextStep: 'Prochaine étape',
+    link: 'Lien',
+  },
 };
 
 export const hubStrings: Record<Locale, typeof en> = { en, fr };
