@@ -19,9 +19,10 @@ import { updateApplicationStatus } from '@/app/(auth)/applications/actions';
 import { ApplicationPeek } from './ApplicationPeek';
 import { BoardLayout } from './BoardLayout';
 import { HubHeader } from './HubHeader';
+import { TableLayout } from './TableLayout';
 
 /** Layouts that are built; the others show disabled in the switcher. */
-const AVAILABLE_LAYOUTS: readonly HubLayout[] = ['board'];
+const AVAILABLE_LAYOUTS: readonly HubLayout[] = ['board', 'table'];
 
 export function ApplicationsHub({
   applications,
@@ -107,7 +108,14 @@ export function ApplicationsHub({
           )}
         </EmptyState>
       ) : (
-        <BoardLayout applications={visible} now={now} onOpen={(a) => setSelectedId(a.id)} onMove={move} />
+        <>
+          {layout === 'board' && (
+            <BoardLayout applications={visible} now={now} onOpen={(a) => setSelectedId(a.id)} onMove={move} />
+          )}
+          {layout === 'table' && (
+            <TableLayout applications={visible} now={now} onOpen={(a) => setSelectedId(a.id)} onMove={move} />
+          )}
+        </>
       )}
 
       <ApplicationPeek application={selected} onClose={() => setSelectedId(null)} onMove={move} />
