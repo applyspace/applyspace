@@ -36,3 +36,11 @@ Tests: `pnpm --filter @apply/core test` (Node's built-in test runner; `test/regi
 - `parse/llm.ts`: `ResumeLlmProvider` interface (`complete({ system, user, maxTokens })`), prompt that treats the resume as data, loose JSON parsing, `validateParsedResume`, grounding (an email, phone or link the model returns must appear in the text), one retry with the rejection reason, then `LlmExtractionError`. `parseResume` merges the model answer with the rules (rule-found contacts win) and falls back to the rules on any failure. There is no `packages/ai` yet; the provider interface lives here and the Claude adapter in `apps/web/src/lib/resume/provider.ts`.
 - The Claude provider is OFF unless `RESUME_LLM_ENABLED=1`, `ANTHROPIC_API_KEY` and `RESUME_LLM_MODEL` are all set on the server. Enabling it sends resume text to Anthropic: needs a privacy notice and the founder's go first.
 - Eval set: `test/fixtures.ts` (synthetic FR/EN resumes with expected JSON, no real data) scored by `parse/eval.ts` (`scoreResume`, fact-level precision, recall, F1). Run with `pnpm --filter @apply/core test`; the same `scoreResume` can score a real model run on the same fixtures.
+
+## LinkedIn data export import (`@apply/core/resume`, APP-109)
+
+`parseLinkedInArchive(zipBytes)` (or `parseLinkedInFiles({ profile, positions, ... })` for single CSVs, `linkedInFileKey(name)` to route a dropped file) maps the archive a user downloads from LinkedIn (Settings > Data privacy > Get a copy of your data) to a `ParsedResume` with `source: 'linkedin-export'`. Files read, by name in any folder: Profile, Positions, Education, Skills, Languages, Certifications, Email Addresses, PhoneNumbers (`.csv`). Result: `{ ok: true, resume, filesRead }` or `{ ok: false, reason: 'not-a-zip' | 'too-large' | 'no-profile-data' }`.
+
+- Local only: it works on bytes, so it runs in the browser and nothing is uploaded. No request to LinkedIn, no cookie, no scraping (ADR-004). A capture from the user's own session on their device (desktop or extension) is NOT implemented; it needs the terms-of-service review of APP-77 first.
+- `linkedin/csv.ts`: small RFC 4180 reader (quotes, line breaks in cells, BOM, a note before the header).
+- Reuses `extract/zip.ts` from APP-107. The export has no profile URL and no years of experience: years and seniority are derived like for resumes.
