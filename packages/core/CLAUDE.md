@@ -48,3 +48,7 @@ Tests: `pnpm --filter @apply/core test` (Node's built-in test runner; `test/regi
 ## Saving a reviewed import (`@apply/core/resume`, APP-110)
 
 `planProfileImport(resume, existing, { placeholderJobTitle })` is the pure merge step between the review screen and the database: it returns what to create (`experiences`, `education`, `skills`, `account` names, `jobTitle`), what already exists (`duplicates`), what the database would refuse (`incomplete`: no title or start date, no school) and what has no table yet (`keptForLater`: languages, certifications, links, summary, location, until the APP-119 migration is applied and wired). Merge keys: experience = company + title + start month, education = school + degree + end, skill = name; case, accents and punctuation are ignored. Nothing is overwritten or deleted, so re-importing the same resume adds nothing. The web side (`apps/web/src/lib/profileImport.ts`) only executes the plan.
+
+## Onboarding prefill (`@apply/core/resume`, APP-120)
+
+`onboardingPrefill(resume)` gives `{ jobTitle?, level? }` for the onboarding "role" step: the job title (the headline if it is a clean title, else the latest role; nothing when the parser was unsure) to show already selected under the search bar, and the label of the seniority card (`SENIORITY_ONBOARDING_LABEL`). `test/onboarding-integration.test.ts` runs the whole chain on a synthetic PDF (extract, parse, prefill, merge plan, second import adds nothing); the web hook `useResumeImport` (`components/onboarding/v2/ResumePrefill.tsx`) does the same around the Supabase calls.
