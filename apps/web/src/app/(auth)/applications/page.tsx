@@ -1,30 +1,31 @@
-import { applicationCap } from '@apply/core/applications';
 import { ApplicationsHub } from '@/components/applications/ApplicationsHub';
 import { readApplications, readInterviews } from '@/lib/applications';
+import { readApplicationsContext } from '@/lib/applicationsForm';
 import { parseLayout, toHubApplications } from '@/lib/applicationsHub';
-import { getAccount } from '@/lib/candidate-profile';
-import { getSupabaseScope } from '@/lib/supabase/scope';
 
 export default async function ApplicationsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ layout?: string | string[] }>;
+  searchParams: Promise<{ layout?: string | string[]; new?: string | string[] }>;
 }) {
-  const { layout } = await searchParams;
-  const scope = await getSupabaseScope();
-  const [applications, interviews, plan] = await Promise.all([
+  const { layout, new: openNew } = await searchParams;
+  const [applications, interviews, context] = await Promise.all([
     readApplications(),
     readInterviews(),
-    // Plan for the cap meter; unknown (null) when it cannot be read.
-    scope ? getAccount(scope).then((a) => a.plan as string, () => null) : null,
+    readApplicationsContext(),
   ]);
 
   return (
     <ApplicationsHub
       applications={toHubApplications(applications, interviews)}
-      cap={scope ? applicationCap(plan) : null}
+      cap={context.cap}
       nowIso={new Date().toISOString()}
       initialLayout={parseLayout(layout)}
+      canCreate={context.signedIn}
+      initialNew={context.signedIn && openNew === '1'}
+      today={context.today}
+      companyNames={context.companyNames}
+      documents={context.documents}
     />
   );
 }
