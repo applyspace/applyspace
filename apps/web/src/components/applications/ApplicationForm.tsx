@@ -6,7 +6,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { HUB_STATUSES } from '@/lib/applicationsHub';
 import { useHubT } from '@/lib/applicationsI18n';
-import { createApplication } from '@/app/(auth)/applications/actions';
+import { createApplication } from '@/app/(app)/(auth)/applications/actions';
 import type { NewApplicationInput } from '@/lib/applicationsCreate';
 
 export interface HubDocument {

@@ -12,8 +12,8 @@ import {
   IncognitoIcon,
   SearchList01Icon,
 } from '@hugeicons/core-free-icons';
-import { completeOnboarding, saveOnboardingAnswers } from '@/app/onboarding/actions';
-import { importParsedProfile } from '@/app/profile-import/actions';
+import { completeOnboarding, saveOnboardingAnswers } from '@/app/(app)/onboarding/actions';
+import { importParsedProfile } from '@/app/(app)/profile-import/actions';
 import { Button } from '@/components/ui/button';
 import { ImportDropzone } from '@/components/onboarding/v2/ImportDropzone';
 import { OptionRow } from '@/components/onboarding/v2/OptionRow';

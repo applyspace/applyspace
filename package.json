@@ -26,7 +26,7 @@
 
     "dev":               "concurrently -n web,desktop -c cyan,magenta \"pnpm --filter web dev\" \"pnpm --filter @apply/desktop dev\"",
     "build:web":         "NODE_OPTIONS=\"--max-old-space-size=8192\" pnpm --filter web exec next build --webpack",
-    "build:desktop":     "pnpm db:build && pnpm build:web && pnpm --filter @apply/desktop build",
+    "build:desktop":     "pnpm db:build && APPLY_DESKTOP_BUILD=1 pnpm build:web && pnpm --filter @apply/desktop build",
     "pack":              "pnpm build:desktop && pnpm --filter @apply/desktop pack",
     "dist":              "pnpm build:desktop && pnpm --filter @apply/desktop dist"
   },

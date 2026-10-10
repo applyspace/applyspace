@@ -17,7 +17,7 @@ import {
 } from '@/lib/applicationsHub';
 import { useHubT } from '@/lib/applicationsI18n';
 import { cn } from '@/lib/utils';
-import { updateApplicationStatus } from '@/app/(auth)/applications/actions';
+import { updateApplicationStatus } from '@/app/(app)/(auth)/applications/actions';
 import { analytics } from '@/lib/analytics';
 import { ApplicationPeek } from './ApplicationPeek';
 import { BoardLayout } from './BoardLayout';

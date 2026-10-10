@@ -13,7 +13,7 @@ import {
   PencilEdit01Icon,
 } from '@hugeicons/core-free-icons';
 import type { ExperienceLevel } from '@apply/db/schema';
-import { completeOnboarding, saveFirstSearch, saveName } from '@/app/onboarding/actions';
+import { completeOnboarding, saveFirstSearch, saveName } from '@/app/(app)/onboarding/actions';
 import { ApplyLogo } from '@/components/brand/ApplyLogo';
 import { DocumentsPanel } from '@/components/profile/DocumentsPanel';
 import { ProfileEditor } from '@/components/profile/ProfileEditor';

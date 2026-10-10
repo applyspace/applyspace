@@ -1,0 +1,3 @@
+# Sanity Studio only (deployed with `sanity deploy`, not on Vercel). Its own pnpm root, not part of the apps/* workspace.
+packages:
+  - '.'

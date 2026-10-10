@@ -1,6 +1,6 @@
 # Website content plan
 
-Linear: WEB-9 (team Website, project Website; formerly APP-138). Site code: `site/`. Copy is English first; French comes later through the same content model (`locale`), starting from the FR reference headline "Votre recherche d'emploi, enfin centralisée".
+Linear: WEB-9 (team Website, project Website; formerly APP-138). Site code: `apps/web/src/site` and `apps/web/src/app/(site)` (same Next app as the product, see `apps/web/CLAUDE.md`). Copy is English first; French comes later through the same content model (`locale`), starting from the FR reference headline "Votre recherche d'emploi, enfin centralisée".
 
 Titles below are the page part only: the template appends " | applyspace" (Home uses its full title).
 
