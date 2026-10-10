@@ -11,6 +11,7 @@
 - **Database** — Supabase PostgreSQL for signed-in users (Row Level Security); the public demo (`demo.applyspace.app`, host-based, see `lib/demo-host.ts`) is served from memory (`lib/demo.ts`) and never reads a session; every other host requires sign-in; no local database (the desktop app signs in and uses Supabase too)
 - **Deployment** — Vercel
 - **Package manager** — pnpm
+- **Demo account** — a fictional seeded user for previews (`/auth/demo`, `scripts/demo-seed.mts`); the public demo stays read-only and sends no analytics; see `docs/demo-account.md`
 
 ## Code conventions
 

@@ -51,3 +51,7 @@ Platform sessions (cookies) are never stored here (ADR-004).
 10. `20261010000000_profile_data_model` - rich profile (seniority, languages, certifications, links, projects, volunteering, publications, `source` per row). Written, not applied yet.
 
 Moving a project or creating a new one: follow `MIGRATION-RUNBOOK.md`.
+
+## Seed data
+
+`pnpm demo:sql` generates `seed/demo-account.sql` (git-ignored), which fills the demo account with fictional data. It is not a migration: it is never applied automatically, only after the founder's go. See `docs/demo-account.md`.

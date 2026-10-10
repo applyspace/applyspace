@@ -6,6 +6,7 @@ import { TooltipProvider } from '@/components/ui/tooltip';
 import { DesktopAuthBridge } from '@/components/auth/DesktopAuthBridge';
 import { Providers } from '@/components/providers/Providers';
 import { getCurrentUser } from '@/lib/auth';
+import { isDemoRequest } from '@/lib/hosted';
 import { cn } from "@/lib/utils";
 
 const geist = Geist({ subsets: ['latin'], variable: '--font-sans' });
@@ -32,11 +33,13 @@ export default async function RootLayout({
   // First visit: follow the browser language (Apply is built for French job seekers).
   const preferred = (await headers()).get('accept-language')?.split(',')[0] ?? '';
   const initialLocale = /^fr/i.test(preferred) ? 'fr' : 'en';
+  // The public demo host never sends analytics (see docs/demo-account.md).
+  const demo = await isDemoRequest();
 
   return (
     <html lang={initialLocale} className={cn("font-sans", geist.variable, fraunces.variable)}>
       <body className="antialiased tracking-[-0.011em]">
-        <Providers user={user} initialLocale={initialLocale}>
+        <Providers user={user} initialLocale={initialLocale} demo={demo}>
           <DesktopAuthBridge />
           <TooltipProvider>
             {children}

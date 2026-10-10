@@ -1,7 +1,7 @@
 'use client';
 
 import { useSyncExternalStore } from 'react';
-import { useAuth, useLocale } from '@/components/providers/Providers';
+import { useAnalyticsBlocked, useAuth, useLocale } from '@/components/providers/Providers';
 import { Button } from '@/components/ui/button';
 import { analytics } from '@/lib/analytics';
 
@@ -14,13 +14,14 @@ import { analytics } from '@/lib/analytics';
 export function ConsentBanner() {
   const { user } = useAuth();
   const { t } = useLocale();
+  const blocked = useAnalyticsBlocked();
   const status = useSyncExternalStore(
     analytics.subscribeConsent,
     analytics.consentStatus,
     () => 'granted' as const, // server render and hydration: hidden, no flash
   );
 
-  if (!user || status !== 'pending') return null;
+  if (!user || blocked || status !== 'pending') return null;
 
   return (
     <div

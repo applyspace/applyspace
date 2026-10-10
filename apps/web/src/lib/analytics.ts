@@ -93,13 +93,18 @@ export interface AnalyticsUser {
 export function createAnalytics(client: AnalyticsClient, platform: () => AppPlatform) {
   const listeners = new Set<() => void>();
   const notify = () => listeners.forEach((listener) => listener());
-  const status = (): ConsentStatus => {
+  const storedStatus = (): ConsentStatus => {
     try {
       return client.get_explicit_consent_status();
     } catch {
       return 'denied'; // PostHog not initialised (no token configured): capture nothing, no prompt
     }
   };
+  // Demo sessions (the public demo host, the demo account) never send events,
+  // whatever the stored consent says. See docs/demo-account.md.
+  let blocked = false;
+  let grantedBeforeBlock = false;
+  const status = (): ConsentStatus => (blocked ? 'denied' : storedStatus());
   const granted = () => status() === 'granted';
   let plan: string | undefined;
 
@@ -141,7 +146,7 @@ export function createAnalytics(client: AnalyticsClient, platform: () => AppPlat
      * posthog-js clears the consent choice on reset(), so it is restored right after.
      */
     reset() {
-      const before = status();
+      const before = storedStatus();
       client.reset();
       if (before === 'granted') client.opt_in_capturing();
       else if (before === 'denied') client.opt_out_capturing();
@@ -157,8 +162,27 @@ export function createAnalytics(client: AnalyticsClient, platform: () => AppPlat
         listeners.delete(listener);
       };
     },
+    /**
+     * Demo sessions: stop every event (capture, identify, pageviews, exceptions) while
+     * true, without touching the visitor's stored choice, and restore it afterwards.
+     */
+    setBlocked(next: boolean) {
+      if (next === blocked) return;
+      if (next) {
+        grantedBeforeBlock = storedStatus() === 'granted';
+        // posthog-js captures pageviews and exceptions by itself once opted in.
+        if (grantedBeforeBlock) client.opt_out_capturing();
+      } else if (grantedBeforeBlock) {
+        client.opt_in_capturing();
+        grantedBeforeBlock = false;
+      }
+      blocked = next;
+      notify();
+    },
+    isBlocked: () => blocked,
     /** Accept = opt in. Decline or switch off = reset first (drops the identity), then opt out. */
     setConsent(accepted: boolean) {
+      if (blocked) return;
       if (accepted) {
         client.opt_in_capturing();
       } else {
