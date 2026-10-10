@@ -26,6 +26,7 @@ Project references, URLs and publishable keys are not secrets but are not listed
 | `accounts` | One row per signed-in user (created by trigger `on_auth_user_created`): names, locale, theme, `onboarded_at`, `plan`, `selected_plan`. `plan` is not writable by users; `selected_plan` is an intent only. |
 | `platforms` | Reference table of job platforms (read-only for users). |
 | `profiles`, `experiences`, `education`, `skills` | Candidate profile. One default profile per user (`is_default`). |
+| `languages`, `certifications`, `profile_links`, `projects`, `volunteering`, `publications` | Rich profile lists (migration 10, pending). See `docs/profile-data-model.md`. |
 | `documents` + Storage bucket `documents` | Resume and extra files (private, 10 MB, PDF/DOCX). Storage policies scope by the first folder = user id. |
 | `companies`, `no_gos`, `search_no_gos` | Companies and exclusions (built-in no-gos have `user_id is null`). |
 | `searches` | Search criteria. Several titles, locations, contract types, company sizes; salary with currency. Legacy columns (`search_title`, `location`, `remote_mode`, `salary_*_eur`) are kept in sync by a trigger until a later migration drops them. |
@@ -47,5 +48,6 @@ Platform sessions (cookies) are never stored here (ADR-004).
 7. `20261006100334_onboarding_v2_profile_plans_platforms` - plans, profile fields, multi-title searches, plan limits, new platforms, `offer_sources`.
 8. `20261008120000_onboarding_v2_company_sizes` - new company size ranges.
 9. `20261008180000_accounts_selected_plan` - `selected_plan`.
+10. `20261010000000_profile_data_model` - rich profile (seniority, languages, certifications, links, projects, volunteering, publications, `source` per row). Written, not applied yet.
 
 Moving a project or creating a new one: follow `MIGRATION-RUNBOOK.md`.
