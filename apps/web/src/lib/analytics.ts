@@ -64,9 +64,10 @@ export interface AnalyticsClient {
 /** `pending` = the user has not chosen yet (nothing is captured); the banner shows. */
 export type ConsentStatus = 'granted' | 'denied' | 'pending';
 
-/** Only the id is needed: email and name are never sent to PostHog. */
+/** The id is the distinct id; the email is attached as a person property (opt-in only). Name is never sent. */
 export interface AnalyticsUser {
   id: string;
+  email?: string | null;
 }
 
 export function createAnalytics(client: AnalyticsClient, platform: () => AppPlatform) {
@@ -95,8 +96,8 @@ export function createAnalytics(client: AnalyticsClient, platform: () => AppPlat
       client.capture(event, properties);
     },
     /**
-     * Distinct id is always the Supabase user id, on web and desktop. Only
-     * non-personal properties are sent (never email or name), and only after consent.
+     * Distinct id is always the Supabase user id, on web and desktop. The
+     * email is sent as a person property (never the name), and only after consent.
      */
     identify(user: AnalyticsUser, context: { locale?: string } = {}) {
       if (!granted()) return;
@@ -105,6 +106,7 @@ export function createAnalytics(client: AnalyticsClient, platform: () => AppPlat
         app_platform: platform(),
         locale: context.locale,
         plan,
+        ...(user.email ? { email: user.email } : {}),
       });
     },
     /** Account plan (`free`/`plus`/`max`), attached to events and the person once known. */
