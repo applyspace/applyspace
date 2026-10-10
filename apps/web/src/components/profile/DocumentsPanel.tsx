@@ -18,7 +18,7 @@ import {
   registerDocument,
   removeDocument,
   saveFitMessage,
-} from '@/app/onboarding/actions';
+} from '@/app/(app)/onboarding/actions';
 import { useAuth, useLocale } from '@/components/providers/Providers';
 import { ResumeImportFlow } from './ResumeImportFlow';
 import { createClient } from '@/lib/supabase/client';

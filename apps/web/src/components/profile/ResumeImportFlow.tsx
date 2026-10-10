@@ -5,7 +5,7 @@ import posthog from 'posthog-js';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { Loading02Icon } from '@hugeicons/core-free-icons';
 import type { ParsedResume } from '@apply/core/resume';
-import { importParsedProfile, parseDocumentResume } from '@/app/profile-import/actions';
+import { importParsedProfile, parseDocumentResume } from '@/app/(app)/profile-import/actions';
 import type { ImportReport } from '@/lib/profileImport';
 import { useLocale } from '@/components/providers/Providers';
 import { PRIMARY_BUTTON_CLASS } from './fields';

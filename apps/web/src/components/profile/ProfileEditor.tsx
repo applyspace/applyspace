@@ -23,7 +23,7 @@ import {
   saveEducation,
   saveExperience,
   saveSkill,
-} from '@/app/onboarding/actions';
+} from '@/app/(app)/onboarding/actions';
 import {
   SKILL_LEVEL_VALUES,
   type ActionResult,

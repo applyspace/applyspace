@@ -7,7 +7,7 @@ import { Dialog } from '@base-ui/react/dialog';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { Cancel01Icon, Loading02Icon, SparklesIcon } from '@hugeicons/core-free-icons';
 import type { ExperienceLevel } from '@apply/db/schema';
-import { createSearch } from '@/app/(auth)/offers/actions';
+import { createSearch } from '@/app/(app)/(auth)/offers/actions';
 import { useSettingsModal } from '@/components/settings/SettingsModalProvider';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';

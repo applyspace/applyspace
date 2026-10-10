@@ -5,7 +5,7 @@ import { analytics } from '@/lib/analytics';
 import { useRouter } from 'next/navigation';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { Alert02Icon, Loading03Icon, Search01Icon, Tick02Icon } from '@hugeicons/core-free-icons';
-import { runSearch } from '@/app/(auth)/offers/actions';
+import { runSearch } from '@/app/(app)/(auth)/offers/actions';
 
 type Status =
   | { kind: 'idle' }

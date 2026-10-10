@@ -1,7 +1,16 @@
 import type { NextConfig } from "next";
 import path from "node:path";
 
+// The desktop app (.dmg) ships this Next app without the public website: `pnpm build:desktop`
+// sets APPLY_DESKTOP_BUILD=1, so the website's files (`*.site.tsx` / `*.site.ts` under
+// `app/(site)`, `app/og`, `app/api/revalidate`, `app/sitemap|robots`) are not routes and are
+// never compiled, and the proxy never serves the website (APPLY_SITE_ENABLED=0).
+const DESKTOP_BUILD = process.env.APPLY_DESKTOP_BUILD === '1';
+
 const nextConfig: NextConfig = {
+  pageExtensions: DESKTOP_BUILD ? ['tsx', 'ts', 'jsx', 'js'] : ['site.tsx', 'site.ts', 'tsx', 'ts', 'jsx', 'js'],
+  env: { APPLY_SITE_ENABLED: DESKTOP_BUILD ? '0' : '1' },
+
   // Packaged as an Electron app: we need the self-contained Next server
   // (`.next/standalone/server.js`) so Electron can fork it in prod.
   // See apps/desktop/src/main/nextServer.ts.
@@ -55,6 +64,8 @@ const nextConfig: NextConfig = {
         hostname: 'api.dicebear.com',
         pathname: '/**',
       },
+      // Website images from the Sanity CDN.
+      { protocol: 'https', hostname: 'cdn.sanity.io', pathname: '/images/**' },
     ],
   },
 };
