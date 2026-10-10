@@ -3,6 +3,8 @@
 import Link from 'next/link';
 import { useOptimistic, useState, useTransition } from 'react';
 import type { ApplicationStatus } from '@apply/core/applications';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { Add01Icon } from '@hugeicons/core-free-icons';
 import { buttonVariants, Button } from '@/components/ui/button';
 import {
   NO_FILTERS,
@@ -19,15 +21,25 @@ import { updateApplicationStatus } from '@/app/(auth)/applications/actions';
 import { ApplicationPeek } from './ApplicationPeek';
 import { BoardLayout } from './BoardLayout';
 import { HubHeader } from './HubHeader';
+import { MapLayout } from './MapLayout';
+import { NewApplicationPeek } from './NewApplicationPeek';
+import type { HubDocument } from './ApplicationForm';
+import { TableLayout } from './TableLayout';
+import { TimelineLayout } from './TimelineLayout';
 
 /** Layouts that are built; the others show disabled in the switcher. */
-const AVAILABLE_LAYOUTS: readonly HubLayout[] = ['board'];
+const AVAILABLE_LAYOUTS: readonly HubLayout[] = ['board', 'table', 'timeline', 'map'];
 
 export function ApplicationsHub({
   applications,
   cap,
   nowIso,
   initialLayout,
+  canCreate,
+  initialNew,
+  today,
+  companyNames,
+  documents,
 }: {
   applications: HubApplication[];
   /** Plan cap on applications; null when unlimited or unknown. */
@@ -35,6 +47,14 @@ export function ApplicationsHub({
   /** Server time, so server and client render the same relative dates. */
   nowIso: string;
   initialLayout: HubLayout;
+  /** False when there is no account to save to (demo host, signed out). */
+  canCreate: boolean;
+  /** Open the "new application" peek on load (`?new=1`). */
+  initialNew: boolean;
+  /** `YYYY-MM-DD` of today, from the server. */
+  today: string;
+  companyNames: string[];
+  documents: HubDocument[];
 }) {
   const { t } = useHubT();
   const now = Date.parse(nowIso);
@@ -44,6 +64,7 @@ export function ApplicationsHub({
   const [filters, setFilters] = useState<HubFilters>(NO_FILTERS);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [newOpen, setNewOpen] = useState(initialNew);
   const [, startTransition] = useTransition();
 
   const [items, applyMove] = useOptimistic(
@@ -70,6 +91,24 @@ export function ApplicationsHub({
     });
   }
 
+  function closeNew() {
+    setNewOpen(false);
+    const url = new URL(window.location.href);
+    if (url.searchParams.has('new')) {
+      url.searchParams.delete('new');
+      window.history.replaceState(null, '', url);
+    }
+  }
+
+  const capReached = cap !== null && items.length >= cap;
+  const newButton = canCreate ? (
+    <Button onClick={() => setNewOpen(true)} disabled={capReached} title={capReached && cap !== null ? t.capReached(cap) : undefined}>
+      <HugeiconsIcon icon={Add01Icon} size={15} />
+      <span className="hidden sm:inline">{t.form.open}</span>
+      <span className="sr-only sm:hidden">{t.form.open}</span>
+    </Button>
+  ) : null;
+
   const visible = applyFilters(items, filters, now);
   const selected = items.find((a) => a.id === selectedId) ?? null;
 
@@ -84,6 +123,7 @@ export function ApplicationsHub({
         filters={filters}
         onFiltersChange={setFilters}
         counts={countByStatus(items)}
+        actions={newButton}
       />
 
       {error && (
@@ -94,6 +134,7 @@ export function ApplicationsHub({
 
       {items.length === 0 ? (
         <EmptyState title={t.emptyTitle} body={t.emptyBody}>
+          {newButton}
           <Link href="/offers" className={cn(buttonVariants({ variant: 'outline' }))}>
             {t.browseOffers}
           </Link>
@@ -107,10 +148,30 @@ export function ApplicationsHub({
           )}
         </EmptyState>
       ) : (
-        <BoardLayout applications={visible} now={now} onOpen={(a) => setSelectedId(a.id)} onMove={move} />
+        <>
+          {layout === 'board' && (
+            <BoardLayout applications={visible} now={now} onOpen={(a) => setSelectedId(a.id)} onMove={move} />
+          )}
+          {layout === 'table' && (
+            <TableLayout applications={visible} now={now} onOpen={(a) => setSelectedId(a.id)} onMove={move} />
+          )}
+          {layout === 'timeline' && (
+            <TimelineLayout applications={visible} now={now} onOpen={(a) => setSelectedId(a.id)} />
+          )}
+          {layout === 'map' && <MapLayout applications={visible} onOpen={(a) => setSelectedId(a.id)} />}
+        </>
       )}
 
       <ApplicationPeek application={selected} onClose={() => setSelectedId(null)} onMove={move} />
+      <NewApplicationPeek
+        open={newOpen && canCreate}
+        onClose={closeNew}
+        today={today}
+        companyNames={companyNames}
+        documents={documents}
+        capReached={capReached}
+        cap={cap}
+      />
     </div>
   );
 }

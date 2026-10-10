@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { LinkSquare01Icon, ArrowRight01Icon, Building06Icon, ShuffleIcon, Wifi01Icon, Location06Icon, Money01Icon } from '@hugeicons/core-free-icons';
 import {
@@ -115,6 +116,12 @@ export function JobDetail({ offer, onClose, onApply }: JobDetailProps) {
                 View offer
                 <HugeiconsIcon icon={LinkSquare01Icon} size={14} />
               </a>
+              <Link
+                href={`/applications/new?offer=${offer.id}`}
+                className={cn(buttonVariants({ variant: 'outline' }), 'gap-2')}
+              >
+                Track
+              </Link>
               <a
                 href={offer.url}
                 target="_blank"
