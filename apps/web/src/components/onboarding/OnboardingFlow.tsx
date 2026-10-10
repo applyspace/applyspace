@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useTransition } from 'react';
-import posthog from 'posthog-js';
+import { analytics } from '@/lib/analytics';
 import { HugeiconsIcon, type IconSvgElement } from '@hugeicons/react';
 import {
   ArrowLeft01Icon,
@@ -89,7 +89,7 @@ export function OnboardingFlow({
 
   /** Ends onboarding (finished or skipped): the server stamps the account and redirects to Home. */
   const complete = async (completionMethod: 'completed' | 'skipped') => {
-    posthog.capture('onboarding_completed', { completion_method: completionMethod });
+    analytics.capture('onboarding_completed', { completion_method: completionMethod });
     await completeOnboarding();
   };
 

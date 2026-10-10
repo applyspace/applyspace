@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useTransition, useEffect } from 'react';
-import posthog from 'posthog-js';
+import { analytics } from '@/lib/analytics';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { Tick01Icon, Loading02Icon, Upload01Icon } from '@hugeicons/core-free-icons';
 import { Input } from '@/components/ui/input';
@@ -56,7 +56,7 @@ export function TabProfile({ settings }: TabProfileProps) {
         body: JSON.stringify(form),
       });
       if (!response.ok) return;
-      posthog.capture('settings_saved', { section: 'profile' });
+      analytics.capture('settings_saved', { section: 'profile' });
       setSaved(true);
       setTimeout(() => setSaved(false), 2000);
     });
@@ -78,7 +78,7 @@ export function TabProfile({ settings }: TabProfileProps) {
           location: p.location || f.location,
         }));
         if (p.avatarUrl) setAvatarUrl(p.avatarUrl);
-        posthog.capture('linkedin_profile_sync_completed');
+        analytics.capture('linkedin_profile_sync_completed');
         setSaved(false);
       } else {
         setSyncError(tp.syncError);

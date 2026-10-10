@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import posthog from 'posthog-js';
+import { analytics } from '@/lib/analytics';
 import { HugeiconsIcon, type IconSvgElement } from '@hugeicons/react';
 import {
   Add01Icon,
@@ -155,7 +155,7 @@ function useCollection<T extends { id: string }, I extends { id?: string }>(
           : [saved, ...current],
       );
       setEditing(null);
-      posthog.capture('profile_section_saved', { section });
+      analytics.capture('profile_section_saved', { section });
     },
     async destroy(id: string) {
       setBusy(true);
@@ -164,7 +164,7 @@ function useCollection<T extends { id: string }, I extends { id?: string }>(
         const result = await remove(id);
         if (result.ok) {
           setItems((current) => current.filter((item) => item.id !== id));
-          posthog.capture('profile_section_removed', { section });
+          analytics.capture('profile_section_removed', { section });
         } else setError(result.message);
       } catch {
         setError('Something went wrong. Please try again.');

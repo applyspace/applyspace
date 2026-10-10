@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useTransition } from 'react';
-import posthog from 'posthog-js';
+import { analytics } from '@/lib/analytics';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { Tick01Icon, Loading02Icon } from '@hugeicons/core-free-icons';
 import { Label } from '@/components/ui/label';
@@ -59,7 +59,7 @@ export function TabSearchCriteria({ settings }: TabSearchCriteriaProps) {
         body: JSON.stringify(form),
       });
       if (!response.ok) return;
-      posthog.capture('settings_saved', { section: 'search_criteria' });
+      analytics.capture('settings_saved', { section: 'search_criteria' });
       setSaved(true);
       setTimeout(() => setSaved(false), 2000);
     });
