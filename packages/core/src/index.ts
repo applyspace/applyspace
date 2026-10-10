@@ -5,4 +5,5 @@ export * from './linkedin';
 export * from './offers';
 export * from './platforms';
 export * from './profiles';
+export * from './resume';
 export * from './searches';

@@ -13,10 +13,12 @@
     "./offers": "./src/offers.ts",
     "./platforms": "./src/platforms.ts",
     "./profiles": "./src/profiles.ts",
+    "./resume": "./src/resume.ts",
     "./searches": "./src/searches.ts"
   },
   "scripts": {
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "node --import ./test/register.mjs --test \"test/*.test.ts\""
   },
   "dependencies": {
     "@apply/db": "workspace:*"
