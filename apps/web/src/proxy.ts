@@ -2,6 +2,7 @@ import { createServerClient } from '@supabase/ssr';
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { isDemoHost, isDemoWriteBlocked } from '@/lib/demo-host';
+import { SITE_PROXY_HEADER, isSiteAsset, siteRoute } from '@/lib/site-routing';
 import {
   SUPABASE_PUBLISHABLE_KEY,
   SUPABASE_URL,
@@ -9,32 +10,24 @@ import {
 } from '@/lib/supabase/env';
 
 /**
- * The public website (`site/`, its own Vercel project) shares this origin.
- * When `SITE_ORIGIN` is set, these paths are rewritten to it for everyone, and
- * `/` too for signed-out visitors (signed-in users keep the Home page).
- * Unset on previews and locally: signed-out visitors then go to `/login`.
+ * The public website (`site/`, its own Vercel project) shares this origin when
+ * `SITE_ORIGIN` is set (see `lib/site-routing.ts`). Unset on previews and
+ * locally: signed-out visitors then go to `/login` as before.
  */
 const SITE_ORIGIN = process.env.SITE_ORIGIN?.replace(/\/+$/, '') ?? '';
-const SITE_PREFIXES = ['/product', '/pricing', '/resources', '/og', '/_site', '/api/revalidate'];
-const SITE_FILES = ['/sitemap.xml', '/robots.txt'];
-
-function isSitePath(pathname: string): boolean {
-  return (
-    SITE_FILES.includes(pathname) ||
-    SITE_PREFIXES.some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`))
-  );
-}
 
 function rewriteToSite(request: NextRequest) {
   const { pathname, search } = request.nextUrl;
-  return NextResponse.rewrite(new URL(`${pathname}${search}`, SITE_ORIGIN));
+  const headers = new Headers(request.headers);
+  headers.set(SITE_PROXY_HEADER, '1');
+  return NextResponse.rewrite(new URL(`${pathname}${search}`, SITE_ORIGIN), { request: { headers } });
 }
 
 /**
  * Keeps the Supabase session cookie fresh on every request and gates the app:
  * every page except `/login`, `/auth/*` and `/api/*` needs a session, so
- * signed-out visitors land on the sign-in page and signed-in users on the Home
- * page (`/`), except for the site paths above. The public demo (`demo.applyspace.app`, see `lib/demo-host.ts`)
+ * signed-out visitors land on the sign-in page (or the website when `SITE_ORIGIN`
+ * is set) and signed-in users on the Home page (`/`). The public demo (`demo.applyspace.app`, see `lib/demo-host.ts`)
  * is the one exception: it serves fixtures, never reads a session and is never
  * gated. Previews and the main domain are the real app.
  */
@@ -53,7 +46,7 @@ export async function proxy(request: NextRequest) {
   }
   if (!isSupabaseConfigured) return response;
 
-  if (SITE_ORIGIN && isSitePath(request.nextUrl.pathname)) return rewriteToSite(request);
+  if (SITE_ORIGIN && isSiteAsset(request.nextUrl.pathname)) return rewriteToSite(request);
 
   const supabase = createServerClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
     cookies: {
@@ -82,11 +75,17 @@ export async function proxy(request: NextRequest) {
   }
 
   const { pathname } = request.nextUrl;
-  if (SITE_ORIGIN && !signedIn && pathname === '/') return rewriteToSite(request);
   let target: string | null = null;
+  if (SITE_ORIGIN) {
+    const route = siteRoute(pathname, signedIn);
+    if (route === 'site') return rewriteToSite(request);
+    if (route === 'redirect-home') target = '/';
+  }
   const isPublic =
     pathname === '/login' || pathname.startsWith('/auth/') || pathname.startsWith('/api/');
-  if (!signedIn && !isPublic) target = '/login';
+  if (target) {
+    // Signed-in user on a marketing page: the website is for visitors only.
+  } else if (!signedIn && !isPublic) target = '/login';
   else if (pathname === '/login' && signedIn) target = '/';
   if (!target) return response;
 
