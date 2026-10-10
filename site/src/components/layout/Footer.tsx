@@ -32,7 +32,6 @@ export function Footer({ locale, settings }: { locale: Locale; settings: SiteSet
       </div>
       <div className="mx-auto flex max-w-6xl flex-col gap-1 px-4 pb-10 text-xs text-stone-500 sm:px-6 sm:flex-row sm:justify-between">
         <span>{t.copyright(new Date().getFullYear())}</span>
-        <span>{t.legalNote}</span>
       </div>
     </footer>
   );

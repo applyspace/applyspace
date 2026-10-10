@@ -24,7 +24,7 @@ export const websiteLd = (locale: Locale): Json => ({
   publisher: { '@id': `${SITE_URL}/#organization` },
 });
 
-/** Only offers that exist today (Free) are published as offers; paid plans are not purchasable yet. */
+/** Every plan is published as an offer. */
 export const softwareApplicationLd = (locale: Locale, features: Feature[], plans: PricingPlan[]): Json => ({
   '@context': 'https://schema.org',
   '@type': 'SoftwareApplication',
@@ -33,17 +33,15 @@ export const softwareApplicationLd = (locale: Locale, features: Feature[], plans
   applicationCategory: 'BusinessApplication',
   operatingSystem: 'Web, macOS',
   description: 'Find the right offers, track your applications and prepare your interviews.',
-  featureList: features.filter((f) => !f.soon).map((f) => f.title),
-  offers: plans
-    .filter((p) => !p.comingSoon)
-    .map((p) => ({
-      '@type': 'Offer',
-      name: p.name,
-      price: p.priceMonthly.toFixed(2),
-      priceCurrency: p.currency,
-      availability: 'https://schema.org/InStock',
-      url: siteUrl(locale, '/pricing'),
-    })),
+  featureList: features.map((f) => f.title),
+  offers: plans.map((p) => ({
+    '@type': 'Offer',
+    name: p.name,
+    price: p.priceMonthly.toFixed(2),
+    priceCurrency: p.currency,
+    availability: 'https://schema.org/InStock',
+    url: siteUrl(locale, '/pricing'),
+  })),
   publisher: { '@id': `${SITE_URL}/#organization` },
 });
 

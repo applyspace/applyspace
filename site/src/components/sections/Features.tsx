@@ -1,4 +1,3 @@
-import { PlanTag } from '@/components/ui/PlanTag';
 import { FeatureIcon } from '@/components/ui/icons';
 import { ScreenshotPlaceholder } from '@/components/ui/ScreenshotPlaceholder';
 import { themes } from '@/content/fallback';
@@ -37,7 +36,6 @@ export function Features({ locale, features }: { locale: Locale; features: Featu
                     <span className="flex size-10 items-center justify-center rounded-2xl bg-stone-100 text-stone-800">
                       <FeatureIcon name={f.icon} />
                     </span>
-                    {f.soon && <PlanTag plan="free" label={t.soon} size="sm" className="bg-stone-100 text-stone-700" />}
                   </div>
                   <h3 className="mt-4 text-2xl font-semibold tracking-tight text-stone-950">{f.title}</h3>
                   <p className="mt-2 text-pretty text-stone-600">{f.summary}</p>

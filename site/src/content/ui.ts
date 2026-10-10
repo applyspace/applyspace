@@ -9,8 +9,6 @@ export type Ui = {
   skipToContent: string;
   mainNav: string;
   footerNav: string;
-  soon: string;
-  plannedPrice: string;
   perMonth: string;
   free: string;
   unlimited: string;
@@ -35,7 +33,6 @@ export type Ui = {
   backHome: string;
   onThisPage: string;
   copyright: (year: number) => string;
-  legalNote: string;
   screenshotLabel: string;
 };
 
@@ -47,8 +44,6 @@ const en: Ui = {
   skipToContent: 'Skip to content',
   mainNav: 'Main',
   footerNav: 'Footer',
-  soon: 'Soon',
-  plannedPrice: 'Planned price',
   perMonth: '/mo',
   free: 'Free',
   unlimited: 'Unlimited',
@@ -67,13 +62,12 @@ const en: Ui = {
   breadcrumbHome: 'Home',
   allResources: 'All resources',
   comparePlans: 'Compare plans',
-  noArticles: 'Guides are coming soon.',
+  noArticles: 'No guides yet.',
   notFoundTitle: 'Page not found',
   notFoundText: 'The page you are looking for does not exist or has moved.',
   backHome: 'Back to home',
   onThisPage: 'On this page',
   copyright: (year) => `© ${year} applyspace`,
-  legalNote: 'Privacy policy and terms are coming soon.',
   screenshotLabel: 'Screenshot placeholder',
 };
 

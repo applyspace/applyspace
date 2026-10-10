@@ -4,7 +4,7 @@ export const runtime = 'edge';
 
 /** Generated Open Graph card: lilac mark colour, near-black text on white. `?title=` is capped at 90 chars. */
 export function GET(request: Request) {
-  const title = (new URL(request.url).searchParams.get('title') || 'Your job search, finally in one place').slice(0, 90);
+  const title = (new URL(request.url).searchParams.get('title') || 'Your job search, finally in one space').slice(0, 90);
   return new ImageResponse(
     (
       <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', background: '#ffffff', padding: 72 }}>

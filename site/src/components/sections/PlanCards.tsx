@@ -20,7 +20,6 @@ export function PlanCards({ locale, plans, variant }: { locale: Locale; plans: P
         <li key={p.key} className={cn('flex flex-col rounded-4xl p-7', p.key === 'free' ? 'bg-stone-100' : 'border border-stone-200')}>
           <div className="flex items-center gap-2">
             <PlanTag plan={p.key} label={t.planTag[p.key]} size="lg" />
-            {p.comingSoon && <span className="rounded-full bg-stone-100 px-2.5 py-0.5 text-xs text-stone-700">{t.soon}</span>}
           </div>
           <p className="mt-3 text-sm text-stone-600">{p.tagline}</p>
 
@@ -28,7 +27,6 @@ export function PlanCards({ locale, plans, variant }: { locale: Locale; plans: P
             <p className="mt-6 text-4xl font-medium tabular-nums">
               {money(p.priceMonthly)}
               <span className="text-base font-normal text-stone-600">{t.perMonth}</span>
-              {p.priceMonthly > 0 && <span className="ml-2 block text-sm font-normal text-stone-500 sm:inline">{t.plannedPrice}</span>}
             </p>
           )}
 

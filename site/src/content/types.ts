@@ -33,7 +33,6 @@ export type Feature = {
   bullets: string[];
   icon?: string;
   plan: PlanKey;
-  soon?: boolean;
   screenshot?: ImageRef;
   screenshotAlt: string;
   order: number;
@@ -45,11 +44,10 @@ export type PricingPlan = {
   key: PlanKey;
   name: string;
   tagline: string;
-  /** Planned monthly price. Shown only when priceVisible. */
+  /** Monthly price. Shown only when priceVisible. */
   priceMonthly: number;
   currency: 'EUR';
   priceVisible: boolean;
-  comingSoon: boolean;
   /** Caps. null means unlimited. */
   caps: { applications: number | null; searchProfiles: number | null; interviewTemplates: number | null };
   intro?: string;
