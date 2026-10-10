@@ -1,6 +1,6 @@
 import type { PricingPlan } from '../types';
 
-/** Caps match the database: supabase/migrations (enforce_application_cap, enforce_plan_limits). Prices are planned, not final. */
+/** Caps match the database: supabase/migrations (enforce_application_cap, enforce_plan_limits). */
 const core = [
   'Application tracking',
   'Interview preparation',
@@ -19,7 +19,6 @@ export const plans: PricingPlan[] = [
     priceMonthly: 0,
     currency: 'EUR',
     priceVisible: true,
-    comingSoon: false,
     caps: { applications: 15, searchProfiles: 1, interviewTemplates: 1 },
     features: core,
     ctaLabel: 'Start for free',
@@ -32,7 +31,6 @@ export const plans: PricingPlan[] = [
     priceMonthly: 0.99,
     currency: 'EUR',
     priceVisible: true,
-    comingSoon: true,
     caps: { applications: 99, searchProfiles: 3, interviewTemplates: 3 },
     intro: 'Everything in Free, plus…',
     features: ['Advanced search filters', 'Company insights', 'Network connections', 'Reply tracking', 'Interview calendar sync'],
@@ -46,7 +44,6 @@ export const plans: PricingPlan[] = [
     priceMonthly: 3.99,
     currency: 'EUR',
     priceVisible: true,
-    comingSoon: true,
     caps: { applications: null, searchProfiles: null, interviewTemplates: null },
     intro: 'Everything in Plus, plus…',
     features: ['AI interview simulation', 'Shareable progress page', 'Custom job offers source'],

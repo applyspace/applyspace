@@ -95,7 +95,7 @@ export const plansSection = defineType({
     defineField({ name: 'title', type: 'string' }),
     intro,
     defineField({ name: 'variant', type: 'string', options: { list: ['compact', 'full'] }, initialValue: 'full' }),
-    defineField({ name: 'note', type: 'string', description: 'Small note above the plans, e.g. "Plus and Max are coming soon".' }),
+    defineField({ name: 'note', type: 'string', description: 'Optional small note above the plans.' }),
   ],
   preview: { prepare: () => ({ title: 'Plans', subtitle: 'Pricing plans' }) },
 });

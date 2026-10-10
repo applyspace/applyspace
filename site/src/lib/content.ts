@@ -97,7 +97,7 @@ export async function getPage(slug: PageSlug, locale: Locale): Promise<PageConte
 }
 
 const FEATURES_QUERY = `*[_type == "feature" && language == $locale] | order(order asc){
-  "key": anchor, theme, title, summary, bullets, icon, plan, soon, screenshot, screenshotAlt, order
+  "key": anchor, theme, title, summary, bullets, icon, plan, screenshot, screenshotAlt, order
 }`;
 
 export async function getFeatures(locale: Locale): Promise<Feature[]> {
@@ -112,7 +112,7 @@ export async function getFeatures(locale: Locale): Promise<Feature[]> {
 }
 
 const PLANS_QUERY = `*[_type == "pricingPlan" && language == $locale] | order(order asc){
-  "key": planKey, name, tagline, priceMonthly, priceVisible, comingSoon,
+  "key": planKey, name, tagline, priceMonthly, priceVisible,
   "caps": {"applications": applicationsCap, "searchProfiles": searchProfilesCap, "interviewTemplates": interviewTemplatesCap},
   intro, features, ctaLabel, order
 }`;
