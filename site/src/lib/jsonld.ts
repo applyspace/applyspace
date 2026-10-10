@@ -11,7 +11,7 @@ export const organizationLd = (): Json => ({
   '@id': `${SITE_URL}/#organization`,
   name: 'applyspace',
   url: SITE_URL,
-  logo: `${SITE_URL}/logo.svg`,
+  logo: `${SITE_URL}/_site/logo.svg`,
 });
 
 export const websiteLd = (locale: Locale): Json => ({

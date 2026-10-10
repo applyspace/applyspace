@@ -18,7 +18,7 @@ const pages = [];
 let failed = false;
 for (const page of pages) {
   const html = readFileSync(page, 'utf8');
-  const srcs = [...new Set([...html.matchAll(/<script(?![^>]*noModule)[^>]+src="(\/_next\/static\/[^"]+\.js)[^"]*"/g)].map((m) => m[1]))];
+  const srcs = [...new Set([...html.matchAll(/<script(?![^>]*noModule)[^>]+src="(?:\/_site)?(\/_next\/static\/[^"]+\.js)[^"]*"/g)].map((m) => m[1]))];
   let bytes = 0;
   for (const src of srcs) {
     try { bytes += gzipSync(readFileSync(join('.next', src.replace('/_next/', '')))).length; } catch {}
