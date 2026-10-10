@@ -78,6 +78,18 @@ const en = {
     today: 'Today',
     events: { applied: 'Applied', reply: 'Reply', interview: 'Interview', deadline: 'Deadline' },
   },
+  map: {
+    places: 'Places',
+    unlocated: 'Remote and unlocated',
+    allPlaces: 'All places',
+    locating: 'Locating...',
+    count: (n: number) => (n === 1 ? '1 application' : `${n} applications`),
+    zoomIn: 'Zoom in',
+    zoomOut: 'Zoom out',
+    fit: 'Show all places',
+    unavailable: 'The map is unavailable right now. Places are listed on the side.',
+    nothingToShow: 'No located application yet.',
+  },
 };
 
 const fr: typeof en = {
@@ -149,6 +161,18 @@ const fr: typeof en = {
     legend: 'Légende',
     today: "Aujourd'hui",
     events: { applied: 'Envoyée', reply: 'Réponse', interview: 'Entretien', deadline: 'Échéance' },
+  },
+  map: {
+    places: 'Lieux',
+    unlocated: 'Télétravail et sans lieu',
+    allPlaces: 'Tous les lieux',
+    locating: 'Localisation...',
+    count: (n) => (n === 1 ? '1 candidature' : `${n} candidatures`),
+    zoomIn: 'Zoom avant',
+    zoomOut: 'Zoom arrière',
+    fit: 'Voir tous les lieux',
+    unavailable: "La carte est indisponible pour le moment. Les lieux sont listés à côté.",
+    nothingToShow: 'Aucune candidature localisée pour le moment.',
   },
 };
 

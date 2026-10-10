@@ -19,11 +19,12 @@ import { updateApplicationStatus } from '@/app/(auth)/applications/actions';
 import { ApplicationPeek } from './ApplicationPeek';
 import { BoardLayout } from './BoardLayout';
 import { HubHeader } from './HubHeader';
+import { MapLayout } from './MapLayout';
 import { TableLayout } from './TableLayout';
 import { TimelineLayout } from './TimelineLayout';
 
 /** Layouts that are built; the others show disabled in the switcher. */
-const AVAILABLE_LAYOUTS: readonly HubLayout[] = ['board', 'table', 'timeline'];
+const AVAILABLE_LAYOUTS: readonly HubLayout[] = ['board', 'table', 'timeline', 'map'];
 
 export function ApplicationsHub({
   applications,
@@ -119,6 +120,7 @@ export function ApplicationsHub({
           {layout === 'timeline' && (
             <TimelineLayout applications={visible} now={now} onOpen={(a) => setSelectedId(a.id)} />
           )}
+          {layout === 'map' && <MapLayout applications={visible} onOpen={(a) => setSelectedId(a.id)} />}
         </>
       )}
 
