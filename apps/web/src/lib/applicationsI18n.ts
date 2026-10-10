@@ -1,0 +1,129 @@
+'use client';
+
+import { useLocale } from '@/components/providers/Providers';
+import type { ApplicationStatus } from '@apply/core/applications';
+import type { Locale } from '@/lib/i18n';
+
+/**
+ * EN / FR strings of the Applications hub, kept next to the hub instead of the
+ * global dictionary so the feature stays self-contained. Read with `useHubT()`.
+ */
+const en = {
+  title: 'Applications',
+  subtitle: 'Track every application, from sent to answered.',
+  cap: (used: number, cap: number | null) => (cap === null ? `${used}` : `${used} / ${cap}`),
+  capReached: (cap: number) => `Your plan includes up to ${cap} applications.`,
+  layouts: { board: 'Board', table: 'Table', timeline: 'Timeline', map: 'Map' },
+  layoutSoon: 'Coming soon',
+  layoutLabel: 'Layout',
+  search: 'Search company, title or place',
+  needsAttention: 'Needs attention',
+  clearFilters: 'Clear filters',
+  statuses: {
+    waiting: 'Waiting for answer',
+    interviewing: 'Interviewing',
+    accepted: 'Accepted',
+    rejected: 'Rejected',
+    ghosted: 'Ghosted',
+    withdrawn: 'Withdrawn',
+  } satisfies Record<ApplicationStatus, string>,
+  statusesShort: {
+    waiting: 'Waiting',
+    interviewing: 'Interviewing',
+    accepted: 'Accepted',
+    rejected: 'Rejected',
+    ghosted: 'Ghosted',
+    withdrawn: 'Withdrawn',
+  } satisfies Record<ApplicationStatus, string>,
+  moveTo: 'Move to',
+  emptyTitle: 'Track your first application',
+  emptyBody: 'Applications you send show up here, grouped by where they stand.',
+  browseOffers: 'Browse offers',
+  noMatchTitle: 'No application matches',
+  noMatchBody: 'Try another search or clear the filters.',
+  emptyColumn: 'Nothing here',
+  appliedOn: 'Applied',
+  today: 'today',
+  daysAgo: (n: number) => (n === 1 ? '1 day ago' : `${n} days ago`),
+  interview: 'Interview',
+  deadline: 'Deadline',
+  openFullPage: 'Open full page',
+  openLink: 'Open the posting',
+  details: 'Details',
+  location: 'Location',
+  link: 'Link',
+  notes: 'Notes',
+  noNotes: 'No notes yet.',
+  interviews: 'Interviews',
+  noInterviews: 'No interview yet.',
+  unscheduled: 'Not scheduled',
+  statusError: 'The status could not be changed. Please try again.',
+  loadError: 'The applications could not be loaded.',
+  retry: 'Try again',
+  menu: 'Application actions',
+  close: 'Close',
+};
+
+const fr: typeof en = {
+  title: 'Candidatures',
+  subtitle: "Suivez chaque candidature, de l'envoi à la réponse.",
+  cap: (used, cap) => (cap === null ? `${used}` : `${used} / ${cap}`),
+  capReached: (cap) => `Votre offre inclut jusqu'à ${cap} candidatures.`,
+  layouts: { board: 'Tableau', table: 'Liste', timeline: 'Chronologie', map: 'Carte' },
+  layoutSoon: 'Bientôt disponible',
+  layoutLabel: 'Affichage',
+  search: 'Rechercher une entreprise, un poste ou un lieu',
+  needsAttention: 'À relancer',
+  clearFilters: 'Effacer les filtres',
+  statuses: {
+    waiting: 'En attente de réponse',
+    interviewing: 'En entretien',
+    accepted: 'Acceptée',
+    rejected: 'Refusée',
+    ghosted: 'Sans réponse',
+    withdrawn: 'Retirée',
+  },
+  statusesShort: {
+    waiting: 'En attente',
+    interviewing: 'Entretien',
+    accepted: 'Acceptée',
+    rejected: 'Refusée',
+    ghosted: 'Sans réponse',
+    withdrawn: 'Retirée',
+  },
+  moveTo: 'Déplacer vers',
+  emptyTitle: 'Suivez votre première candidature',
+  emptyBody: 'Les candidatures envoyées apparaissent ici, classées selon leur avancement.',
+  browseOffers: 'Voir les offres',
+  noMatchTitle: 'Aucune candidature trouvée',
+  noMatchBody: 'Essayez une autre recherche ou effacez les filtres.',
+  emptyColumn: 'Rien ici',
+  appliedOn: 'Envoyée',
+  today: "aujourd'hui",
+  daysAgo: (n) => (n === 1 ? 'il y a 1 jour' : `il y a ${n} jours`),
+  interview: 'Entretien',
+  deadline: 'Échéance',
+  openFullPage: 'Ouvrir la page',
+  openLink: "Ouvrir l'annonce",
+  details: 'Détails',
+  location: 'Lieu',
+  link: 'Lien',
+  notes: 'Notes',
+  noNotes: 'Pas encore de notes.',
+  interviews: 'Entretiens',
+  noInterviews: 'Aucun entretien pour le moment.',
+  unscheduled: 'Non planifié',
+  statusError: "Le statut n'a pas pu être modifié. Réessayez.",
+  loadError: "Les candidatures n'ont pas pu être chargées.",
+  retry: 'Réessayer',
+  menu: 'Actions sur la candidature',
+  close: 'Fermer',
+};
+
+export const hubStrings: Record<Locale, typeof en> = { en, fr };
+export type HubT = typeof en;
+
+export function useHubT(): { t: HubT; locale: Locale } {
+  const { locale } = useLocale();
+  return { t: hubStrings[locale] ?? en, locale };
+}
