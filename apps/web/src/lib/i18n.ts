@@ -9,7 +9,7 @@ export const translations = {
   en: {
     consent: {
       title: 'Help us improve Apply',
-      body: 'Share anonymous usage analytics? Nothing is sent unless you accept, and never your email or name. You can change this anytime in Settings > Privacy.',
+      body: 'Share usage analytics linked to your account email? Nothing is sent unless you accept, and never your name. You can change this anytime in Settings > Privacy.',
       accept: 'Accept',
       decline: 'Decline',
     },
@@ -202,7 +202,7 @@ export const translations = {
   fr: {
     consent: {
       title: 'Aidez-nous à améliorer Apply',
-      body: 'Partager des statistiques d’usage anonymes ? Rien n’est envoyé sans votre accord, et jamais votre e-mail ni votre nom. Vous pouvez changer d’avis à tout moment dans Paramètres > Confidentialité.',
+      body: 'Partager des statistiques d’usage liées à l’e-mail de votre compte ? Rien n’est envoyé sans votre accord, et jamais votre nom. Vous pouvez changer d’avis à tout moment dans Paramètres > Confidentialité.',
       accept: 'Accepter',
       decline: 'Refuser',
     },

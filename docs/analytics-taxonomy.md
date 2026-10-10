@@ -7,7 +7,7 @@ Naming: `snake_case`, `object_action` in past tense (`cv_uploaded`), `*_failed` 
 ## Identity
 
 - Distinct id = Supabase user id, on web and desktop (the desktop shell loads the same web app, so one code path).
-- `analytics.identify({ id }, { locale })` runs only after consent, when a user is known (sign-in, session restore, or right after Accept). Person properties: `app_platform` (`web`/`desktop`), `plan` (`free`/`plus`/`max`, once known), `locale` (`en`/`fr`). Email and name are never sent to PostHog.
+- `analytics.identify({ id, email }, { locale })` runs only after consent, when a user is known (sign-in, session restore, or right after Accept). Person properties: `app_platform` (`web`/`desktop`), `plan` (`free`/`plus`/`max`, once known), `locale` (`en`/`fr`), `email` (account email, founder decision 10 Oct, opt-in only). The name is never sent to PostHog.
 - `analytics.reset()` runs on sign-out (`sign_out_completed` is captured first, under the old id) and on a direct account switch, so two accounts never merge. posthog-js clears the consent choice on `reset()`, so the helper restores it right after (granted stays granted, denied stays denied).
 - Super properties on every event: `app_platform`, and `plan` once known (re-registered after each reset).
 
