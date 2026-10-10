@@ -405,7 +405,7 @@ export function yearsOfExperienceFrom(experiences: ParsedExperience[], now: Date
 /** Seniority from title keywords (they win) or from years of experience. */
 export function inferSeniority(jobTitle: string | undefined, years: number | undefined): Field<Seniority> | undefined {
   const title = jobTitle ? ascii(jobTitle) : '';
-  if (/\b(intern|stagiaire|stage|alternan\w*|apprenti\w*|trainee)\b/.test(title)) return { value: 'entry', confidence: 'medium' };
+  if (/\b(intern|internship|stagiaire|stage|alternan\w*|apprenti\w*|trainee|student|etudiant\w*)\b/.test(title)) return { value: 'entry', confidence: 'medium' };
   if (/\b(junior|jr|graduate|debutant)\b/.test(title)) return { value: 'junior', confidence: 'medium' };
   if (/\b(head of|vp|vice president|director|directeur|directrice|chief|cto|ceo|cpo|principal|staff|lead|manager|responsable)\b/.test(title)) {
     return { value: 'lead', confidence: 'medium' };

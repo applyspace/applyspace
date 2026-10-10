@@ -13,6 +13,7 @@ import {
   SearchList01Icon,
 } from '@hugeicons/core-free-icons';
 import { completeOnboarding, saveOnboardingAnswers } from '@/app/onboarding/actions';
+import { importParsedProfile } from '@/app/profile-import/actions';
 import { Button } from '@/components/ui/button';
 import { ImportDropzone } from '@/components/onboarding/v2/ImportDropzone';
 import { OptionRow } from '@/components/onboarding/v2/OptionRow';
@@ -21,6 +22,7 @@ import { CompanyStep, ContractStep } from '@/components/onboarding/v2/CriteriaSt
 import { OnboardingTopBar } from '@/components/onboarding/v2/OnboardingTopBar';
 import { PlanStep } from '@/components/onboarding/v2/PlanStep';
 import { PlatformsStep } from '@/components/onboarding/v2/PlatformsStep';
+import { ResumePrefillSummary, useResumeImport } from '@/components/onboarding/v2/ResumePrefill';
 import { saveImportedFile } from '@/components/onboarding/v2/saveImportedFile';
 import { StepHeader } from '@/components/onboarding/v2/StepHeader';
 import { suggestJobTitles, suggestPlaces } from '@/lib/suggest';
@@ -78,6 +80,11 @@ export function OnboardingV2() {
   const [moreSectors, setMoreSectors] = useState(false);
   const [morePlatforms, setMorePlatforms] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
+  // The picked resume is parsed on the server; the role step is prefilled (title and seniority) unless the user already chose.
+  const resumeImport = useResumeImport(file, (prefill) => {
+    if (prefill.jobTitle) setTitles((current) => (current.length ? current : [prefill.jobTitle as string]));
+    if (prefill.level) setLevels((current) => (current.length ? current : [prefill.level as string]));
+  });
 
   const current = STEPS[step];
   const last = step === STEPS.length - 1;
@@ -128,6 +135,7 @@ export function OnboardingV2() {
           <>
             <StepHeader title="Start from what you already have" subtitle="Import your resume or LinkedIn profile to prefill your details." />
             <ImportDropzone file={file} onFile={setFile} />
+            <ResumePrefillSummary importState={resumeImport} />
           </>
         )}
 
@@ -201,8 +209,16 @@ export function OnboardingV2() {
                 }
                 // The imported resume is attached to the account. A failed upload never blocks onboarding: it can be added from Profile.
                 if (file && saved.ok) {
-                  const stored = await saveImportedFile(file);
-                  if (!stored.ok) analytics.capture('onboarding_import_save_failed', { reason: stored.reason });
+                  // Already stored when it was parsed in the import step: no second upload.
+                  if (!resumeImport.documentId) {
+                    const stored = await saveImportedFile(file);
+                    if (!stored.ok) analytics.capture('onboarding_import_save_failed', { reason: stored.reason });
+                  }
+                  // Experiences, education and skills only go in if the user reviewed and confirmed them.
+                  if (resumeImport.confirmed) {
+                    const imported = await importParsedProfile(resumeImport.confirmed);
+                    if (!imported.ok) analytics.capture('onboarding_import_save_failed', { reason: 'profile' });
+                  }
                 }
                 // Fired once the answers are saved (or there is nothing to save), so a failed save never counts as a completion.
                 analytics.capture('onboarding_completed', { completion_method: 'plan_selected', plan: plan as Plan });

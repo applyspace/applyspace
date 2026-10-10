@@ -4,7 +4,7 @@ import { isSupabaseConfigured } from '@/lib/supabase/env';
 import { CV_MAX_BYTES, CV_MIME_TYPES, DOCUMENTS_BUCKET } from '@apply/core/candidate-profile';
 
 export type ImportedFileResult =
-  | { ok: true }
+  | { ok: true; documentId: string }
   | { ok: false; reason: 'unsupported' | 'too-large' | 'signed-out' | 'upload' | 'register' };
 
 /** PDF or Word (.docx), by MIME type or extension. Anything else is not stored. */
@@ -41,5 +41,5 @@ export async function saveImportedFile(file: File): Promise<ImportedFileResult> 
     await storage.remove([storagePath]);
     return { ok: false, reason: 'register' };
   }
-  return { ok: true };
+  return { ok: true, documentId: result.data.id };
 }

@@ -39,6 +39,9 @@ src/
 │   ├── profiles.ts, searches.ts, offers.ts, applications.ts, …   # Readers: Supabase when signed in, fixtures on the demo, else empty
 │   ├── settings.ts     # Read/write user settings (Supabase when signed in)
 │   ├── supabase/       # Clients, request scope, row helpers and queries
+│   ├── resume/         # Resume parser server glue: optional Claude provider (off by default), parseResumeText
+│   ├── profileImport.ts # Executes a reviewed import plan (merge into experiences, education, skills); actions in app/profile-import
+│   │                    # Onboarding import step: components/onboarding/v2/ResumePrefill.tsx (upload, parse, prefill role step, review sheet)
 │   ├── sources.ts      # Platform metadata (labels, colors, cookie keys)
 │   ├── i18n.ts         # EN / FR translations
 │   └── utils.ts        # Shared helpers

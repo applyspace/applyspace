@@ -189,6 +189,18 @@ export async function getOrCreateDefaultProfile(s: SupabaseScope, jobTitle?: str
 }
 
 /**
+ * Names the default profile after the imported job title, only when it has no
+ * real title yet (empty or the placeholder). Creates the profile when missing.
+ */
+export async function setDefaultProfileTitle(s: SupabaseScope, jobTitle: string): Promise<void> {
+  const title = clean(jobTitle).slice(0, 200);
+  if (!title) return;
+  const profile = await getOrCreateDefaultProfile(s, title);
+  if (clean(profile.job_title) && profile.job_title !== PLACEHOLDER_JOB_TITLE) return;
+  must(await s.supabase.from('profiles').update({ job_title: title }).eq('id', profile.id), 'profiles');
+}
+
+/**
  * Creates the user's search profiles from onboarding: a default `profiles` row
  * named after the first target title (if there is none yet) and one `searches`
  * row per target title, all with the same criteria. The Free plan has a single
