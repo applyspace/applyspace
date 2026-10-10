@@ -12,12 +12,15 @@ export function ScreenshotPlaceholder({
   label,
   priority = false,
   className,
+  slot,
 }: {
   alt: string;
   image?: ImageRef;
   label: string;
   priority?: boolean;
   className?: string;
+  /** Slot name shown under the label, so the missing file is easy to find (docs/website-shots.md). */
+  slot?: string;
 }) {
   if (image) {
     return (
@@ -36,9 +39,10 @@ export function ScreenshotPlaceholder({
     <div
       role="img"
       aria-label={alt}
-      className={cn('flex aspect-[16/10] w-full items-center justify-center rounded-3xl bg-stone-100 p-6 text-center', className)}
+      className={cn('flex aspect-[16/10] w-full flex-col items-center justify-center gap-1 rounded-3xl bg-stone-100 p-6 text-center', className)}
     >
       <span className="text-xs text-stone-500">{label}</span>
+      {slot && <span className="font-mono text-[11px] text-stone-400">{slot}</span>}
     </div>
   );
 }

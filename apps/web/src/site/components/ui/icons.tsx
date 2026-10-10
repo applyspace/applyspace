@@ -15,6 +15,17 @@ import {
   Settings02Icon,
   Table01Icon,
   ChartLineData01Icon,
+  AiBrain01Icon,
+  Analytics01Icon,
+  AppleIcon,
+  BrowserIcon,
+  FileUploadIcon,
+  Logout03Icon,
+  Mail01Icon,
+  Note01Icon,
+  Tick02Icon,
+  UserIcon,
+  Xls01Icon,
 } from '@hugeicons/core-free-icons';
 
 const ICONS: Record<string, IconSvgElement> = {
@@ -33,6 +44,17 @@ const ICONS: Record<string, IconSvgElement> = {
   settings: Settings02Icon,
   lock: LockIcon,
   calendar: Calendar03Icon,
+  browser: BrowserIcon,
+  sheet: Xls01Icon,
+  note: Note01Icon,
+  mail: Mail01Icon,
+  analytics: Analytics01Icon,
+  ai: AiBrain01Icon,
+  leave: Logout03Icon,
+  apple: AppleIcon,
+  upload: FileUploadIcon,
+  profile: UserIcon,
+  tick: Tick02Icon,
 };
 
 /** Decorative feature icon by key (Hugeicons, like the app). Unknown keys render nothing. */

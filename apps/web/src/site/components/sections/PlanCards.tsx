@@ -13,6 +13,7 @@ const money = (n: number) => (n === 0 ? '€0' : `€${n.toFixed(2)}`);
 export function PlanCards({ locale, plans, variant }: { locale: Locale; plans: PricingPlan[]; variant: 'compact' | 'full' }) {
   const t = ui[locale];
   const cap = (n: number | null) => (n === null ? t.unlimited : String(n));
+  if (variant === 'compact') return <PlanTeaser locale={locale} plans={plans} />;
 
   return (
     <ul className="mx-auto grid max-w-6xl list-none gap-5 px-4 sm:px-6 md:grid-cols-3">
@@ -61,6 +62,40 @@ export function PlanCards({ locale, plans, variant }: { locale: Locale; plans: P
               {p.ctaLabel}
             </a>
           )}
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+/**
+ * Homepage pricing teaser: three cards in the same order on every screen (Free, Plus, Max). Plus carries
+ * the lilac tint; no "most chosen" label (no data to back it).
+ */
+function PlanTeaser({ locale, plans }: { locale: Locale; plans: PricingPlan[] }) {
+  const t = ui[locale];
+  return (
+    <ul className="mx-auto grid max-w-[1248px] list-none gap-4 px-4 sm:px-6 md:grid-cols-3">
+      {plans.map((p) => (
+        <li
+          key={p.key}
+          data-reveal
+          className={cn('flex flex-col rounded-2xl border p-6 sm:p-7', p.key === 'plus' ? 'border-brand-200 bg-brand-50' : 'border-stone-200 bg-white')}
+        >
+          <PlanTag plan={p.key} label={t.planTag[p.key]} size="md" className="self-start" />
+          {p.priceVisible && (
+            <p className="mt-6 text-4xl font-medium tabular-nums tracking-tight text-stone-950">
+              {money(p.priceMonthly)}
+              {p.priceMonthly > 0 && <span className="text-base font-normal text-stone-600">{t.perMonthLong}</span>}
+            </p>
+          )}
+          <p className="mt-2 text-[15px] text-stone-700">{t.upToApplications(p.caps.applications)}</p>
+          <a
+            href={appHref('/login', `home-plan-${p.key}`)}
+            className={buttonStyles(p.key === 'free' ? 'primary' : 'secondary', 'lg', 'mt-8 w-full')}
+          >
+            {p.key === 'free' ? t.startPlan : t.choosePlan(p.name)}
+          </a>
         </li>
       ))}
     </ul>

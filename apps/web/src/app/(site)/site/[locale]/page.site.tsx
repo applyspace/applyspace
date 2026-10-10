@@ -1,9 +1,8 @@
 import type { Metadata } from 'next';
 import { JsonLd } from '@/site/components/seo/JsonLd';
-import { Hero } from '@/site/components/sections/Hero';
+import { HomeHero } from '@/site/components/sections/Hero';
 import { SectionRenderer } from '@/site/components/sections/SectionRenderer';
-import { ScreenshotPlaceholder } from '@/site/components/ui/ScreenshotPlaceholder';
-import { ui } from '@/site/content/ui';
+import { RevealObserver } from '@/site/components/ui/RevealObserver';
 import { getFeatures, getPage, getPlans } from '@/site/lib/content';
 import { type Locale } from '@/site/lib/i18n';
 import { softwareApplicationLd } from '@/site/lib/jsonld';
@@ -20,21 +19,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function HomePage({ params }: Props) {
   const { locale } = await params;
   const [page, features, plans] = await Promise.all([getPage('home', locale), getFeatures(locale), getPlans(locale)]);
-  const t = ui[locale];
 
   return (
     <>
       <JsonLd data={softwareApplicationLd(locale, features, plans)} />
-      <Hero locale={locale} heading={page.heading} intro={page.intro} ctas={page.ctas} placement="home-hero" />
-      <div className="mx-auto mt-14 max-w-5xl px-4 sm:px-6">
-        <ScreenshotPlaceholder
-          priority
-          alt="The applyspace applications board with one column per status"
-          label={`${t.screenshotLabel}: Applications board`}
-          className="rounded-4xl"
-        />
-      </div>
-      <SectionRenderer locale={locale} sections={page.sections} features={features} plans={plans} />
+      <HomeHero locale={locale} eyebrow={page.eyebrow} heading={page.heading} intro={page.intro} ctas={page.ctas} note={page.note} shot={page.heroShot} />
+      <SectionRenderer locale={locale} sections={page.sections} features={features} plans={plans} firstFigure={page.heroShot ? 2 : 1} />
+      <RevealObserver />
     </>
   );
 }

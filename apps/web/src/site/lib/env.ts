@@ -12,6 +12,9 @@ export const SANITY_API_VERSION = process.env.NEXT_PUBLIC_SANITY_API_VERSION || 
 export const SANITY_READ_TOKEN = process.env.SANITY_API_READ_TOKEN || '';
 export const SANITY_REVALIDATE_SECRET = process.env.SANITY_REVALIDATE_SECRET || '';
 
+/** Public macOS download (a .dmg or a release page). Empty until the desktop download is published. */
+export const DESKTOP_DOWNLOAD_URL = process.env.NEXT_PUBLIC_DESKTOP_DOWNLOAD_URL || '';
+
 export const isSanityConfigured = Boolean(SANITY_PROJECT_ID && SANITY_DATASET);
 
 /** Only the production deployment on Vercel may be indexed. Previews, staging and local runs are noindex. */

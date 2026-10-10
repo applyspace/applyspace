@@ -7,7 +7,7 @@ import { ui } from '@/site/content/ui';
 import { localePath, type Locale } from '@/site/lib/i18n';
 import { appHref, internalHref } from '@/site/lib/links';
 
-/** Logo left, navigation centre, Sign in (secondary) and Start for free (primary) right. */
+/** Logo left, navigation centre, Log in (secondary) and Get started free (primary) right; on phones a small Get started and the menu. */
 export function Header({ locale, settings }: { locale: Locale; settings: SiteSettings }) {
   const t = ui[locale];
   const nav = settings.nav.map((n) => ({ label: n.label, href: internalHref(locale, n.href) }));
@@ -38,7 +38,10 @@ export function Header({ locale, settings }: { locale: Locale; settings: SiteSet
           </a>
         </div>
 
-        <div className="justify-self-end">
+        <div className="flex items-center gap-1 justify-self-end md:block">
+          <a href={appHref('/login', 'header-mobile-start')} className={buttonStyles('primary', 'md', 'md:hidden')}>
+            {t.getStarted}
+          </a>
           <MobileMenu
             nav={nav}
             signInHref={signIn}
