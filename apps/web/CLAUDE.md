@@ -55,3 +55,4 @@ src/
 - Website files use the `.site.tsx` / `.site.ts` extension. `pnpm build:desktop` sets `APPLY_DESKTOP_BUILD=1`, so `next.config.ts` drops that extension from `pageExtensions` and the website is never compiled into the .dmg (and `APPLY_SITE_ENABLED=0` turns the routing off). Never import `@/site/*` from app code.
 - Two root layouts: `src/app/(app)/layout.tsx` (product) and `src/app/(site)/site/[locale]/layout.site.tsx` (website, static, its own CSS `src/site/site.css`).
 - Sanity Studio: `studio/` at the repo root.
+- Homepage sections are typed in `src/site/content/types.ts` and rendered by `SectionRenderer` (server components; the only client islands are `ViewTabs`, `RevealObserver` and the mobile menu). Product visuals are `ProductShot` slots: a placeholder until `public/site/shots/<name>.avif` exists (slot list: `docs/website-shots.md`).

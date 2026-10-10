@@ -56,7 +56,7 @@
     -webkit-font-smoothing: antialiased;
   }
   :focus-visible {
-    outline: 2px solid var(--ring);
+    outline: 2px solid var(--color-brand-600);
     outline-offset: 2px;
   }
   @media (prefers-reduced-motion: reduce) {
@@ -77,4 +77,44 @@
   font-weight: 600;
   font-variation-settings: "SOFT" 100, "WONK" 1, "opsz" 64;
   letter-spacing: -0.02em;
+}
+
+/* Motion: a reward, not decoration. One moment per section, plays once, nothing under reduced motion. */
+:root {
+  --ease-site: cubic-bezier(0.2, 0, 0, 1);
+}
+
+@keyframes site-fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  /* Tab panel cross-fade (Applications views). */
+  .site-fade-in:not([hidden]) {
+    animation: site-fade-in 150ms var(--ease-site);
+  }
+
+  /* Section reveal, driven by RevealObserver (only once it is ready, so nothing hides without JavaScript). */
+  html[data-reveal-ready] [data-reveal] {
+    transition:
+      opacity 250ms var(--ease-site),
+      transform 250ms var(--ease-site);
+    transition-delay: calc(var(--reveal-step, 0) * 60ms);
+  }
+  html[data-reveal-ready] [data-reveal]:not([data-revealed]) {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+/* Hero product frame on small screens: clipped on the right with a fade, never scrollable. */
+.site-fade-right {
+  mask-image: linear-gradient(to right, #000 78%, transparent);
+}
+@media (min-width: 640px) {
+  .site-fade-right {
+    mask-image: none;
+  }
 }

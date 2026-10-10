@@ -10,6 +10,7 @@ export type Ui = {
   mainNav: string;
   footerNav: string;
   perMonth: string;
+  perMonthLong: string;
   free: string;
   unlimited: string;
   applications: string;
@@ -34,17 +35,29 @@ export type Ui = {
   onThisPage: string;
   copyright: (year: number) => string;
   screenshotLabel: string;
+  figure: string;
+  getStarted: string;
+  startPlan: string;
+  choosePlan: (name: string) => string;
+  footerProduct: string;
+  footerResources: string;
+  footerAccount: string;
+  madeIn: string;
+  upToApplications: (n: number | null) => string;
+  jobBoards: string;
+  download: string;
 };
 
 const en: Ui = {
-  signIn: 'Sign in',
-  startFree: 'Start for free',
+  signIn: 'Log in',
+  startFree: 'Get started free',
   menu: 'Menu',
   closeMenu: 'Close menu',
   skipToContent: 'Skip to content',
   mainNav: 'Main',
   footerNav: 'Footer',
   perMonth: '/mo',
+  perMonthLong: ' / month',
   free: 'Free',
   unlimited: 'Unlimited',
   applications: 'applications',
@@ -69,6 +82,17 @@ const en: Ui = {
   onThisPage: 'On this page',
   copyright: (year) => `© ${year} applyspace`,
   screenshotLabel: 'Screenshot placeholder',
+  figure: 'Fig.',
+  getStarted: 'Get started',
+  startPlan: 'Start free',
+  choosePlan: (name) => `Choose ${name}`,
+  footerProduct: 'Product',
+  footerResources: 'Resources',
+  footerAccount: 'Account',
+  madeIn: 'Made in France',
+  upToApplications: (n) => (n === null ? 'Unlimited applications' : `Up to ${n} applications`),
+  jobBoards: 'Job boards in one search',
+  download: 'Download for macOS',
 };
 
 export const ui: Record<Locale, Ui> = { en };

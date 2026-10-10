@@ -1,7 +1,7 @@
 import type { Locale } from './i18n';
 import { sanityFetch, sanityImageUrl } from './sanity';
 import * as fallback from '@/site/content/fallback';
-import type { Feature, ImageRef, PageContent, PageSlug, PricingPlan, Resource, Section, SiteSettings } from '@/site/content/types';
+import type { Cta, Feature, ImageRef, PageContent, PageSlug, PricingPlan, Resource, Section, Shot, ShotRatio, SiteSettings, TextLink } from '@/site/content/types';
 import type { PortableTextBlock } from '@portabletext/react';
 
 /**
@@ -38,7 +38,7 @@ export async function getSiteSettings(locale: Locale): Promise<SiteSettings> {
 const PAGE_QUERY = `*[_type == "page" && slug == $slug && language == $locale][0]{
   "slug": slug,
   "seo": {"title": seoTitle, "description": seoDescription, "noindex": noindex, "ogImage": ogImage},
-  heading, intro, ctas[]{label, href, kind},
+  heading, intro, eyebrow, note, heroShot, ctas[]{label, href, kind},
   sections[]{
     ...,
     _type == "cardsSection" => {items[]{title, text, href, icon}},
@@ -47,24 +47,116 @@ const PAGE_QUERY = `*[_type == "page" && slug == $slug && language == $locale][0
   }
 }`;
 
-type SanitySection = { _type: string; title?: string; intro?: string; body?: string; tone?: 'plain' | 'tinted'; variant?: 'compact' | 'full'; note?: string; text?: string; cta?: PageContent['ctas'] extends (infer C)[] | undefined ? C : never; items?: never[] };
+/** Raw section as stored in Sanity (`...` projection); mapped and validated below. */
+type SanitySection = {
+  _type: string;
+  anchor?: string;
+  eyebrow?: string;
+  title?: string;
+  intro?: string;
+  body?: string;
+  tone?: 'plain' | 'tinted';
+  variant?: 'compact' | 'full';
+  note?: string;
+  footnote?: string;
+  text?: string;
+  caption?: string;
+  shotSide?: 'left' | 'right';
+  cta?: Cta;
+  secondary?: Cta;
+  link?: TextLink;
+  shot?: SanityShot;
+  inset?: SanityShot;
+  bullets?: string[];
+  boards?: { key?: string; name?: string }[];
+  fragments?: { kind?: string; label?: string; text?: string }[];
+  views?: { key?: string; label?: string; icon?: string; shot?: SanityShot }[];
+  steps?: { label?: string; shot?: SanityShot }[];
+  items?: never[];
+};
+
+type SanityShot = { name?: string; alt?: string; ratio?: string; caption?: string; mobileName?: string; mobileRatio?: string } | null | undefined;
+
+const RATIOS: ShotRatio[] = ['16/10', '4/3', '4/5', '3/2', '1/1'];
+const asRatio = (r: string | undefined, fallbackRatio: ShotRatio): ShotRatio => (RATIOS.includes(r as ShotRatio) ? (r as ShotRatio) : fallbackRatio);
+
+function toShot(s: SanityShot): Shot | undefined {
+  if (!s?.name) return undefined;
+  return {
+    name: s.name,
+    alt: s.alt ?? '',
+    ratio: asRatio(s.ratio, '16/10'),
+    caption: s.caption || undefined,
+    mobile: s.mobileName ? { name: s.mobileName, ratio: asRatio(s.mobileRatio, '4/5') } : undefined,
+  };
+}
+
+const FRAGMENT_KINDS = ['tab', 'sheet', 'note', 'email', 'calendar'] as const;
+const nonEmpty = <T>(xs: (T | undefined | null)[] | undefined): T[] => (xs ?? []).filter((x): x is T => x != null);
+const link = (l?: TextLink): TextLink | undefined => (l?.label && l?.href ? l : undefined);
 
 function mapSection(s: SanitySection): Section | null {
   switch (s._type) {
     case 'cardsSection':
       return { type: 'cards', title: s.title ?? '', intro: s.intro, items: (s.items ?? []) as never };
     case 'stepsSection':
-      return { type: 'steps', title: s.title ?? '', intro: s.intro, items: (s.items ?? []) as never };
+      return { type: 'steps', eyebrow: s.eyebrow, title: s.title ?? '', intro: s.intro, items: (s.items ?? []) as never };
     case 'textSection':
       return { type: 'text', title: s.title ?? '', body: s.body ?? '', tone: s.tone };
     case 'faqSection':
-      return { type: 'faq', title: s.title ?? '', items: (s.items ?? []) as never };
+      return { type: 'faq', title: s.title ?? '', items: (s.items ?? []) as never, link: link(s.link) };
     case 'plansSection':
-      return { type: 'plans', title: s.title, intro: s.intro, variant: s.variant ?? 'full', note: s.note };
+      return { type: 'plans', title: s.title, intro: s.intro, variant: s.variant ?? 'full', note: s.note, footnote: s.footnote };
     case 'featuresSection':
       return { type: 'features' };
     case 'ctaSection':
-      return s.cta ? { type: 'cta', title: s.title ?? '', text: s.text, cta: s.cta } : null;
+      return s.cta ? { type: 'cta', title: s.title ?? '', text: s.text, cta: s.cta, secondary: s.secondary?.label ? s.secondary : undefined, shot: toShot(s.shot) } : null;
+    case 'scatterSection':
+      return {
+        type: 'scatter',
+        title: s.title ?? '',
+        body: s.body ?? '',
+        fragments: nonEmpty(s.fragments).map((f) => ({
+          kind: FRAGMENT_KINDS.includes(f.kind as (typeof FRAGMENT_KINDS)[number]) ? (f.kind as (typeof FRAGMENT_KINDS)[number]) : 'note',
+          label: f.label ?? '',
+          text: f.text ?? '',
+        })),
+      };
+    case 'spotlightSection': {
+      const shot = toShot(s.shot);
+      if (!shot) return null;
+      return {
+        type: 'spotlight',
+        anchor: s.anchor,
+        eyebrow: s.eyebrow ?? '',
+        title: s.title ?? '',
+        body: s.body ?? '',
+        bullets: s.bullets ?? [],
+        link: link(s.link),
+        shot,
+        inset: toShot(s.inset),
+        shotSide: s.shotSide === 'left' ? 'left' : 'right',
+        boards: nonEmpty(s.boards).flatMap((b) => (b.key && b.name ? [{ key: b.key, name: b.name }] : [])),
+      };
+    }
+    case 'viewsSection': {
+      const views = nonEmpty(s.views).flatMap((v) => {
+        const shot = toShot(v.shot);
+        return v.key && v.label && shot ? [{ key: v.key, label: v.label, icon: v.icon, shot }] : [];
+      });
+      return views.length ? { type: 'views', anchor: s.anchor, eyebrow: s.eyebrow ?? '', title: s.title ?? '', intro: s.intro ?? '', views } : null;
+    }
+    case 'flowSection': {
+      const steps = nonEmpty(s.steps).flatMap((st) => {
+        const shot = toShot(st.shot);
+        return st.label && shot ? [{ label: st.label, shot }] : [];
+      });
+      return steps.length ? { type: 'flow', anchor: s.anchor, eyebrow: s.eyebrow ?? '', title: s.title ?? '', body: s.body ?? '', caption: s.caption ?? '', steps } : null;
+    }
+    case 'trustSection':
+      return { type: 'trust', title: s.title ?? '', intro: s.intro, items: (s.items ?? []) as never, link: link(s.link) };
+    case 'factsSection':
+      return { type: 'facts', eyebrow: s.eyebrow, title: s.title ?? '', items: (s.items ?? []) as never };
     default:
       return null;
   }
@@ -76,6 +168,9 @@ export async function getPage(slug: PageSlug, locale: Locale): Promise<PageConte
     seo?: { title?: string; description?: string; noindex?: boolean; ogImage?: SanityImage };
     heading?: string;
     intro?: string;
+    eyebrow?: string;
+    note?: string;
+    heroShot?: SanityShot;
     ctas?: PageContent['ctas'];
     sections?: SanitySection[];
   } | null>(PAGE_QUERY, { slug, locale });
@@ -91,6 +186,9 @@ export async function getPage(slug: PageSlug, locale: Locale): Promise<PageConte
     },
     heading: doc.heading || base.heading,
     intro: doc.intro || base.intro,
+    eyebrow: doc.eyebrow || base.eyebrow,
+    note: doc.note || base.note,
+    heroShot: toShot(doc.heroShot) ?? base.heroShot,
     ctas: doc.ctas?.length ? doc.ctas : base.ctas,
     sections: sections.length ? sections : base.sections,
   };
