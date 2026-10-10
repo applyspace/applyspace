@@ -19,7 +19,8 @@ import {
   removeDocument,
   saveFitMessage,
 } from '@/app/onboarding/actions';
-import { useAuth } from '@/components/providers/Providers';
+import { useAuth, useLocale } from '@/components/providers/Providers';
+import { ResumeImportFlow } from './ResumeImportFlow';
 import { createClient } from '@/lib/supabase/client';
 import { isSupabaseConfigured } from '@/lib/supabase/env';
 import {
@@ -65,6 +66,9 @@ const formatDate = (iso: string) =>
  */
 export function DocumentsPanel({ showFitMessages = true }: { showFitMessages?: boolean }) {
   const { user } = useAuth();
+  const { t } = useLocale();
+  // Id of the CV whose details are being imported into the profile (review step open).
+  const [importing, setImporting] = useState<string | null>(null);
   const [data, setData] = useState<DocumentsData | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -188,6 +192,8 @@ export function DocumentsPanel({ showFitMessages = true }: { showFitMessages?: b
       analytics.capture('fit_message_saved');
     });
 
+  if (importing) return <ResumeImportFlow documentId={importing} onClose={() => setImporting(null)} />;
+
   return (
     <div className="flex flex-col gap-10">
       <section className="flex flex-col gap-4">
@@ -240,6 +246,14 @@ export function DocumentsPanel({ showFitMessages = true }: { showFitMessages?: b
                     {[formatSize(cv.sizeBytes), `Added ${formatDate(cv.createdAt)}`].filter(Boolean).join(' · ')}
                   </p>
                 </div>
+                <button
+                  type="button"
+                  disabled={busy}
+                  onClick={() => setImporting(cv.id)}
+                  className="inline-flex h-7 items-center rounded-full border border-stone-200 px-2.5 text-xs font-medium text-stone-700 transition-colors hover:bg-stone-50 disabled:opacity-50"
+                >
+                  {t.resumeImport.importDetails}
+                </button>
                 {cv.isPrimary ? (
                   <span className="inline-flex h-7 items-center rounded-full bg-stone-100 px-2.5 text-xs font-medium text-stone-700">
                     Primary
