@@ -35,7 +35,7 @@ Design: same tokens as `apps/web` (brand scale, stone neutrals, radius, 1.6px bo
 | Variable | Where | Purpose |
 |---|---|---|
 | `NEXT_PUBLIC_SITE_URL` | build | Canonical origin, default `https://applyspace.app` |
-| `NEXT_PUBLIC_APP_URL` | build | App origin for Sign in / Start for free, default `https://app.applyspace.app` |
+| `NEXT_PUBLIC_APP_URL` | build | App origin for Sign in / Start for free, default the site origin (`applyspace.app` serves the site to signed-out visitors) |
 | `NEXT_PUBLIC_SANITY_PROJECT_ID` | build, studio | Sanity project id (public) |
 | `NEXT_PUBLIC_SANITY_DATASET` | build, studio | Dataset name (public) |
 | `NEXT_PUBLIC_SANITY_API_VERSION` | build | Optional, default `2026-10-01` |
@@ -46,7 +46,7 @@ Design: same tokens as `apps/web` (brand scale, stone neutrals, radius, 1.6px bo
 
 ## Content model (Sanity)
 
-`siteSettings`, `page` (home, product, pricing, resources: heading, intro, hero buttons, ordered sections, SEO), `feature` (anchor id, theme, copy, screenshot + alt, plan, "not shipped yet"), `pricingPlan` (caps, planned price, "not purchasable yet"), `resource` (article with Portable Text body, SEO). Every document has a `language` field (`en` today); routes are already `[locale]`-based.
+`siteSettings`, `page` (home, product, pricing, resources: heading, intro, hero buttons, ordered sections, SEO), `feature` (anchor id, theme, copy, screenshot + alt, plan), `pricingPlan` (caps, price), `resource` (article with Portable Text body, SEO). Every document has a `language` field (`en` today); routes are already `[locale]`-based.
 
 Webhook: in Sanity, add a webhook on publish to `https://applyspace.app/api/revalidate` (POST, header `x-revalidate-secret`). Without it, content refreshes within 5 minutes anyway.
 
@@ -73,7 +73,7 @@ Plan caps in Sanity must match the database (`enforce_application_cap`: Free 15,
 
 1. **Sanity**: create the project and a `production` dataset (founder account, no account is created by agents). Run `pnpm studio:deploy` or host the studio; add CORS origins for the studio and site URLs. Create documents (or leave empty to keep the fallback).
 2. **Vercel**: new project from this repo with Root Directory `site`; set the env vars above; add `applyspace.app` and `www.applyspace.app` (redirect www to apex). Do not remove `demo.applyspace.app` from the app project.
-3. **Decide where the app lives** once the site takes `applyspace.app` (default assumed `app.applyspace.app`); update Supabase `site_url` and redirect URLs, OAuth names and the Vercel app project domain (announce and wait for go, per the rules). Until then set `NEXT_PUBLIC_APP_URL` to the current app URL.
+3. **Same-origin routing**: the app and the site share `applyspace.app`; signed-out visitors must get the site and signed-in users the app (for example a rewrite in the app's proxy for `/`, `/product`, `/pricing`, `/resources`). Tracked separately, not in this PR.
 4. **DNS** for the domains above (not touched here).
 5. Sanity webhook to `/api/revalidate`, Search Console, privacy policy and terms.
-6. Review the two seed articles before launch, and approve the planned prices on Pricing (or set `priceVisible` off).
+6. Review the two seed articles before launch.

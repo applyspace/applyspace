@@ -1,6 +1,6 @@
 # Website content plan
 
-Linear: APP-138 (project Website). Site code: `site/`. Copy is English first; French comes later through the same content model (`locale`), starting from the FR reference headline "Votre recherche d'emploi, enfin centralisée".
+Linear: WEB-9 (team Website, project Website; formerly APP-138). Site code: `site/`. Copy is English first; French comes later through the same content model (`locale`), starting from the FR reference headline "Votre recherche d'emploi, enfin centralisée".
 
 Titles below are the page part only: the template appends " | applyspace" (Home uses its full title).
 
@@ -8,11 +8,11 @@ Titles below are the page part only: the template appends " | applyspace" (Home 
 
 - Product name is **applyspace** in running text; the logo reads "Apply" (never altered). Domain `applyspace.app`.
 - Never use "hunt"/"hunting". Tagline to keep: "Find the right offers, track your applications and prepare your interviews."
-- Calm, factual, short sentences. No claim the product does not do today. Features not shipped yet carry a "Soon" tag (Plus/Max features, mailbox, network).
+- Calm, factual, short sentences. No claim the product does not do today. The site is written as if everything works: no "Soon", "coming soon" or "planned" labels (decision of 10 Oct, launch happens once everything is wired).
 - AI features run on the user's own AI accounts (Claude, OpenAI, Gemini). The site never promises "free AI".
-- Platform sessions (cookies) stay on the user's device. Say it plainly, do not over-claim security.
+- All data lives in the cloud (hosted database, per-user access rules). Never say data or sessions stay on the device. Do not over-claim security.
 - One primary call to action everywhere: **Start for free** (app login/onboarding). Secondary: **Sign in**.
-- Paid plans are not purchasable yet; prices on the page are planned prices and marked as such.
+- Prices are shown plainly (Free €0, Plus €0.99, Max €3.99 per month), without tags.
 
 ## Information architecture
 
@@ -31,18 +31,18 @@ Footer: Product / Resources / Pricing links, Sign in, copyright, privacy and ter
 
 ## Home (`/`)
 
-- **Title tag**: applyspace: your job search, finally in one place (≤ 60 chars)
-- **Meta description**: Find the right offers, track your applications and prepare your interviews, all in one place. Free to start. (≤ 155)
-- **H1**: Your job search, finally in one place
+- **Title tag**: applyspace: your job search, finally in one space (≤ 60 chars)
+- **Meta description**: Find the right offers, track your applications and prepare your interviews, all in one space. Free to start. (≤ 155)
+- **H1**: Your job search, finally in one space
 - Sub: Find the right offers, track your applications and prepare your interviews.
 - CTAs: Start for free / See the product
 - Hero visual: screenshot placeholder (Applications board).
-- **H2 Three jobs, one place** — three cards linking to Product anchors:
-  - Find the right offers — Search several job boards from one place with search profiles that follow your criteria. → `/product#offers-search`
+- **H2 Three jobs, one space** — three cards linking to Product anchors:
+  - Find the right offers — Search several job boards from one space with search profiles that follow your criteria. → `/product#offers-search`
   - Track your applications — Board, table, timeline or map: the same applications, the view you need. → `/product#applications-board`
   - Prepare your interviews — Keep every interview, date and note next to its application. → `/product#interview-tracking`
 - **H2 How it works** — 1 Import your resume (applyspace fills your profile, you review) · 2 Set your search (titles, places, contracts, salary) · 3 Apply and follow up.
-- **H2 Your data stays yours** — Platform sessions stay on your device. You choose what to import. AI features use your own AI accounts.
+- **H2 Your data stays yours** — Your data is stored in the cloud and scoped to your account. You choose what to import. AI features use your own AI accounts.
 - **H2 Start free, upgrade when you need more** — three plan mini cards (applications 15 / 99 / unlimited) → `/pricing`.
 - Final CTA band: Start for free.
 
@@ -57,7 +57,7 @@ JSON-LD: Organization, WebSite, SoftwareApplication.
 | Theme (H2) | Anchor | Feature (H3) | Copy (summary) | Plan |
 |---|---|---|---|---|
 | Start | `home-overview` | Home | A calm start page: your next interview, your applications at a glance, your resume. | Free |
-| Find | `offers-search` | Job offers search | Offers from the job boards you choose, listed in one place with the sources shown. | Free |
+| Find | `offers-search` | Job offers search | Offers from the job boards you choose, listed in one space with the sources shown. | Free |
 | Find | `search-profiles` | Search profiles | Titles, places worldwide, contracts, salary, sectors and company size. One profile on Free, three on Plus, unlimited on Max. | Free |
 | Track | `applications-board` | Board | Columns by status: waiting, interviewing, accepted, rejected, ghosted, withdrawn. Move a card, update a status. | Free |
 | Track | `applications-table` | Table | Sort and filter every application; choose your columns. | Free |
@@ -65,13 +65,13 @@ JSON-LD: Organization, WebSite, SoftwareApplication.
 | Track | `applications-map` | Map | Your applications by city, with remote ones listed apart. | Free |
 | Track | `application-limits` | Application cap | 15 applications on Free, 99 on Plus, unlimited on Max. | Free |
 | Prepare | `interview-tracking` | Interview tracking | Dates, steps and notes attached to each application; upcoming interviews on Home. | Free |
-| Prepare | `fit-messages` | Cover letters and fit messages | Write with your own AI account (Claude, OpenAI, Gemini) and edit without limit. | Soon |
+| Prepare | `fit-messages` | Cover letters and fit messages | Write with your own AI account (Claude, OpenAI, Gemini) and edit without limit. | Free |
 | Profile | `profile-resume-parser` | Profile and resume parser | Import a PDF or DOCX resume (3 MB max); experiences, education, skills and languages are extracted for you to review. Nothing is saved until you confirm. | Free |
-| Profile | `writing-style` | Writing style | Teach applyspace how you write for letters and messages. | Soon |
+| Profile | `writing-style` | Writing style | Teach applyspace how you write for letters and messages. | Free |
 | Control | `settings` | Settings | General, account, privacy, billing, profile, connectors, language (English and French). | Free |
-| Control | `privacy` | Privacy by design | Platform sessions stay on your device; analytics are opt-in. | Free |
+| Control | `privacy` | Privacy by design | Data stored in the cloud, scoped to your account; analytics are opt-in. | Free |
 
-"Soon" features: Plus (advanced filters, company insights, network connections, reply tracking, calendar sync) and Max (AI interview simulation, shareable progress page, custom offer source) are listed on Pricing only.
+Plus (advanced filters, company insights, network connections, reply tracking, calendar sync) and Max (AI interview simulation, shareable progress page, custom offer source) are listed on Pricing and shown like any other feature.
 
 Closing CTA: Start for free.
 JSON-LD: SoftwareApplication with featureList, BreadcrumbList.
@@ -91,12 +91,11 @@ JSON-LD: SoftwareApplication with featureList, BreadcrumbList.
 
 - **Title**: Pricing: Free, Plus and Max | **Meta**: Start free with 15 applications. Plus raises the cap to 99 and Max removes limits.
 - **H1**: Start free, upgrade when you need more
-- Notice: Plus and Max are coming soon. Prices shown are planned and may change.
 - Plans (caps match the database triggers):
 
 | | Free | Plus | Max |
 |---|---|---|---|
-| Planned price | €0 | €0.99 / mo | €3.99 / mo |
+| Price | €0 | €0.99 / mo | €3.99 / mo |
 | Applications | 15 | 99 | Unlimited |
 | Search profiles | 1 | 3 | Unlimited |
 | Interview templates | 1 | 3 | Unlimited |
@@ -104,9 +103,9 @@ JSON-LD: SoftwareApplication with featureList, BreadcrumbList.
 | Advanced search filters, company insights, network connections, reply tracking, interview calendar sync | no | yes | yes |
 | AI interview simulation, shareable progress page, custom offer source | no | no | yes |
 
-Quarterly billing: -15% (planned, not shown on the site yet). Mismatch to settle: the product decision says archived applications do not count toward the cap, but the database trigger counts every application row. The site says "whatever its status" (matches the database).
-- FAQ (also FAQPage JSON-LD): Is applyspace free? · What counts as an application? · Can I change plan later? · What happens to my data if I go back to Free? (data is kept, possibilities reduced) · Does applyspace pay for AI? (no, use your own AI account) · Where is my data stored? (hosted database with per-user access rules; job board sessions stay on the device).
-- CTAs: Start for free on every plan until billing opens.
+Quarterly billing: -15% (not shown on the site). Mismatch to settle: the product decision says archived applications do not count toward the cap, but the database trigger counts every application row. Undecided: the founder is testing the Linear free-plan limit before ruling. The site says only that every saved application counts.
+- FAQ (also FAQPage JSON-LD): Is applyspace free? · What counts as an application? · Can I change plan later? · What happens to my data if I go back to Free? (data is kept, possibilities reduced) · Does applyspace pay for AI? (no, use your own AI account) · Where is my data stored? (everything in the cloud, hosted database with per-user access rules).
+- CTAs: Start for free on every plan.
 
 ## SEO requirements per page
 
@@ -114,8 +113,7 @@ Unique title and description, one H1, logical H2/H3, canonical, Open Graph and T
 
 ## Open items for the founder
 
-- Approve planned prices on the public Pricing page (or hide them with `priceVisible` in Sanity).
-- Confirm where the app lives once the site takes `applyspace.app` (`NEXT_PUBLIC_APP_URL`, default `https://app.applyspace.app`).
+- Decided: the app lives on `applyspace.app` itself; the site is what signed-out visitors see. The routing between the two (signed-in vs signed-out on the same origin) is a separate piece of work.
 - Privacy policy and terms pages (legal text is not drafted here).
 - Real screenshots to replace placeholders.
 - French copy.
