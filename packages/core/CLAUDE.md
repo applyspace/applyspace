@@ -44,3 +44,7 @@ Tests: `pnpm --filter @apply/core test` (Node's built-in test runner; `test/regi
 - Local only: it works on bytes, so it runs in the browser and nothing is uploaded. No request to LinkedIn, no cookie, no scraping (ADR-004). A capture from the user's own session on their device (desktop or extension) is NOT implemented; it needs the terms-of-service review of APP-77 first.
 - `linkedin/csv.ts`: small RFC 4180 reader (quotes, line breaks in cells, BOM, a note before the header).
 - Reuses `extract/zip.ts` from APP-107. The export has no profile URL and no years of experience: years and seniority are derived like for resumes.
+
+## Saving a reviewed import (`@apply/core/resume`, APP-110)
+
+`planProfileImport(resume, existing, { placeholderJobTitle })` is the pure merge step between the review screen and the database: it returns what to create (`experiences`, `education`, `skills`, `account` names, `jobTitle`), what already exists (`duplicates`), what the database would refuse (`incomplete`: no title or start date, no school) and what has no table yet (`keptForLater`: languages, certifications, links, summary, location, until the APP-119 migration is applied and wired). Merge keys: experience = company + title + start month, education = school + degree + end, skill = name; case, accents and punctuation are ignored. Nothing is overwritten or deleted, so re-importing the same resume adds nothing. The web side (`apps/web/src/lib/profileImport.ts`) only executes the plan.
