@@ -363,7 +363,9 @@ export interface RulesOptions {
 
 export function parseResumeWithRules(text: string, options: RulesOptions = {}): ParsedResume {
   const now = options.now ?? new Date();
-  const sections: Section[] = splitSections(text.replace(/\r\n?/g, '\n'));
+  // Very long lines (minified text, pasted blobs) are wrapped: the patterns below are quadratic on them.
+  text = text.replace(/\r\n?/g, '\n').replace(/[^\n]{400}/g, '$&\n');
+  const sections: Section[] = splitSections(text);
   const resume = emptyParsedResume('resume');
   const header = sectionLines(sections, 'header').filter((l) => l.trim());
   const contact = [...header, ...sectionLines(sections, 'contact')].filter((l) => l.trim());
