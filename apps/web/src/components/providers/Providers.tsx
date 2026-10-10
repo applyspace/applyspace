@@ -122,12 +122,13 @@ function AnalyticsIdentity() {
     () => 'pending' as const,
   );
   const userId = user?.id;
+  const userEmail = user?.email;
 
   useEffect(() => {
     if (consent !== 'granted') return;
     analytics.registerPlatform();
-    if (userId) analytics.identify({ id: userId }, { locale });
-  }, [consent, userId, locale]);
+    if (userId) analytics.identify({ id: userId, email: userEmail }, { locale });
+  }, [consent, userId, userEmail, locale]);
 
   return null;
 }
